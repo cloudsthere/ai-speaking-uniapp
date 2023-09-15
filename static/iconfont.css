@@ -1,0 +1,41 @@
+@font-face {
+  font-family: "iconfont"; 
+  src: url('/static/iconfont.ttf') format('truetype');
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 16px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-touxiang:before {
+  content: "\e62c";
+}
+
+.icon-lujing:before {
+  content: "\e621";
+}
+
+.icon-laba:before {
+  content: "\e600";
+}
+
+.icon-fanyi:before {
+  content: "\e6ba";
+}
+
+.icon-shouye1:before {
+  content: "\e639";
+}
+
+.icon-wode:before {
+  content: "\e8a0";
+}
+
+.icon-duihua:before {
+  content: "\e626";
+}
+
