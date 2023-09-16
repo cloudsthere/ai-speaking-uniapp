@@ -23,24 +23,58 @@ export default {
 	/**
 	 * @param {string} date_str YYYY-mm-dd
 	 */
-	readableDate(date_str) {
-		// console.log(date_str)
-		// return '明天'
-		var date = new Date(date_str + ' 00:00:00');
-		var today = this.todayStartOf()
-		// var day_diff = Math.floor(Madow,'day'));
-		// return;
-		var a = new Array("日", "一", "二", "三", "四", "五", "六");
-		var fdate = (date.getMonth() + 1) + '月' + date.getDate() + '日 星期' + a[date.getDay()]
-		// console.log(parseInt(date.getTime() / 1000))
-		// console.log('today', today)
-		if (parseInt(date.getTime() / 1000) == today) {
-			fdate = '今天 ' + fdate
-		} else if (parseInt(date.getTime() / 1000) == today + 86400) {
-			fdate = '明天 ' + fdate
+	readableDate(dateTime) {
+		if (!dateTime) {
+			return '';
 		}
-		// console.log(fdate)
-		return fdate;
+		// console.log(dateTime)
+		// 用毫秒表示分钟、小时、天、周、月
+		let minute = 1000 * 60;
+		let hour = minute * 60;
+		let day = hour * 24;
+		let week = day * 7;
+		let month = day * 30;
+		// 获取当前时间并转换为时间戳，方便计算
+		let timestamp_current = new Date().getTime();
+
+		// 将传入的时间格式字符串解析为Date对象
+		let _date = new Date(dateTime);
+
+		// 将Date对象转换为时间戳，方便计算
+		let timestamp_input = _date.getTime();
+
+		// 计算当前时间与传入的时间之间相差的时间戳
+		let timestamp_diff = timestamp_current - timestamp_input;
+
+		// 计算时间差共有多少个分钟
+		let minC = timestamp_diff / minute;
+		// 计算时间差共有多少个小时
+		let hourC = timestamp_diff / hour;
+		// 计算时间差共有多少个天
+		let dayC = timestamp_diff / day;
+		// 计算时间差共有多少个周
+		let weekC = timestamp_diff / week;
+		// 计算时间差共有多少个月
+		let monthC = timestamp_diff / month;
+
+		// if (monthC >= 1 && monthC < 4) {
+		//     return parseInt(monthC) + "月前";
+		// } else if (weekC >= 1 && weekC < 4) {
+		//     return parseInt(weekC) + "周前";
+		// } else if (dayC >= 1 && dayC < 7) {
+		//     return parseInt(dayC) + "天前";
+		if (hourC >= 1 && hourC < 24) {
+			return parseInt(hourC) + "小时前";
+		} else if (minC >= 1 && minC < 60) {
+			return parseInt(minC) + "分钟前";
+		} else if ((timestamp_diff >= 0) && (timestamp_diff <= minute)) {
+			// 时间差大于0并且小于1分钟
+			return "刚刚";
+		} else {
+			// return _date.getFullYear() + "-" + _date.getMonth() + "-" + _date.getDate();
+			return (_date.getMonth() + 1) + "-" + _date.getDate() + ' ' + _date.getHours().toString().padStart(2, '0') +
+				':' + _date.getMinutes().toString().padStart(2, '0')
+		}
 	},
 	// 当天0点时间戳
 	todayStartOf() {
@@ -93,7 +127,7 @@ export default {
 						getApp().globalData.token = null
 						uni.removeStorageSync('token')
 						uni.removeStorageSync('token_expires_at')
-					
+
 						uni.reLaunch({
 							url: '/pages/index/index',
 							success() {
@@ -103,8 +137,8 @@ export default {
 								// console.log('relaunch complete', res)
 							}
 						})
-					
-					
+
+
 					} else {
 						success(res.data)
 					}
@@ -113,7 +147,7 @@ export default {
 				complete(res) {
 					// console.log('complete', res)
 					// token 过期
-					
+
 				},
 				fail(res) {
 					// console.log('fail', res)
@@ -125,7 +159,7 @@ export default {
 					Platform: this.platform
 				}
 			}
-			console.log(request_object)
+			// console.log(request_object)
 			uni.request(request_object)
 		})
 
@@ -160,45 +194,46 @@ export default {
 						func(token)
 					}
 				}, 100)
-				
+
 				if (!that.is_waiting_login) {
 					that.is_waiting_login = true
 					// console.log('发login请求')
 					uni.login({
 						success: function(res) {
-							
-								uni.request({
-									url: that.domain + '/api/login',
-									method: 'POST',
-									data: {
-										code: res.code,
-									},
-									header: {
-										Accept: 'application/json',
-										Version: that.version,
-										Platform: that.platform
-									},
-									success(login_res) {
-										// console.log('login success')
-										// console.log(login_res)
-										getApp().globalData.token = login_res.data.token
-										uni.setStorageSync('token', login_res.data.token)
-										uni.setStorageSync('token_expires_at', new Date().getTime() + 86400000)
-										
-										// 打开锁
-										that.is_waiting_login = false
-									}
-								})
-							
-							
+
+							uni.request({
+								url: that.domain + '/api/login',
+								method: 'POST',
+								data: {
+									code: res.code,
+								},
+								header: {
+									Accept: 'application/json',
+									Version: that.version,
+									Platform: that.platform
+								},
+								success(login_res) {
+									// console.log('login success')
+									// console.log(login_res)
+									getApp().globalData.token = login_res.data.token
+									uni.setStorageSync('token', login_res.data.token)
+									uni.setStorageSync('token_expires_at', new Date().getTime() +
+										86400000)
+
+									// 打开锁
+									that.is_waiting_login = false
+								}
+							})
+
+
 						}
 					})
 				}
-				
+
 			}
 		}
-		
-		 
+
+
 
 	},
 	readableDate(dateTime) {

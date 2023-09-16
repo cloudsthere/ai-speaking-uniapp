@@ -1,18 +1,18 @@
 <template>
 	<view class="content">
-		<view class="session flex shadow-md text-sm justify-between p-4" v-for="conv in convs">
+		<navigator :url="'/pages/conversation/show?conv_id=' + conv.id" class="session flex shadow-md text-sm justify-between p-2 mb-4 mx-2" v-for="conv in convs" :key="conv.id">
 			<view class="info">
-				<view class="name">
+				<view class="name text-lg">
 					{{conv.name}}
 				</view>
-				<view class="time">
-					{{conv.exited_at}}
+				<view class="time text-sm text-gray-400">
+					{{utils.readableDate(conv.exited_at)}}
 				</view>
 			</view>
-			<view class="buttons">
+			<view class="buttons mt-2">
 				<button>继续</button>
 			</view>
-		</view>
+		</navigator>
 	</view>
 </template>
 
@@ -22,6 +22,7 @@
 	export default {
 		data() {
 			return {
+				utils,
 				convs: [],
 			}
 		},

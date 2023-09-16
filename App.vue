@@ -14,6 +14,7 @@
 
 <style>
 	@import "@/static/iconfont.css";
+	@import "@/dist/tailwind.css";
 	/* @import "@/app.css"; */
 	/*每个页面公共css */
 </style>

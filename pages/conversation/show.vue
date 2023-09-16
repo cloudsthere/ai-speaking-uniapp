@@ -89,6 +89,7 @@
 				recoManager: null,
 				voice_file: null,
 				question: '',
+				tik: null,
 				// playing_message: null,
 			}
 		},
@@ -106,8 +107,6 @@
 				var url = '/api/conversation/' + options.conv_id
 				var data = {}
 			}
-			
-
 			
 
 			utils.request(method, url, data, (res) => {
@@ -149,6 +148,16 @@
 			}
 			// this.recoManager.start({duration:30000, lang: "zh_CN"})
 
+			// 每10秒上报
+			this.tik = setInterval(() => {
+				utils.request('POST', '/api/tik/' + this.conv.id, {}, () => {})
+			}, 10000)
+		},
+		onHide() {
+			innerAudioContext.stop();
+		},
+		onUnload() {
+			innerAudioContext.stop();
 		},
 		methods: {
 			sendQuestion() {
@@ -202,7 +211,7 @@
 				var query = wx.createSelectorQuery();
 				query.select('.content').boundingClientRect();
 				query.exec(function(res) {
-					console.log(res[0])
+					// console.log(res[0])
 					if (res[0]) {
 						uni.pageScrollTo({
 							scrollTop: res[0].height + 900
