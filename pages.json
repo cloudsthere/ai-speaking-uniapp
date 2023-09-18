@@ -42,6 +42,33 @@
 		    }
 		    
 		}
+        ,{
+            "path" : "pages/auth/login",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "登录",
+                "enablePullDownRefresh": false
+            }
+            
+        }
+		,{
+		    "path" : "pages/auth/mobile",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "登录",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/home/price",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "升级会员",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
@@ -52,7 +79,7 @@
 	"uniIdRouter": {},
 	"tabBar": {
 		"color": "#7A7E83",
-		"selectedColor": "#1296db",
+		"selectedColor": "#38b5b3",
 		"borderStyle": "black",
 		"backgroundColor": "#ffffff",
 		"list": [

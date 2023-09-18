@@ -1,7 +1,7 @@
 <template>
 	<view class="content">
 		<template v-for="message in messages" :key="message.id">
-			<view class="session ai-session" v-if="message.role == 'assistant'">
+			<view class="session ai-session text-gray-600" v-if="message.role == 'assistant'">
 				<image class="avatar" :src="conv.avatar" mode=""></image>
 				<view class="message-box">
 					<view class="message-text">{{message.content}}</view>
@@ -12,7 +12,7 @@
 				</view>
 				<view class="placeholder"></view>
 			</view>
-			<view class="session user-session" v-if="message.role == 'user'">
+			<view class="session user-session text-gray-600" v-if="message.role == 'user'">
 				<image class="avatar" src="@/static/user-avatar.png" mode=""></image>
 				<view class="message-box">
 					<view class="message-text">{{message.content}}</view>
@@ -39,10 +39,10 @@
 			</view>
 		</view>
 	</view>
-	<view class="dashboard">
+	<view class="dashboard bg-gray-100">
 		<input v-model="question" @keyup.enter="sendQuestion" style="width: 80%; border: 1px; background: white;">
 		<button @click="sendQuestion">发送</button>
-		<button class="btn-speak" @longpress="handleRecordStart" @touchmove="handleTouchMove"
+		<button class="btn-speak text-gray-400" @longpress="handleRecordStart" @touchmove="handleTouchMove"
 			@touchend="handleRecordStop" @tap="testSend">按住 说话</button>
 	</view>
 </template>
@@ -154,12 +154,17 @@
 			}, 10000)
 		},
 		onHide() {
-			innerAudioContext.stop();
+			this.cleanUp()
 		},
 		onUnload() {
-			innerAudioContext.stop();
+			this.cleanUp()
 		},
 		methods: {
+			cleanUp() {
+				innerAudioContext.stop();
+				clearInterval(this.tik)
+				this.tik = null
+			},
 			sendQuestion() {
 				this.sendMessage(this.question)
 				this.question = ''
@@ -249,7 +254,7 @@
 
 <style lang="scss">
 	page {
-		background-color: $gray-100;
+		background-color: rgb(243 244 246);
 	}
 
 	.content {
@@ -260,7 +265,6 @@
 	.session {
 		display: flex;
 		font-size: 14px;
-		color: $gray-600;
 		margin-top: 40rpx;
 		gap: 20rpx;
 
@@ -321,14 +325,12 @@
 		bottom: 0;
 		right: 0;
 		left: 0;
-		background-color: $gray-100;
 
 		.btn-speak {
 			width: 80%;
 			background-color: white;
 			border-radius: 50px;
 			text-align: center;
-			color: $gray-400;
 		}
 	}
 
