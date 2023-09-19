@@ -93,13 +93,17 @@
 						signType: wxpay.signType,
 						paySign: wxpay.paySign,
 						success(res) {
-							console.log('success')
-							console.log(res)
-							uni.hideLoading()
+							// console.log('success')
+							// console.log(res)
+							// uni.hideLoading()
+							uni.switchTab({
+								url: '/pages/mine/mine'
+							})
 						},
 						fail(res) {
-							console.log('success')
+							console.log('fail')
 							console.log(res)
+							uni.hideLoading()
 						}
 					}
 					// console.log(payment)

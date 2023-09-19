@@ -90,6 +90,8 @@
 				voice_file: null,
 				question: '',
 				tik: null,
+				dialog_id: null,
+				creating_dialog: false,
 				// playing_message: null,
 			}
 		},
@@ -116,6 +118,7 @@
 				uni.setNavigationBarTitle({
 					title: that.conv.name
 				})
+				that.createDialog()
 				// console.log(that.messages[that.messages.length - 1])
 				that.scrollToBottom()
 				that.play(that.messages[that.messages.length - 1])
@@ -148,10 +151,11 @@
 			}
 			// this.recoManager.start({duration:30000, lang: "zh_CN"})
 
-			// 每10秒上报
-			this.tik = setInterval(() => {
-				utils.request('POST', '/api/tik/' + this.conv.id, {}, () => {})
-			}, 10000)
+		},
+		onShow() {
+			if (!creating_dialog && !this.dialog_id) {
+				this.createDialog()
+			}
 		},
 		onHide() {
 			this.cleanUp()
@@ -164,6 +168,17 @@
 				innerAudioContext.stop();
 				clearInterval(this.tik)
 				this.tik = null
+				utils.request('POST', '/api/dialog/' + this.dialog_id + '/end', {}, (res) => {
+					// console.log(res)
+				})
+			},
+			createDialog() {
+				this.creating_dialog = true
+				var that = this
+				utils.request('POST', '/api/dialog', {conv_id: this.conv.id}, (res) => {
+					that.dialog_id = res.dialog_id
+					that.creating_dialog = false
+				})
 			},
 			sendQuestion() {
 				this.sendMessage(this.question)

@@ -1,6 +1,6 @@
 export default {
-	domain: 'https://sp.ai-cn.net',
-	// domain: 'http://ai-speaking.test',
+	// domain: 'https://sp.ai-cn.net',
+	domain: 'http://ai-speaking.test',
 	// #ifdef MP-WEIXIN
 	version: 'wx-0.0.8',
 	// #endif
@@ -34,7 +34,8 @@ export default {
 		}
 	},
 	getUser() {
-		if (!getApp().globalData.user) {
+		let user = getApp().globalData.user
+		if (!user) {
 			let user = uni.getStorageSync('user')
 			if (user) {
 				getApp().globalData.user = user
@@ -49,6 +50,10 @@ export default {
 	setUser(user) {
 		getApp().globalData.user = user
 		uni.setStorageSync('user', user)
+	},
+	deleteUser() {
+		getApp().globalData.user = null
+		uni.removeStorageSync('user')
 	},
 	/**
 	 * @param {string} date_str YYYY-mm-dd
@@ -181,6 +186,10 @@ export default {
 				},
 				fail(res) {
 					// console.log('fail', res)
+					uni.showToast({
+						title: '网络错误，请稍后再试',
+						icon: 'error',
+					})
 				},
 				header: {
 					Authorization: 'Bearer ' + token,

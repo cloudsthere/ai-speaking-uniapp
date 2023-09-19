@@ -33,6 +33,10 @@
   top: 0px
 }
 
+.z-10 {
+  z-index: 10
+}
+
 .m-auto {
   margin: auto
 }
@@ -68,6 +72,10 @@
 
 .grid {
   display: grid
+}
+
+.w-full {
+  width: 100%
 }
 
 .grid-cols-2 {
@@ -112,6 +120,14 @@
 
 .rounded-lg {
   border-radius: 0.5rem
+}
+
+.rounded {
+  border-radius: 0.25rem
+}
+
+.rounded-3xl {
+  border-radius: 1.5rem
 }
 
 .border {
@@ -187,6 +203,16 @@
   padding-bottom: 1rem
 }
 
+.px-1 {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem
+}
+
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem
+}
+
 .pb-4 {
   padding-bottom: 1rem
 }
@@ -240,6 +266,11 @@
   line-height: 1.75rem
 }
 
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem
+}
+
 .font-medium {
   font-weight: 500
 }
@@ -267,6 +298,11 @@
 .text-slate-800 {
   --tw-text-opacity: 1;
   color: rgb(30 41 59 / var(--tw-text-opacity))
+}
+
+.text-white {
+  --tw-text-opacity: 1;
+  color: rgb(255 255 255 / var(--tw-text-opacity))
 }
 
 .shadow-md {

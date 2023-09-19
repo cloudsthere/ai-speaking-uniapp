@@ -2,19 +2,22 @@
 	<view class="content">
 
 		<view class="p-4 bg-white">
-			<view
-				class="flex gap-4 items-start border-b border-gray-100 items-stretch pb-4"
-				v-if="user">
-				<image :src="user.avatar" class="avatar" mode=""></image>
-				<view class="flex flex-col justify-between">
-					<view class="text-xl font-medium">
-						{{user.name}}
+			<view class="flex gap-4 items-start border-b border-gray-100 items-stretch pb-4">
+				<template v-if="user">
+					<image :src="user.avatar" class="avatar" mode=""></image>
+					<view class="flex flex-col justify-between">
+						<view class="text-xl font-medium">
+							{{user.name}}
+						</view>
+						<view class="flex items-center">
+							<uni-icons custom-prefix="iconfont" type="icon-fanyi" size="20"></uni-icons>
+							<text class="text-sm text-gray-400">普通会员</text>
+						</view>
 					</view>
-					<view class="flex items-center">
-						<uni-icons custom-prefix="iconfont" type="icon-fanyi" size="20"></uni-icons>
-						<text class="text-sm text-gray-400">普通会员</text>
-					</view>
-				</view>
+				</template>
+				<navigator url="/pages/auth/login" class="login-text w-full m-auto flex flex-col justify-center items-center" v-else>
+					<view class="text-xl">登录/注册</view>
+				</navigator>
 			</view>
 			<view class="flex justify-between px-4">
 				<view class="flex flex-col justify-between items-center pt-4 gap-2">
@@ -32,6 +35,12 @@
 			</view>
 		</view>
 		<view class="px-4 bg-white mt-4">
+			<view class="flex items-center gap-3 py-4">
+				<navigator url="/pages/home/price" class="w-full bg-primary text-color-white flex justify-between rounded p-2 items-center">
+					<view class="text-white">加入会员<span class="px-1">•</span>享更多权益</view>
+					<view class="bg-white rounded-3xl text-primary py-2 px-3 text-xs">购买会员</view>
+				</navigator>
+			</view>
 			<view class="flex items-center gap-3 border-b border-gray-100 py-4">
 				<uni-icons custom-prefix="iconfont" type="icon-fanyi" size="20"></uni-icons>
 				<view class="">
@@ -45,7 +54,7 @@
 				</view>
 			</view>
 		</view>
-		
+
 		<view class="px-4 bg-white mt-4">
 			<view class="flex items-center gap-3 border-b border-gray-100 py-4">
 				<uni-icons custom-prefix="iconfont" type="icon-fanyi" size="20"></uni-icons>
@@ -53,10 +62,10 @@
 					钱包
 				</view>
 			</view>
-			<view class="flex items-center gap-3 py-4">
+			<view class="flex items-center gap-3 py-4" @tap="showLogout">
 				<uni-icons custom-prefix="iconfont" type="icon-fanyi" size="20"></uni-icons>
 				<view class="">
-					钱包
+					退出登录
 				</view>
 			</view>
 		</view>
@@ -73,10 +82,41 @@
 			}
 		},
 		onLoad() {
-
+			
+		},
+		onShow() {
+			console.log('onshow')
+			// 登录页跳来
+			this.user = utils.getUser()
 		},
 		methods: {
-
+			showLogout() {
+				var that = this
+				uni.showModal({
+					// title: '确认退出登录吗',
+					content: '确认退出登录吗',
+					success: function (res) {
+						if (res.confirm) {
+							// console.log('用户点击确定');
+							that.logout()
+						} else if (res.cancel) {
+							// console.log('用户点击取消');
+						}
+					}
+				});
+			},
+			logout() {
+				if (this.user) {
+					// console.log('request')
+					utils.request('POST', '/api/logout', {}, (res) => {
+						utils.deleteUser()
+						uni.reLaunch({
+							url: '/pages/mine/mine',
+						})
+					})
+				}
+				
+			}
 		}
 	}
 </script>
@@ -90,5 +130,11 @@
 	.avatar {
 		width: 80px;
 		height: 80px;
+	}
+	.login-text {
+		height: 80px;
+	}
+	.bg-gradient {
+		background-image: linear-gradient(to bottom, #38b5b3, #4dc3c1, #60d2d0, #72e0de, #83efed);
 	}
 </style>
