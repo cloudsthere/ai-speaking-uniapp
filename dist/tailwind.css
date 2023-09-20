@@ -118,16 +118,16 @@
   gap: 1rem
 }
 
-.rounded-lg {
-  border-radius: 0.5rem
-}
-
 .rounded {
   border-radius: 0.25rem
 }
 
 .rounded-3xl {
   border-radius: 1.5rem
+}
+
+.rounded-lg {
+  border-radius: 0.5rem
 }
 
 .border {
@@ -141,10 +141,6 @@
 
 .border-b {
   border-bottom-width: 1px
-}
-
-.border-l {
-  border-left-width: 1px
 }
 
 .border-t-0 {
@@ -188,6 +184,16 @@
   padding: 1rem
 }
 
+.px-1 {
+  padding-left: 0.25rem;
+  padding-right: 0.25rem
+}
+
+.px-3 {
+  padding-left: 0.75rem;
+  padding-right: 0.75rem
+}
+
 .px-4 {
   padding-left: 1rem;
   padding-right: 1rem
@@ -201,16 +207,6 @@
 .py-4 {
   padding-top: 1rem;
   padding-bottom: 1rem
-}
-
-.px-1 {
-  padding-left: 0.25rem;
-  padding-right: 0.25rem
-}
-
-.px-3 {
-  padding-left: 0.75rem;
-  padding-right: 0.75rem
 }
 
 .pb-4 {

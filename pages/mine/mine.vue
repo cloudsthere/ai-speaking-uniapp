@@ -11,7 +11,7 @@
 						</view>
 						<view class="flex items-center">
 							<uni-icons custom-prefix="iconfont" type="icon-fanyi" size="20"></uni-icons>
-							<text class="text-sm text-gray-400">普通会员</text>
+							<text class="text-sm text-gray-400">{{member.plan_name}}</text>
 						</view>
 					</view>
 				</template>
@@ -22,15 +22,15 @@
 			<view class="flex justify-between px-4">
 				<view class="flex flex-col justify-between items-center pt-4 gap-2">
 					<view class="text-gray-400 text-sm">套餐剩余</view>
-					<view class="text-xl">89小时</view>
+					<view class="text-xl">{{member.duration}}</view>
 				</view>
 				<view class="flex flex-col justify-between items-center pt-4 gap-2">
 					<view class="text-gray-400 text-sm">已使用</view>
-					<view class="text-xl">35分钟</view>
+					<view class="text-xl">{{member.used_duration}}</view>
 				</view>
 				<view class="flex flex-col justify-between items-center pt-4 gap-2">
 					<view class="text-gray-400 text-sm">已赠送</view>
-					<view class="text-xl">3分钟</view>
+					<view class="text-xl">{{member.given_duration}}</view>
 				</view>
 			</view>
 		</view>
@@ -79,15 +79,26 @@
 		data() {
 			return {
 				user: utils.getUser(),
+				member: {
+					duration: '-',
+					used_duration: '-',
+					given_duration: '-',
+				},
 			}
 		},
 		onLoad() {
 			
 		},
 		onShow() {
-			console.log('onshow')
+			// console.log('onshow')
 			// 登录页跳来
 			this.user = utils.getUser()
+			
+			var that = this
+			utils.request('GET', '/api/member', {}, (res) => {
+				// console.log(res)
+				that.member = res.member
+			})
 		},
 		methods: {
 			showLogout() {

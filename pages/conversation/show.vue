@@ -6,8 +6,12 @@
 				<view class="message-box">
 					<view class="message-text">{{message.content}}</view>
 					<view class="message-dashboard">
-						<uni-icons custom-prefix="iconfont" type="icon-fanyi" size="20"></uni-icons>
-						<uni-icons @click="switchPlay(message)" :class="{playing: message.playing}" custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons>
+						<uni-icons @click="translate(message)" custom-prefix="iconfont" type="icon-fanyi" size="20"></uni-icons>
+						<uni-icons @click="switchPlay(message)" :class="{playing: message.playing}"
+							custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons>
+					</view>
+					<view class="mt-2">
+						{{message.translate}}
 					</view>
 				</view>
 				<view class="placeholder"></view>
@@ -17,8 +21,11 @@
 				<view class="message-box">
 					<view class="message-text">{{message.content}}</view>
 					<view class="message-dashboard">
-						<uni-icons custom-prefix="iconfont" type="icon-fanyi" size="20"></uni-icons>
-						<uni-icons @click="switchPlay(message)" :class="{playing: message.playing}" custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons>
+						<!--
+						<uni-icons @click="translate(message)" custom-prefix="iconfont" type="icon-fanyi" size="20"></uni-icons>
+						-->
+						<uni-icons @click="switchPlay(message)" :class="{playing: message.playing}"
+							custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons>
 					</view>
 				</view>
 				<view class="placeholder"></view>
@@ -38,17 +45,21 @@
 				</view>
 			</view>
 		</view>
+		<view class="text-center text-gray-600 mt-4" v-if="status == 'halt'">
+			<text>没有可用时长，</text>
+			<navigator url="/pages/home/price" class="text-primary inline">购买会员→</navigator>
+		</view>
 	</view>
 	<view class="dashboard bg-gray-100">
 		<input v-model="question" @keyup.enter="sendQuestion" style="width: 80%; border: 1px; background: white;">
 		<button @click="sendQuestion">发送</button>
 		<button class="btn-speak text-gray-400" @longpress="handleRecordStart" @touchmove="handleTouchMove"
-			@touchend="handleRecordStop" @tap="testSend">按住 说话</button>
+			@touchend="handleRecordStop">按住 说话</button>
 	</view>
 </template>
 
 <script>
-	import utils from '@/utils.js'
+	import utils from '@/utils.js';
 
 	// const recorderManager = uni.getRecorderManager();
 	const innerAudioContext = uni.createInnerAudioContext({
@@ -69,19 +80,19 @@
 			innerAudioContext.message.playing = false
 		}
 	});
-	
+
 	innerAudioContext.onError((res) => {
 		console.log(res.errMsg);
 		console.log(res.errCode);
-	    if (innerAudioContext.message) {
-	    	innerAudioContext.message.playing = false
-	    }
+		if (innerAudioContext.message) {
+			innerAudioContext.message.playing = false
+		}
 	});
 
 	export default {
 		data() {
 			return {
-				// none: 没有情况，recording: 用户录音，thinking: AI思考中，思考完后又回到none
+				// none: 没有情况，recording: 用户录音，thinking: AI思考中，思考完后又回到none， halt:没钱停机
 				status: 'none',
 				conv: {},
 				messages: [],
@@ -91,7 +102,6 @@
 				question: '',
 				tik: null,
 				dialog_id: null,
-				creating_dialog: false,
 				// playing_message: null,
 			}
 		},
@@ -109,19 +119,23 @@
 				var url = '/api/conversation/' + options.conv_id
 				var data = {}
 			}
-			
+
 
 			utils.request(method, url, data, (res) => {
-				// console.log(res)
+				if (res.halt) {
+					that.status = 'halt'
+				}
 				that.conv = res.conversation
 				that.messages = res.messages
 				uni.setNavigationBarTitle({
-					title: that.conv.name
+					title: that.conv.name ?? '会话'
 				})
-				that.createDialog()
 				// console.log(that.messages[that.messages.length - 1])
 				that.scrollToBottom()
-				that.play(that.messages[that.messages.length - 1])
+				if (that.messages[that.messages.length - 1]) {
+					that.play(that.messages[that.messages.length - 1])
+				}
+				
 			})
 
 
@@ -153,9 +167,7 @@
 
 		},
 		onShow() {
-			if (!creating_dialog && !this.dialog_id) {
-				this.createDialog()
-			}
+			this.createDialog()
 		},
 		onHide() {
 			this.cleanUp()
@@ -164,21 +176,44 @@
 			this.cleanUp()
 		},
 		methods: {
+			translate(message) {
+				if (!message.translate) {
+					utils.request('POST', '/api/translate', {source: message.content}, (res) => {
+						// console.log(res)
+						message.translate = res.translate
+					})
+				}
+				
+			},
 			cleanUp() {
 				innerAudioContext.stop();
 				clearInterval(this.tik)
 				this.tik = null
-				utils.request('POST', '/api/dialog/' + this.dialog_id + '/end', {}, (res) => {
-					// console.log(res)
-				})
+				if (this.dialog_id) {
+					utils.request('POST', '/api/dialog/' + this.dialog_id + '/end', {}, (res) => {
+						// console.log(res)
+					})
+				}
+				
 			},
 			createDialog() {
-				this.creating_dialog = true
 				var that = this
-				utils.request('POST', '/api/dialog', {conv_id: this.conv.id}, (res) => {
-					that.dialog_id = res.dialog_id
-					that.creating_dialog = false
-				})
+				var sil = setInterval(() => {
+					if (that.conv.id) {
+						clearInterval(sil)
+						// console.log(that.conv)
+						utils.request('POST', '/api/dialog', {
+							conv_id: that.conv.id
+						}, (res) => {
+							that.dialog_id = res.dialog_id
+						})
+					}
+					if (that.status == 'halt') {
+						clearInterval(sil)
+					}
+				}, 300)
+				// console.log('this.conv', this.conv)
+
 			},
 			sendQuestion() {
 				this.sendMessage(this.question)
@@ -210,6 +245,14 @@
 			},
 			handleRecordStart() {
 				innerAudioContext.stop()
+				
+				if (this.status == 'halt') {
+					uni.showToast({
+						title: '没有可用时长，请先购买会员',
+						icon: 'none'
+					})
+					return;
+				}
 
 				// #ifdef MP-WEIXIN
 				wx.vibrateShort({
@@ -220,7 +263,7 @@
 				this.recoManager.start({
 					lang: "en_US"
 				})
-				
+
 				this.status = 'recording'
 			},
 			handleRecordStop() {
@@ -248,17 +291,30 @@
 					audio_url: this.voice_file
 				})
 				this.scrollToBottom()
-				
+
 				this.status = 'thinking'
-				
+
 				utils.request('POST', '/api/message', {
 					content,
 					conv_id: that.conv.id
 				}, (res) => {
-					that.messages.push(res.message)
-					that.play(that.messages[that.messages.length - 1])
-					that.scrollToBottom()
-					that.status = 'none'
+					if (res.error == 0) {
+						that.messages.push(res.message)
+						that.play(that.messages[that.messages.length - 1])
+						that.scrollToBottom()
+						that.status = 'none'
+					} else {
+						if (res.error == 102) {
+							that.status = 'halt'
+						} else {
+							uni.showToast({
+								title: '网络错误，请稍后再试',
+								icon: 'none',
+							})
+						}
+
+					}
+
 				})
 
 
@@ -315,11 +371,12 @@
 
 	.user-session {
 		flex-direction: row-reverse;
+
 		.message-dashboard {
 			justify-content: flex-end;
 		}
 	}
-	
+
 
 	.recording {
 		.message-box {
@@ -327,7 +384,7 @@
 			width: 60px;
 		}
 	}
-	
+
 	.playing {
 		text {
 			color: #1296db !important;

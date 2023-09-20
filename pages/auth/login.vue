@@ -64,6 +64,7 @@
 					// console.log(res)
 					if (res.error == 0) {
 						utils.setUser(res.user)
+						utils.setToken(res.token)
 						uni.showToast({
 							title: '成功',
 

@@ -51,6 +51,10 @@ export default {
 		getApp().globalData.user = user
 		uni.setStorageSync('user', user)
 	},
+	setToken(token) {
+		getApp().globalData.token = token
+		uni.setStorageSync('token', token)
+	},
 	deleteUser() {
 		getApp().globalData.user = null
 		uni.removeStorageSync('user')
@@ -216,13 +220,15 @@ export default {
 			// console.log('全局token')
 			func(token)
 		} else {
-			let expire = uni.getStorageSync('token_expires_at');
-			if (expire && expire > new Date().getTime()) {
+			token = uni.getStorageSync('token')
+			// console.log('storage token', token)
+			if (token) {
 				// 本地有可用token，执行
 				// console.log('本地')
-				app.globalData.token = uni.getStorageSync('token')
+				app.globalData.token = token
 				func(app.globalData.token)
 			} else {
+				// console.log('请求token')
 				// 无可用token
 				let that = this
 				var sit = setInterval(function() {
@@ -254,10 +260,8 @@ export default {
 								success(login_res) {
 									// console.log('login success')
 									// console.log(login_res)
-									getApp().globalData.token = login_res.data.token
-									uni.setStorageSync('token', login_res.data.token)
-									uni.setStorageSync('token_expires_at', new Date().getTime() +
-										86400000)
+									that.setToken(login_res.data.token)
+									// uni.setStorageSync('token_expires_at', login_res.data.expires_at)
 
 									// 打开锁
 									that.is_waiting_login = false

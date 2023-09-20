@@ -109,6 +109,7 @@
 						return;
 					} else {
 						utils.setUser(res.user)
+						utils.setToken(res.token)
 						uni.showToast({
 							title: '成功',
 						
