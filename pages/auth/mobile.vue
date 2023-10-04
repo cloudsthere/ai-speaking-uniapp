@@ -4,7 +4,7 @@
 		<view class="flex flex-col gap-4">
 			<view class="relative">
 				<view class="text-gray-600 absolute left-0 top-0 bottom-0 flex flex-col items-center justify-center"><text>+86</text></view>
-				<input name="mobile" type="number" v-model="mobile" placeholder="手机号" class="pl-10 py-2 border-b border-x-0 border-t-0 text-left border-gray-200 border-solid"/>
+				<input name="phone" type="number" v-model="phone" placeholder="手机号" class="pl-10 py-2 border-b border-x-0 border-t-0 text-left border-gray-200 border-solid"/>
 			</view>
 			<view class="relative">
 				<input name="code" v-model="code" placeholder="验证码" type="number" class="py-2 border-b border-x-0 border-t-0 text-left border-gray-200 border-solid"/>
@@ -27,18 +27,25 @@
 </template>
 
 <script>
-	import utils from '@/utils.js';
+	import utils from '@/common/utils.js';
+	
 	
 	export default {
 		data() {
 			return {
 				checked: false,
-				mobile: '18318636051',
+				phone: '',
 				code: '',
 				// none, sending, counting
 				status: 'none',
 				counter: 60,
 			}
+		},
+		onShareAppMessage(res) {
+			return utils.share()
+		},
+		onShareTimeline(res) {
+			return utils.share()
 		},
 		methods: {
 			sendCode() {
@@ -53,7 +60,7 @@
 				}
 				
 				this.status = 'sending'
-				utils.request('GET', '/api/send-code', {mobile: this.mobile}, (res) => {
+				utils.request('GET', '/api/send-code', {mobile: this.phone}, (res) => {
 					// console.log(res)
 					if (res.error == 0) {
 						that.status = 'counting'
@@ -69,7 +76,8 @@
 				})
 			},
 			validateMobile() {
-				if (!/^(13[0-9]|14[5-9]|15[0-3,5-9]|16[6]|17[0-8]|18[0-9]|19[0-3,5-9])\d{8}$/.test(this.mobile)) {
+				console.log('mobile', "'" + this.phone + "'")
+				if (!/^(13[0-9]|14[5-9]|15[0-3,5-9]|16[6]|17[0-8]|18[0-9]|19[0-3,5-9])\d{8}$/.test(this.phone)) {
 					uni.showToast({
 						title: '请输入正确的手机号',
 						icon: 'none'
@@ -100,7 +108,7 @@
 					return false;
 				}
 				
-				utils.request('POST', '/api/login/mobile', {mobile: this.mobile, code: this.code}, (res) => {
+				utils.request('POST', '/api/login/mobile', {mobile: this.phone, code: this.code}, (res) => {
 					if (res.error != 0) {
 						uni.showToast({
 							title: '验证码错误',

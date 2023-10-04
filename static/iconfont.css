@@ -1,5 +1,5 @@
 @font-face {
-  font-family: "iconfont"; 
+  font-family: "iconfont"; /* Project id 4248996 */
   src: url('/static/iconfont.ttf') format('truetype');
 }
 
@@ -9,6 +9,30 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-yaoqing:before {
+  content: "\e71f";
+}
+
+.icon-jiangli:before {
+  content: "\e611";
+}
+
+.icon-tuichu:before {
+  content: "\e623";
+}
+
+.icon-shoucang:before {
+  content: "\eca7";
+}
+
+.icon-huiyuan1:before {
+  content: "\e696";
+}
+
+.icon-huiyuan:before {
+  content: "\e65f";
 }
 
 .icon-touxiang:before {

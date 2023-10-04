@@ -50,16 +50,16 @@
     "quickapp" : {},
     /* 小程序特有相关 */
     "mp-weixin" : {
-        "appid" : "wx3d5f4183a399acac",
+        "appid" : "wxb78c1f6104c6ba2e",
         "setting" : {
             "urlCheck" : false
         },
         "usingComponents" : true,
-        "plugins": {
-          "WechatSI": {
-            "version": "0.3.5",
-            "provider": "wx069ba97219f66d99"
-          }
+        "plugins" : {
+            "WechatSI" : {
+                "version" : "0.3.5",
+                "provider" : "wx069ba97219f66d99"
+            }
         }
     },
     "mp-alipay" : {

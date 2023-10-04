@@ -4,9 +4,16 @@
 			<view class="session ai-session text-gray-600" v-if="message.role == 'assistant'">
 				<image class="avatar" :src="conv.avatar" mode=""></image>
 				<view class="message-box">
-					<view class="message-text">{{message.content}}</view>
+					<!-- <view class="message-text">{{message.content}}</view> -->
+					<view class="message-text">
+						<template v-for="(word, i) in message.words" :key="i">
+							<text v-if="['.', ',', '?', ' '].includes(word)">{{word}}</text>
+							<text v-else @click="lookup(word)"  class="word">{{word}}</text>
+						</template>
+					</view>
 					<view class="message-dashboard">
-						<uni-icons @click="translate(message)" custom-prefix="iconfont" type="icon-fanyi" size="20"></uni-icons>
+						<uni-icons @click="translate(message)" custom-prefix="iconfont" type="icon-fanyi"
+							size="20"></uni-icons>
 						<uni-icons @click="switchPlay(message)" :class="{playing: message.playing}"
 							custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons>
 					</view>
@@ -20,6 +27,7 @@
 				<image class="avatar" src="@/static/user-avatar.png" mode=""></image>
 				<view class="message-box">
 					<view class="message-text">{{message.content}}</view>
+
 					<view class="message-dashboard">
 						<!--
 						<uni-icons @click="translate(message)" custom-prefix="iconfont" type="icon-fanyi" size="20"></uni-icons>
@@ -39,6 +47,7 @@
 		</view>
 		<view class="session user-session recording" v-show="status == 'recording'">
 			<image class="avatar" src="@/static/user-avatar.png" mode=""></image>
+			
 			<view class="message-box twinkling">
 				<view class="message-text">
 					收听中...
@@ -46,7 +55,7 @@
 			</view>
 		</view>
 		<view class="text-center text-gray-600 mt-4" v-if="status == 'halt'">
-			<text>没有可用时长，</text>
+			<text>课时不足，请</text>
 			<navigator url="/pages/home/price" class="text-primary inline">购买会员→</navigator>
 		</view>
 	</view>
@@ -56,40 +65,20 @@
 		<button class="btn-speak text-gray-400" @longpress="handleRecordStart" @touchmove="handleTouchMove"
 			@touchend="handleRecordStop">按住 说话</button>
 	</view>
+	<dictionary ref="dictionary" :dict="dict"></dictionary>
 </template>
 
 <script>
-	import utils from '@/utils.js';
+	import utils from '@/common/utils.js';
+	import dictionary from '../component/dictionary.vue';
 
 	// const recorderManager = uni.getRecorderManager();
-	const innerAudioContext = uni.createInnerAudioContext({
-		obeyMuteSwitch: false,
-	});
-	// #ifdef MP-WEIXIN
-	if (wx.setInnerAudioOption) {
-		wx.setInnerAudioOption({
-			obeyMuteSwitch: false
-		})
-	}
-	// #endif
-
-	innerAudioContext.onEnded(() => {
-		// console.log('播放完毕')
-		// console.log(that.playing_message)
-		if (innerAudioContext.message) {
-			innerAudioContext.message.playing = false
-		}
-	});
-
-	innerAudioContext.onError((res) => {
-		console.log(res.errMsg);
-		console.log(res.errCode);
-		if (innerAudioContext.message) {
-			innerAudioContext.message.playing = false
-		}
-	});
+	const innerAudioContext = utils.createInnerAudioContext()
 
 	export default {
+		components: {
+			dictionary,
+		},
 		data() {
 			return {
 				// none: 没有情况，recording: 用户录音，thinking: AI思考中，思考完后又回到none， halt:没钱停机
@@ -102,6 +91,7 @@
 				question: '',
 				tik: null,
 				dialog_id: null,
+				dict: null,
 				// playing_message: null,
 			}
 		},
@@ -132,18 +122,12 @@
 				})
 				// console.log(that.messages[that.messages.length - 1])
 				that.scrollToBottom()
-				if (that.messages[that.messages.length - 1]) {
-					that.play(that.messages[that.messages.length - 1])
-				}
-				
+				// if (that.messages[that.messages.length - 1]) {
+				// 	that.play(that.messages[that.messages.length - 1])
+				// }
+
 			})
 
-
-
-			// recorderManager.onStop(function(res) {
-			// 	console.log('recorder stop' + JSON.stringify(res));
-			// 	that.voicePath = res.tempFilePath;
-			// });
 
 			var plugin = requirePlugin("WechatSI")
 			this.recoManager = plugin.getRecordRecognitionManager()
@@ -164,7 +148,7 @@
 				console.error("error msg", res.msg)
 			}
 			// this.recoManager.start({duration:30000, lang: "zh_CN"})
-
+			// this.lookup('rain')
 		},
 		onShow() {
 			this.createDialog()
@@ -175,15 +159,23 @@
 		onUnload() {
 			this.cleanUp()
 		},
+		onShareAppMessage(res) {
+			return utils.share()
+		},
+		onShareTimeline(res) {
+			return utils.share()
+		},
 		methods: {
 			translate(message) {
 				if (!message.translate) {
-					utils.request('POST', '/api/translate', {source: message.content}, (res) => {
+					utils.request('POST', '/api/translate', {
+						source: message.content
+					}, (res) => {
 						// console.log(res)
 						message.translate = res.translate
 					})
 				}
-				
+
 			},
 			cleanUp() {
 				innerAudioContext.stop();
@@ -194,7 +186,7 @@
 						// console.log(res)
 					})
 				}
-				
+
 			},
 			createDialog() {
 				var that = this
@@ -223,6 +215,17 @@
 				console.log('testSend')
 				this.sendMessage('hello')
 			},
+			lookup(word) {
+				// console.log(word)
+				var that = this
+				utils.request('GET', '/api/lookup', {
+					word
+				}, (res) => {
+					// console.log(res)
+					that.dict = res.dict
+					that.$refs.dictionary.open()
+				})
+			},
 			switchPlay(message) {
 				if (message.playing) {
 					message.playing = false
@@ -231,24 +234,15 @@
 					this.play(message)
 				}
 			},
-			play(message) {
-				// console.log('play')
-				// console.log(message)
-				// 停掉旧的
-				if (innerAudioContext.message) {
-					innerAudioContext.message.playing = false
-				}
-				innerAudioContext.message = message
-				message.playing = true
-				innerAudioContext.src = message.audio_url
-				innerAudioContext.play()
+			play(cd) {
+				innerAudioContext.go(cd)
 			},
 			handleRecordStart() {
 				innerAudioContext.stop()
-				
+
 				if (this.status == 'halt') {
 					uni.showToast({
-						title: '没有可用时长，请先购买会员',
+						title: '课时不足，请先购买会员',
 						icon: 'none'
 					})
 					return;
@@ -282,6 +276,30 @@
 					}
 				})
 			},
+			collect(dict) {
+				if (!utils.getUser()) {
+					utils.loginFirst()
+					return;
+				}
+				utils.request('POST', '/api/collection', {dict_id: dict.id, word: dict.word}, (res) => {
+					dict.is_collected = true
+					uni.showToast({
+						title: '加入单词本'
+					})
+				})
+			},
+			uncollect(dict) {
+				if (!utils.getUser()) {
+					utils.loginFirst()
+					return;
+				}
+				utils.request('POST', '/api/collection/delete', {dict_id: dict.id}, (res) => {
+					dict.is_collected = false
+					uni.showToast({
+						title: '从单词本删除'
+					})
+				})
+			},
 			sendMessage(content) {
 				var that = this
 
@@ -299,6 +317,9 @@
 					conv_id: that.conv.id
 				}, (res) => {
 					if (res.error == 0) {
+						// let message = res.message
+						// message.words = message.content.split(/([\.\?, ])/).filter(item => item !== '')
+						// console.log(message.words)
 						that.messages.push(res.message)
 						that.play(that.messages[that.messages.length - 1])
 						that.scrollToBottom()
@@ -325,7 +346,7 @@
 
 <style lang="scss">
 	page {
-		background-color: rgb(243 244 246);
+		background-color: $app-bg-gray;
 	}
 
 	.content {
@@ -385,11 +406,7 @@
 		}
 	}
 
-	.playing {
-		text {
-			color: #1296db !important;
-		}
-	}
+
 
 	.dashboard {
 		position: fixed;
@@ -418,5 +435,8 @@
 
 	.twinkling {
 		animation: twinkle 1s infinite alternate;
+	}
+	.word:hover {
+		text-decoration-line: underline;
 	}
 </style>

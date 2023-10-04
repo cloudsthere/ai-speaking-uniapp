@@ -34,6 +34,33 @@
             
         }
 		,{
+		    "path" : "pages/mine/promote",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "推广有奖",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/mine/withdraw",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "提现",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
+		    "path" : "pages/mine/invite-code",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "填写邀请码",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
 		    "path" : "pages/home/privacy",
 		    "style" :                                                                                    
 		    {
@@ -69,6 +96,15 @@
 		    }
 		    
 		}
+        ,{
+            "path" : "pages/collection/index",
+            "style" :                                                                                    
+            {
+                "navigationBarTitleText": "单词本",
+                "enablePullDownRefresh": false
+            }
+            
+        }
     ],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
@@ -94,6 +130,12 @@
 			"iconPath": "static/conversation.png",
 			"selectedIconPath": "static/conversation-selected.png",
 			"text": "会话"
+		},
+		{
+			"pagePath": "pages/collection/index",
+			"iconPath": "static/note.png",
+			"selectedIconPath": "static/note-selected.png",
+			"text": "单词本"
 		},
 		{
 			"pagePath": "pages/mine/mine",

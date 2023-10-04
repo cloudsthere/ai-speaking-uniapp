@@ -1,37 +1,51 @@
 <template>
-	<view class="header">
-		选择合适场景，开始今天练习
-	</view>
-	<view class="content">
-		<navigator :url="'/pages/conversation/show?scene_id=' + scene.id"  v-for="scene in scenes" :key="scene.id">
-			<view class="scene-card">
-				<view class="avatar">
-					<image :src="scene.avatar"></image>
-				</view>
-				<view class="name">
-					<view>{{scene.name}}</view>
-				</view>
-				<view class="brief">
-					<view>{{scene.brief}}</view>
-				</view>
+	<view class="p-4">
+		<view class="header">
+			选择合适场景，开始今天练习
+		</view>
+		<view class="content">
+			<view class="flex gap-4 text-gray-400">
+				<view class="text-gray-800 selected-tag">面试</view>
+				<view class="">面试</view>
+				<view class="">面试</view>
 			</view>
-		</navigator>
+			<navigator :url="'/pages/conversation/show?scene_id=' + scene.id" v-for="scene in scenes" :key="scene.id">
+				<view class="scene-card">
+					<view class="avatar">
+						<image :src="scene.avatar"></image>
+					</view>
+					<view class="name">
+						<view>{{scene.name}}</view>
+					</view>
+					<view class="brief">
+						<view>{{scene.brief}}</view>
+					</view>
+				</view>
+			</navigator>
+		</view>
 	</view>
 </template>
 
 <script>
-	import utils from '@/utils.js';
+	import utils from '@/common/utils.js';
 	export default {
 		data() {
 			return {
 				scenes: [],
+				topic_list: [],
 			}
 		},
 		onLoad() {
 			var that = this
 			utils.request('GET', '/api/scene', {}, (res) => {
-				that.scenes = res.scenes
+				that.topic_list = res.topic_list
 			})
+		},
+		onShareAppMessage(res) {
+			return utils.share()
+		},
+		onShareTimeline(res) {
+			return utils.share()
 		},
 		methods: {
 
@@ -50,6 +64,11 @@
 	.header {
 		text-align: center;
 		margin: 10px 0 10px 0;
+	}
+
+	.selected-tag {
+		border-bottom-width: 1px;
+		border-color: $uni-color-primary;
 	}
 
 	.scene-card {

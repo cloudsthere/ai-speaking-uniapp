@@ -16,13 +16,19 @@
 </template>
 
 <script>
-	import utils from '@/utils.js';
+	import utils from '@/common/utils.js';
 
 	export default {
 		data() {
 			return {
 				checked: false,
 			}
+		},
+		onShareAppMessage(res) {
+			return utils.share()
+		},
+		onShareTimeline(res) {
+			return utils.share()
 		},
 		methods: {
 			switchChecked() {
@@ -70,9 +76,14 @@
 
 						})
 						setTimeout(() => {
-							uni.switchTab({
-								url: '/pages/mine/mine'
+							uni.navigateBack({
+								fail() {
+									uni.switchTab({
+										url: '/pages/mine/mine'
+									})
+								}
 							})
+							
 						}, 1500)
 					}
 				})

@@ -17,7 +17,8 @@
 </template>
 
 <script>
-	import utils from '@/utils.js';
+	import utils from '@/common/utils.js';
+	
 	
 	export default {
 		data() {
@@ -32,6 +33,12 @@
 				// console.log(res)
 				that.convs = res.conversations
 			})
+		},
+		onShareAppMessage(res) {
+			return utils.share()
+		},
+		onShareTimeline(res) {
+			return utils.share()
 		},
 		methods: {
 			

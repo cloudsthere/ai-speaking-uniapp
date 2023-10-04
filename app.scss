@@ -1,4 +1,4 @@
-view {
+view, input, navigator, button {
 	border-width: 0;
 	border-style: solid;
 }
@@ -44,4 +44,10 @@ view {
 
 .bg-primary {
 	background-color: $uni-color-primary;
+}
+
+.playing {
+	text {
+		color: #1296db !important;
+	}
 }
