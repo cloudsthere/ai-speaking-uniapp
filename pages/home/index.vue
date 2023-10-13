@@ -4,21 +4,17 @@
 			选择合适场景，开始今天练习
 		</view>
 		<view class="content">
-			<view class="flex gap-4 text-gray-400">
-				<view class="text-gray-800 selected-tag">面试</view>
-				<view class="">面试</view>
-				<view class="">面试</view>
-			</view>
-			<navigator :url="'/pages/conversation/show?scene_id=' + scene.id" v-for="scene in scenes" :key="scene.id">
-				<view class="scene-card">
-					<view class="avatar">
-						<image :src="scene.avatar"></image>
+			<navigator :url="'/pages/conversation/detail?topic_en=' + topic.enName + '&topic=' + topic.name + '&emoji=' + topic.emoji" v-for="(topic, topic_index) in topics"
+				:key="topic_index">
+				<view class="scene-card text-center">
+					<view class="avatar text-3xl">
+						{{topic.emoji}}
 					</view>
-					<view class="name">
-						<view>{{scene.name}}</view>
+					<view class="name text-xl">
+						<view>{{topic.name}}</view>
 					</view>
-					<view class="brief">
-						<view>{{scene.brief}}</view>
+					<view class="brief text-sm">
+						<view>{{topic.enName}}</view>
 					</view>
 				</view>
 			</navigator>
@@ -31,14 +27,14 @@
 	export default {
 		data() {
 			return {
-				scenes: [],
-				topic_list: [],
+				// scenes: [],
+				topics: [],
 			}
 		},
 		onLoad() {
 			var that = this
 			utils.request('GET', '/api/scene', {}, (res) => {
-				that.topic_list = res.topic_list
+				that.topics = res.topics
 			})
 		},
 		onShareAppMessage(res) {
@@ -54,12 +50,26 @@
 </script>
 
 <style lang="scss">
+	// .content {
+	// 	display: grid;
+	// 	padding: 0 10px 0 10px;
+	// 	gap: 10px;
+	// 	grid-template-columns: repeat(2, 1fr);
+	// 	grid-template-rows: repeat(2, 1fr);
+	// }
 	.content {
-		display: grid;
-		padding: 0 10px 0 10px;
-		gap: 10px;
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+		display: flex;
+		align-items: stretch;
+		flex-wrap: wrap;
+
+		navigator {
+			flex-basis: calc(50% - 10px);
+			/* 50%宽度减去间距 */
+			margin: 5px;
+			/* 间距 */
+		}
 	}
+
 
 	.header {
 		text-align: center;
@@ -94,6 +104,7 @@
 
 		.brief {
 			margin-top: 10px;
+			height: 32px;
 			color: $uni-text-color-grey;
 			font-size: $uni-font-size-sm;
 		}

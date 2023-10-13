@@ -1,6 +1,6 @@
 export default {
 	// domain: 'https://sp.ai-cn.net',
-	domain: 'http://ai-speaking.test',
+	domain: 'http://t.ai-speaking.dev',
 	// #ifdef MP-WEIXIN
 	version: 'wx-0.0.8',
 	// #endif
@@ -201,6 +201,11 @@ export default {
 						})
 
 
+					} else if (res.statusCode != 200) {
+						uni.showToast({
+							title: '网络错误，请稍后再试',
+							icon: 'error',
+						})
 					} else {
 						success(res.data)
 					}
@@ -344,46 +349,5 @@ export default {
 		return arr;
 
 	},
-	createInnerAudioContext() {
-		const innerAudioContext = uni.createInnerAudioContext({
-			obeyMuteSwitch: false,
-		});
-		// #ifdef MP-WEIXIN
-		if (wx.setInnerAudioOption) {
-			wx.setInnerAudioOption({
-				obeyMuteSwitch: false
-			})
-		}
-		// #endif
-		
-		innerAudioContext.onEnded(() => {
-			// console.log('播放完毕')
-			// console.log(that.playing_message)
-			if (innerAudioContext.cd) {
-				innerAudioContext.cd.playing = false
-			}
-			
-		});
-		
-		innerAudioContext.onError((res) => {
-			// console.log(res.errMsg);
-			// console.log(res.errCode);
-			if (innerAudioContext.cd) {
-				innerAudioContext.cd.playing = false
-			}
-		});
-		innerAudioContext.go = (cd) => {
-			// console.log('play')
-			// console.log(cd)
-			// 停掉旧的
-			if (innerAudioContext.cd) {
-				innerAudioContext.cd.playing = false
-			}
-			innerAudioContext.cd = cd
-			cd.playing = true
-			innerAudioContext.src = cd.audio_url ?? cd.audio
-			innerAudioContext.play()
-		}
-		return innerAudioContext;
-	}
+
 }

@@ -3,7 +3,7 @@
 		<view class="flex justify-between bg-white p-4">
 			<view class="text-2xl">我的单词本</view>
 			<view class="flex gap-2 justify-between items-center text-sm">
-				<text class="text-gray-400">51词</text>	
+				<text class="text-gray-400">{{count}}词</text>	
 				<!-- <view class="bg-gray-100 text-gray-600 p-2 rounded-lg">时间倒序</view> -->
 			</view>
 		</view>
@@ -20,13 +20,14 @@
 			</view>
 		</view>
 	</view>
-	<dictionary :dict="dict" ref="dictionary"></dictionary>
+	<dictionary ref="dictionary"></dictionary>
 </template>
 
 <script>
 	import utils from '@/common/utils.js';
+	import player from '@/common/player.js';
 	import dictionary from '../component/dictionary.vue';
-	const innerAudioContext = utils.createInnerAudioContext()
+	// const innerAudioContext = utils.createInnerAudioContext()
 	
 	export default {
 		components: {
@@ -35,7 +36,8 @@
 		data() {
 			return {
 				collections: [],
-				dict: null,
+				// dict: null,
+				count: '',
 			}
 		},
 		onLoad() {
@@ -43,23 +45,18 @@
 			utils.request('GET', '/api/collection', {}, (res) => {
 				// console.log(res)
 				that.collections = res.collections
+				that.count = res.count
 			})
 		},
 		methods: {
 			play(cd) {
-				innerAudioContext.go(cd)
+				// innerAudioContext.go(cd)
+				player.play(cd)
 			},
 			lookup(word) {
 				// console.log(word)
 				// return;
-				var that = this
-				utils.request('GET', '/api/lookup', {
-					word
-				}, (res) => {
-					// console.log(res)
-					that.dict = res.dict
-					that.$refs.dictionary.open()
-				})
+				this.$refs.dictionary.lookup(word)
 			}
 		}
 	}

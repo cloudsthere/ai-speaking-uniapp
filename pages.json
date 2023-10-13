@@ -16,6 +16,15 @@
             
         }
 		,{
+		    "path" : "pages/conversation/detail",
+		    "style" :                                                                                    
+		    {
+		        "navigationBarTitleText": "",
+		        "enablePullDownRefresh": false
+		    }
+		    
+		}
+		,{
 		    "path" : "pages/conversation/show",
 		    "style" :                                                                                    
 		    {
