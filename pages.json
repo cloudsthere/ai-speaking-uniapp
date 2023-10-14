@@ -1,120 +1,104 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		// {
+		// 	"path": "pages/test/test",
+		// 	"style": {
+		// 		"navigationBarTitleText": "",
+		// 		"enablePullDownRefresh": false
+		// 	}
+		// }, 
 		{
 			"path": "pages/home/index",
 			"style": {
 				"navigationBarTitleText": "AI会话英语"
 			}
+		}, {
+			"path": "pages/conversation/index",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/conversation/detail",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/conversation/show",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/mine/mine",
+			"style": {
+				"navigationBarTitleText": "我的",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/mine/promote",
+			"style": {
+				"navigationBarTitleText": "推广有奖",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/mine/withdraw",
+			"style": {
+				"navigationBarTitleText": "提现",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/mine/invite-code",
+			"style": {
+				"navigationBarTitleText": "填写邀请码",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/home/privacy",
+			"style": {
+				"navigationBarTitleText": "隐私政策",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/auth/login",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/auth/mobile",
+			"style": {
+				"navigationBarTitleText": "登录",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/home/price",
+			"style": {
+				"navigationBarTitleText": "升级会员",
+				"enablePullDownRefresh": false
+			}
+
+		}, {
+			"path": "pages/collection/index",
+			"style": {
+				"navigationBarTitleText": "单词本",
+				"enablePullDownRefresh": false
+			}
+
 		}
-	    ,{
-            "path" : "pages/conversation/index",
-            "style" :                                                                                    
-            {
-                "navigationBarTitleText": "",
-                "enablePullDownRefresh": false
-            }
-            
-        }
-		,{
-		    "path" : "pages/conversation/detail",
-		    "style" :                                                                                    
-		    {
-		        "navigationBarTitleText": "",
-		        "enablePullDownRefresh": false
-		    }
-		    
-		}
-		,{
-		    "path" : "pages/conversation/show",
-		    "style" :                                                                                    
-		    {
-		        "navigationBarTitleText": "",
-		        "enablePullDownRefresh": false
-		    }
-		    
-		}
-        ,{
-            "path" : "pages/mine/mine",
-            "style" :                                                                                    
-            {
-                "navigationBarTitleText": "我的",
-                "enablePullDownRefresh": false
-            }
-            
-        }
-		,{
-		    "path" : "pages/mine/promote",
-		    "style" :                                                                                    
-		    {
-		        "navigationBarTitleText": "推广有奖",
-		        "enablePullDownRefresh": false
-		    }
-		    
-		}
-		,{
-		    "path" : "pages/mine/withdraw",
-		    "style" :                                                                                    
-		    {
-		        "navigationBarTitleText": "提现",
-		        "enablePullDownRefresh": false
-		    }
-		    
-		}
-		,{
-		    "path" : "pages/mine/invite-code",
-		    "style" :                                                                                    
-		    {
-		        "navigationBarTitleText": "填写邀请码",
-		        "enablePullDownRefresh": false
-		    }
-		    
-		}
-		,{
-		    "path" : "pages/home/privacy",
-		    "style" :                                                                                    
-		    {
-		        "navigationBarTitleText": "隐私政策",
-		        "enablePullDownRefresh": false
-		    }
-		    
-		}
-        ,{
-            "path" : "pages/auth/login",
-            "style" :                                                                                    
-            {
-                "navigationBarTitleText": "登录",
-                "enablePullDownRefresh": false
-            }
-            
-        }
-		,{
-		    "path" : "pages/auth/mobile",
-		    "style" :                                                                                    
-		    {
-		        "navigationBarTitleText": "登录",
-		        "enablePullDownRefresh": false
-		    }
-		    
-		}
-		,{
-		    "path" : "pages/home/price",
-		    "style" :                                                                                    
-		    {
-		        "navigationBarTitleText": "升级会员",
-		        "enablePullDownRefresh": false
-		    }
-		    
-		}
-        ,{
-            "path" : "pages/collection/index",
-            "style" :                                                                                    
-            {
-                "navigationBarTitleText": "单词本",
-                "enablePullDownRefresh": false
-            }
-            
-        }
-    ],
+
+	],
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "AI会话英语",
@@ -127,30 +111,30 @@
 		"selectedColor": "#38b5b3",
 		"borderStyle": "black",
 		"backgroundColor": "#ffffff",
-		"list": [
-		{
-			"pagePath": "pages/home/index",
-			"iconPath": "static/home.png",
-			"selectedIconPath": "static/home-selected.png",
-			"text": "首页"
-		}, 
-		{
-			"pagePath": "pages/conversation/index",
-			"iconPath": "static/conversation.png",
-			"selectedIconPath": "static/conversation-selected.png",
-			"text": "会话"
-		},
-		{
-			"pagePath": "pages/collection/index",
-			"iconPath": "static/note.png",
-			"selectedIconPath": "static/note-selected.png",
-			"text": "单词本"
-		},
-		{
-			"pagePath": "pages/mine/mine",
-			"iconPath": "static/wode.png",
-			"selectedIconPath": "static/wode-selected.png",
-			"text": "我的"
-		}]
+		"list": [{
+				"pagePath": "pages/home/index",
+				"iconPath": "static/home.png",
+				"selectedIconPath": "static/home-selected.png",
+				"text": "首页"
+			},
+			{
+				"pagePath": "pages/conversation/index",
+				"iconPath": "static/conversation.png",
+				"selectedIconPath": "static/conversation-selected.png",
+				"text": "会话"
+			},
+			{
+				"pagePath": "pages/collection/index",
+				"iconPath": "static/note.png",
+				"selectedIconPath": "static/note-selected.png",
+				"text": "单词本"
+			},
+			{
+				"pagePath": "pages/mine/mine",
+				"iconPath": "static/wode.png",
+				"selectedIconPath": "static/wode-selected.png",
+				"text": "我的"
+			}
+		]
 	}
 }

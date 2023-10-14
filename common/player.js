@@ -2,8 +2,8 @@ let player = {
 	context: null,
 	cd: null,
 	play(cd) {
-		// console.log('play')
-		// console.log(cd)
+		console.log('play')
+		console.log(cd)
 		// 停掉旧的
 		if (this.cd) {
 			this.cd.playing = false
@@ -43,6 +43,7 @@ let player = {
 			});
 			
 			this.context.onError((res) => {
+				console.log('player error', res)
 				// console.log(res.errMsg);
 				// console.log(res.errCode);
 				if (that.cd) {

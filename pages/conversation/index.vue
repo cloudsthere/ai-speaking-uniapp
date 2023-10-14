@@ -3,7 +3,7 @@
 		<navigator :url="'/pages/conversation/show?conv_id=' + conv.id" class="session flex shadow-md text-sm justify-between p-2 mb-4 mx-2" v-for="conv in convs" :key="conv.id">
 			<view class="info">
 				<view class="name text-lg">
-					{{conv.name}}
+					{{conv.topic}}
 				</view>
 				<view class="time text-sm text-gray-400">
 					{{utils.readableDate(conv.exited_at)}}

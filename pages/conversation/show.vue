@@ -6,10 +6,12 @@
 				<view class="message-box">
 					<!-- <view class="message-text">{{message.content}}</view> -->
 					<view class="message-text">
+						
 						<template v-for="(word, i) in message.words" :key="i">
 							<text v-if="['.', ',', '?', ' '].includes(word)">{{word}}</text>
 							<text v-else @click="lookup(word)" class="word">{{word}}</text>
 						</template>
+						
 					</view>
 					<view class="message-dashboard">
 						<uni-icons @click="translate(message)" :class="{playing: message.addition == 'translate'}"
@@ -50,19 +52,21 @@
 			</view>
 		</template>
 		<view class="session ai-session recording" v-if="status == 'thinking'">
-			<image class="avatar" :src="conv.avatar" mode=""></image>
+			<!-- <image class="avatar" :src="conv.avatar" mode=""></image> -->
 			<view class="message-box">
 				<view class="message-text">思考中...</view>
 			</view>
+			<view class="placeholder"></view>
 		</view>
 		<view class="session user-session recording" v-show="status == 'recording'">
-			<image class="avatar" src="@/static/user-avatar.png" mode=""></image>
+			<!-- <image class="avatar" src="@/static/user-avatar.png" mode=""></image> -->
 
 			<view class="message-box twinkling">
 				<view class="message-text">
-					收听中...
+					{{current_content ? current_content : '收听中...'}}
 				</view>
 			</view>
+			<view class="placeholder"></view>
 		</view>
 		<view class="text-center text-gray-600 mt-4" v-if="status == 'halt'">
 			<text>课时不足，请</text>
@@ -73,10 +77,12 @@
 		</view>
 	</view>
 	<view class="dashboard bg-gray-100">
+		<!--
 		<input v-model="question" @keyup.enter="sendQuestion" style="width: 80%; border: 1px; background: white;">
 		<button @click="sendQuestion">发送</button>
+		-->
 		<button class="btn-speak text-gray-400" v-if="status == 'end'">已结束</button>
-		<button class="btn-speak" v-else @longpress="handleRecordStart">按住 说话</button>
+		<button class="btn-speak" v-else @longpress="handleRecordStart" @touchend="handleRecordStop">按住 说话</button>
 	</view>
 	<dictionary ref="dictionary"></dictionary>
 </template>
@@ -84,10 +90,66 @@
 <script>
 	import utils from '@/common/utils.js';
 	import player from '@/common/player.js';
+	import base64 from '@/common/base64.js';
 	import dictionary from '../component/dictionary.vue';
+	import CryptoJS from 'crypto-js';
 
 	// const recorderManager = uni.getRecorderManager();
 	// const innerAudioContext = utils.createInnerAudioContext()
+	const APPID = "abb0f990";
+	const API_SECRET = "MzYzZjM2OGQ2NWU0ZTI4YjdmODNlYTNh";
+	const API_KEY = "ca3a1899fffbe04843f348fcdf77e12b";
+	const recorder_duration = 60000
+	
+	var iatParams = function (status, audio) {
+	  var params = {
+	    common: {
+	      app_id: APPID
+	    },
+	    business: {
+	      domain: "iat" ,
+	      // language: 'zh_cn',
+		  language: 'en_us',
+	      accent: "mandarin", 
+	      dwa: "wpgs",
+	      vad_eos: 10000
+	    },
+	    data: {
+	      status: status,
+	      format: "audio/L16;rate=16000",
+	      encoding: "raw",
+	      audio: audio
+	    }
+	  }
+	  // console.log('params')
+	  // console.log(params)
+	  return JSON.stringify(params)
+	}
+	
+	var geturl = function (appid, apisecret, apikey) {
+	
+	  var url = 'wss://iat-api.xfyun.cn/v2/iat'
+	  var algorithm = 'hmac-sha256'
+	  var headers = 'host date request-line'
+	  /* 生成时间 */
+	  var a = Number(new Date().getTime()) - 28800000
+	  var b = String(new Date(a)).split(' ')
+	  var time = b[0] + ',' + ' ' + b[2] + ' ' + b[1] + ' ' + b[3] + ' ' + b[4] + ' ' + 'GMT'
+	  /* 生成signature_origin */
+	  const signature_origin = "host: " + "iat-api.xfyun.cn" + "\n" + "date: " + time + "\n" + "GET /v2/iat HTTP/1.1"
+	  /* 哈希加密 */
+	  var signatureSha = CryptoJS.HmacSHA256(signature_origin, apisecret)
+	  // console.log(typeof (signatureSha))
+	  var signature = CryptoJS.enc.Base64.stringify(signatureSha)
+	  // console.log(signature)
+	  var authorizationOrigin = `api_key="${apikey}", algorithm="${algorithm}", headers="${headers}", signature="${signature}"`
+	  /* base64编码 */
+	  var authorization = base64.btoa(authorizationOrigin)
+	  var v = 'authorization=' + authorization + "&date=" + time + "&host=iat-api.xfyun.cn"
+	  var url = `${url}?` + v
+	  // console.log(encodeURI(url))
+	  return encodeURI(url)
+	}
 
 	export default {
 		components: {
@@ -97,7 +159,7 @@
 			return {
 				// none: 没有情况，recording: 用户录音，thinking: AI思考中，思考完后又回到none， halt:没钱停机，end: 已结束
 				status: 'none',
-				// status: 'end',
+				// status: 'thinking', //
 				conv: {},
 				messages: [],
 				recording: false,
@@ -107,6 +169,9 @@
 				tik: null,
 				dialog_id: null,
 				dict: null,
+				// current_content: 'Hi, annie. Long time no see, I miss you so much. Do you miss me?',
+				current_content: '',
+				current_audio_file: null,
 				// playing_message: null,
 			}
 		},
@@ -124,12 +189,25 @@
 				},
 				fail() {
 					console.log('onLoad 没有权限，应去授权')
-					uni.showToast({
+					uni.showModal({
+						// title: '提示',
 						title: '请先授权麦克风',
-						complete() {
-							uni.openSetting()
+						// content: '这是一个模态弹窗',
+						success: function (res) {
+							if (res.confirm) {
+								// console.log('用户点击确定');
+								uni.openSetting()
+							} else if (res.cancel) {
+								// console.log('用户点击取消');
+							}
 						}
-					})
+					});
+					// uni.showToast({
+					// 	title: '请先授权麦克风',
+					// 	complete() {
+					// 		uni.openSetting()
+					// 	}
+					// })
 				}
 			})
 
@@ -164,33 +242,8 @@
 
 
 
-			var plugin = requirePlugin("WechatSI")
-			this.recoManager = plugin.getRecordRecognitionManager()
-			this.recoManager.onRecognize = function(res) {
-				console.log("current result", res.result)
-			}
-			this.recoManager.onStop = function(res) {
-				console.log("record file path", res.tempFilePath)
-				// that.voice_file = res.tempFilePath
-				console.log("content", res.result)
-				// that.scrollToBottom()
-				if (!res.result) {
-					uni.showToast({
-						title: '未能识别，请再试'
-					})
-					that.status = 'none'
-					return
-				}
-				that.sendMessage(res.result, res.tempFilePath)
-			}
-			this.recoManager.onStart = function(res) {
-				console.log("成功开始录音识别", res)
-			}
-			this.recoManager.onError = function(res) {
-				console.error("error msg", res.msg)
-			}
-			// this.recoManager.start({duration:30000, lang: "zh_CN"})
-			// this.lookup('rain')
+
+			
 		},
 		onShow() {
 			this.createDialog()
@@ -234,7 +287,7 @@
 				message.addition = 'translate'
 			},
 			cleanUp() {
-				this.handleRecordStop()
+				// this.handleRecordStop()
 				player.stop();
 				clearInterval(this.tik)
 				this.tik = null
@@ -306,27 +359,225 @@
 				// 先取得权限
 				uni.getSetting({
 					success(res) {
-						console.log('getSetting', res.authSetting)
+						// console.log('getSetting', res.authSetting)
 						if (!res.authSetting['scope.record']) {
-							uni.showToast({
+							uni.showModal({
+								// title: '提示',
 								title: '请先授权麦克风',
-								complete() {
-									uni.openSetting()
+								// content: '这是一个模态弹窗',
+								success: function (res) {
+									if (res.confirm) {
+										// console.log('用户点击确定');
+										uni.openSetting()
+									} else if (res.cancel) {
+										// console.log('用户点击取消');
+									}
 								}
-							})
+							});
+							// uni.showToast({
+							// 	title: '请先授权麦克风',
+							// 	complete() {
+							// 		uni.openSetting()
+							// 	}
+							// })
 						} else {
-							that.recoManager.start({
-								lang: "en_US"
-							})
+							console.log('record start')
+							that.startRecord()
 
 							that.status = 'recording'
 						}
 					}
 				})
 			},
+			startRecord() {
+				var that = this
+				
+				var url = geturl(APPID, API_SECRET, API_KEY)
+				console.log(url)
+				// var status = 2
+				uni.connectSocket({
+					url: url,
+					method: "GET",
+					success() {
+						that.initRecorderManager()
+						const options = {
+							// 2分钟
+							duration: recorder_duration,
+							sampleRate: 16000,
+							numberOfChannels: 1,
+							format: 'PCM',
+							frameSize: 1.28,
+						}
+						that.RecorderManager.start(options)
+					}
+				})
+				
+				uni.onSocketOpen(function() {
+					console.log('合成链接已打开')
+					that.socket_status = 'connected'
+					uni.sendSocketMessage({
+						data: iatParams(0)
+					})
+				})
+				uni.onSocketError(function(errMsg) {
+					that.socket_status = 'error'
+					console.log('websocket合成链接打开失败')
+					console.log(errMsg)
+				})
+				
+				let resultTextTemp = ''
+				let resultText = '';
+				
+				uni.onSocketMessage(function(res) {
+					console.log('receive socket message')
+					// console.log(res)
+					// console.log(JSON.parse(res.data))
+					// renderResult(res.data)
+					let jsonData = JSON.parse(res.data);
+					console.log(jsonData)
+									
+					if (jsonData.data && jsonData.data.result) {
+						let data = jsonData.data.result;
+						let str = "";
+						let ws = data.ws;
+						for (let i = 0; i < ws.length; i++) {
+							str = str + ws[i].cw[0].w;
+						}
+						// 开启wpgs会有此字段(前提：在控制台开通动态修正功能)
+						// 取值为 "apd"时表示该片结果是追加到前面的最终结果；取值为"rpl" 时表示替换前面的部分结果，替换范围为rg字段
+						if (data.pgs) {
+							if (data.pgs === "apd") {
+								// 将resultTextTemp同步给resultText
+								resultText = resultTextTemp;
+							}
+							// 将结果存储在resultTextTemp中
+							resultTextTemp = resultText + str;
+						} else {
+							resultText = resultText + str;
+						}
+						let text = resultTextTemp || resultText || "";
+						console.log('result', text)
+						that.current_content = text
+					}
+					if (jsonData.code === 0 && jsonData.data.status === 2) {
+						console.log('socket code close')
+						// iatWS.close();
+						that.RecorderManager.stop();
+						that.sendMessage()
+						uni.closeSocket()
+					}
+					if (jsonData.code !== 0) {
+						// iatWS.close();
+						console.log('socket code not 0')
+						console.error(jsonData);
+					}
+				})
+				
+				uni.onSocketClose((res) =>{
+					that.socket_status = 'close'
+					console.log('socket close')
+					// that.status = 'none'
+				})
+				
+				
+				
+				
+				
+				// if (!this.recoManager) {
+					// console.log('创建recoManager')
+					// var plugin = requirePlugin("WechatSI")
+				// 	this.recoManager = plugin.getRecordRecognitionManager()
+				// 	this.recoManager.onRecognize = function(res) {
+				// 		console.log("current result", res.result)
+				// 		that.current_content = res.result
+				// 	}
+				// 	this.recoManager.onStop = function(res) {
+				// 		console.log('record stop')
+				// 		console.log("record file path", res.tempFilePath)
+				// 		console.log("content", res.result)
+				// 		// that.scrollToBottom()
+						
+				// 		// TODO
+				// 		res.result = 'hi, I am Allen. Nice to meet you';
+						
+				// 		if (!res.result) {
+				// 			uni.showToast({
+				// 				title: '未能识别，请再试',
+				// 				icon: 'none'
+				// 			})
+				// 			that.status = 'none'
+				// 			return
+				// 		}
+				// 		that.sendMessage(res.result, res.tempFilePath)
+				// 	}
+				// 	this.recoManager.onStart = function(res) {
+				// 		console.log("成功开始录音识别", res)
+				// 	}
+				// 	this.recoManager.onError = function(res) {
+				// 		console.error("error msg", res)
+				// 		uni.showToast({
+				// 			title: '语音识别出错，请再试',
+				// 			icon: 'none'
+				// 		})
+				// 		that.status = 'none'
+				// 	}
+				// }
+				// that.recoManager.start({
+				// 	lang: "en_US"
+				// })
+			},
+			initRecorderManager() {
+				if (!this.RecorderManager) {
+					var that = this;
+					this.RecorderManager = uni.getRecorderManager()
+					// console.log('ws链接打开成功，开始录音')
+					
+					this.RecorderManager.onStart((res) => {
+						that.recorder_status = 'recording'
+					})
+					
+					this.RecorderManager.onStop((res) => {
+						// console.log(res.duration)
+						if (res.duration >= recorder_duration - 1000) {
+							that.recorder_status = '超时结束'
+						} else {
+							that.recorder_status = 'stop'
+						}
+						// console.log('close recorder')
+						// that.sendMessage(res.tempFilePath)
+						that.current_audio_file = res.tempFilePath
+					})
+					
+					this.RecorderManager.onFrameRecorded(function(res) {
+						console.log('frame recorded')
+						// console.log(res.frameBuffer, res.isLastFrame)
+						// console.log(this.data.first_status)
+						// if (that.first_status) {
+						// 	var status = 0
+						// 	that.first_status = false
+						// } else {
+						// 	var status = 1
+						// }
+						let status = res.isLastFrame ? 2 : 1
+						if (res.isLastFrame) {
+							console.log('last frame')
+						}
+						
+						// console.log(wx.arrayBufferToBase64(res.frameBuffer))
+						// console.log(utils.iatParams(status, utils.toBase64(res.frameBuffer)))
+						uni.sendSocketMessage({
+							data: iatParams(status, uni.arrayBufferToBase64(res.frameBuffer))
+						})
+					})
+				}
+			},
 			handleRecordStop() {
-				this.recording = false
-				this.recoManager.stop()
+				console.log('handle record stop')
+				// this.recording = false
+				// for (let i in this.recoManager) {
+				// 	console.log(i)
+				// }
+				this.RecorderManager.stop()
 			},
 			scrollToBottom: function() {
 				var query = wx.createSelectorQuery();
@@ -341,22 +592,34 @@
 				})
 			},
 
-			sendMessage(content, voice_file) {
+			sendMessage() {
 				var that = this
+				
+				// this.current_content = 'Hi, my name is Allen';
+				
+				if (!this.current_content) {
+					uni.showToast({
+						title: '未识别内容，请重试',
+						icon: 'none'
+					})
+					this.status = 'none'
+					return;
+				}
 
 				this.messages.push({
 					speaker: 'User',
-					content,
-					audio_url: voice_file
+					content: this.current_content,
+					audio_url: this.current_audio_file
 				})
 				this.scrollToBottom()
 
 				this.status = 'thinking'
+				
 
-				// console.log('voice_file', voice_file)
+				// console.log('this.current_audio_file', this.current_audio_file)
 				// 读取文件内容并进行Base64编码
 				uni.getFileSystemManager().readFile({
-					filePath: voice_file,
+					filePath: this.current_audio_file,
 					success(data) {
 						// console.log(data)
 						// console.log(data.data)
@@ -376,10 +639,13 @@
 						// 发送Base64编码后的音频数据到PHP服务端
 						// sendDataToServer(audioData);
 						utils.request('POST', '/api/message', {
-							content,
+							content: that.current_content,
 							conv_id: that.conv.id,
 							audio: audio_str,
 						}, (res) => {
+							that.current_content = null
+							that.current_audio_file = null
+							
 							if (res.error == 0) {
 								// let message = res.message
 								// message.words = message.content.split(/([\.\?, ])/).filter(item => item !== '')
@@ -412,8 +678,7 @@
 				});
 
 
-
-
+				
 			},
 		}
 	}
@@ -469,15 +734,15 @@
 		flex-direction: row-reverse;
 
 		.message-dashboard {
-			justify-content: flex-end;
+			justify-content: flex-start;
 		}
 	}
 
 
 	.recording {
 		.message-box {
-			flex: none;
-			width: 60px;
+			// flex: 1;
+			// min-width: 60px;
 		}
 	}
 
