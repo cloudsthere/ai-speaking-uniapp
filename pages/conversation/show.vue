@@ -76,13 +76,21 @@
 			本次会话已结束
 		</view>
 	</view>
+	<view class="" v-if="status == 'phoning'">
+		<text v-show="phone_status == 'listern'">收听中...</text>
+		<text v-show="phone_status == 'speak'">AI说...</text>
+	</view>
 	<view class="dashboard bg-gray-100">
 		<!--
 		<input v-model="question" @keyup.enter="sendQuestion" style="width: 80%; border: 1px; background: white;">
 		<button @click="sendQuestion">发送</button>
 		-->
 		<button class="btn-speak text-gray-400" v-if="status == 'end'">已结束</button>
+		<button class="btn-speak" v-else-if="status == 'phoning'" >通话中...</button>
 		<button class="btn-speak" v-else @longpress="handleRecordStart" @touchend="handleRecordStop">按住 说话</button>
+		
+		<uni-icons @click="call" :class="{}"
+			custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons>
 	</view>
 	<dictionary ref="dictionary"></dictionary>
 </template>
@@ -113,6 +121,7 @@
 	      accent: "mandarin", 
 	      dwa: "wpgs",
 	      vad_eos: 10000
+	      // vad_eos: 1000
 	    },
 	    data: {
 	      status: status,
@@ -172,6 +181,7 @@
 				// current_content: 'Hi, annie. Long time no see, I miss you so much. Do you miss me?',
 				current_content: '',
 				current_audio_file: null,
+				socket_status: 'none',
 				// playing_message: null,
 			}
 		},
@@ -393,24 +403,18 @@
 				var that = this
 				
 				var url = geturl(APPID, API_SECRET, API_KEY)
-				console.log(url)
+				// console.log(url)
 				// var status = 2
-				uni.connectSocket({
+				this.socket = uni.connectSocket({
 					url: url,
 					method: "GET",
-					success() {
-						that.initRecorderManager()
-						const options = {
-							// 2分钟
-							duration: recorder_duration,
-							sampleRate: 16000,
-							numberOfChannels: 1,
-							format: 'PCM',
-							frameSize: 1.28,
-						}
-						that.RecorderManager.start(options)
-					}
 				})
+					
+				
+				// console.log('socket')
+				// for (let i in this.socket) {
+				// 	console.log(i)
+				// }
 				
 				uni.onSocketOpen(function() {
 					console.log('合成链接已打开')
@@ -418,6 +422,17 @@
 					uni.sendSocketMessage({
 						data: iatParams(0)
 					})
+					
+					that.initRecorderManager()
+					const options = {
+						// 2分钟
+						duration: recorder_duration,
+						sampleRate: 16000,
+						numberOfChannels: 1,
+						format: 'PCM',
+						frameSize: 1.28,
+					}
+					that.RecorderManager.start(options)
 				})
 				uni.onSocketError(function(errMsg) {
 					that.socket_status = 'error'
@@ -463,8 +478,10 @@
 						console.log('socket code close')
 						// iatWS.close();
 						that.RecorderManager.stop();
-						that.sendMessage()
 						uni.closeSocket()
+						setTimeout(() => {
+							that.sendMessage()
+						}, 100)
 					}
 					if (jsonData.code !== 0) {
 						// iatWS.close();
@@ -558,16 +575,26 @@
 						// } else {
 						// 	var status = 1
 						// }
-						let status = res.isLastFrame ? 2 : 1
-						if (res.isLastFrame) {
-							console.log('last frame')
+						// console.log('readyState', that.socket.readyState)
+						// if (that.socket.readyState != WebSocket.OPEN) {
+						// 	console.log('socket not ready, return')
+						// 	return;
+						// }
+						
+						if (that.socket_status == 'connected') {
+							let status = res.isLastFrame ? 2 : 1
+							if (res.isLastFrame) {
+								console.log('last frame')
+							}
+							
+							// uni.socket_status
+							// console.log(wx.arrayBufferToBase64(res.frameBuffer))
+							// console.log(utils.iatParams(status, utils.toBase64(res.frameBuffer)))
+							uni.sendSocketMessage({
+								data: iatParams(status, uni.arrayBufferToBase64(res.frameBuffer))
+							})
 						}
 						
-						// console.log(wx.arrayBufferToBase64(res.frameBuffer))
-						// console.log(utils.iatParams(status, utils.toBase64(res.frameBuffer)))
-						uni.sendSocketMessage({
-							data: iatParams(status, uni.arrayBufferToBase64(res.frameBuffer))
-						})
 					})
 				}
 			},

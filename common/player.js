@@ -2,8 +2,8 @@ let player = {
 	context: null,
 	cd: null,
 	play(cd) {
-		console.log('play')
-		console.log(cd)
+		// console.log('play')
+		// console.log(cd)
 		// 停掉旧的
 		if (this.cd) {
 			this.cd.playing = false
