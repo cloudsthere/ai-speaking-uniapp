@@ -6,12 +6,12 @@
 				<view class="message-box">
 					<!-- <view class="message-text">{{message.content}}</view> -->
 					<view class="message-text">
-						
+
 						<template v-for="(word, i) in message.words" :key="i">
 							<text v-if="['.', ',', '?', ' '].includes(word)">{{word}}</text>
 							<text v-else @click="lookup(word)" class="word">{{word}}</text>
 						</template>
-						
+
 					</view>
 					<view class="message-dashboard">
 						<uni-icons @click="translate(message)" :class="{playing: message.addition == 'translate'}"
@@ -76,21 +76,25 @@
 			本次会话已结束
 		</view>
 	</view>
-	<view class="" v-if="status == 'phoning'">
-		<text v-show="phone_status == 'listern'">收听中...</text>
-		<text v-show="phone_status == 'speak'">AI说...</text>
-	</view>
-	<view class="dashboard bg-gray-100">
-		<!--
-		<input v-model="question" @keyup.enter="sendQuestion" style="width: 80%; border: 1px; background: white;">
-		<button @click="sendQuestion">发送</button>
-		-->
-		<button class="btn-speak text-gray-400" v-if="status == 'end'">已结束</button>
-		<button class="btn-speak" v-else-if="status == 'phoning'" >通话中...</button>
-		<button class="btn-speak" v-else @longpress="handleRecordStart" @touchend="handleRecordStop">按住 说话</button>
-		
-		<uni-icons @click="call" :class="{}"
-			custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons>
+	<view class="dashboard bg-gray-100 ">
+		<view class="text-center mb-2 text-sm text-gray-600" v-if="mode == 'phone'">
+			<view>
+				<!-- <uni-icons custom-prefix="iconfont" type="icon-maikefeng" size="20"></uni-icons> -->
+				<uni-icons custom-prefix="iconfont" type="icon-maikefeng" size="16"></uni-icons>
+				<text v-show="phone_status == 'listening'">收听中...</text>
+				<text v-show="phone_status == 'speaking'">AI说...</text>
+			</view>
+		</view>
+		<view class="flex items-center gap-2 px-2">
+			<view class="placeholder"></view>
+			<view class="button-wapper">
+				<button class="btn-speak text-gray-400" v-if="status == 'end'">已结束</button>
+				<button class="btn-speak btn-danger" v-else-if="mode == 'phone'" @click="hangUp">挂断</button>
+				<button class="btn-speak bg-white" v-else @longpress="handleRecordStart" @touchend="handleRecordStop">按住
+					说话</button>
+			</view>
+			<uni-icons @click="call" :class="{}" custom-prefix="iconfont" type="icon-maikefeng" size="40"></uni-icons>
+		</view>
 	</view>
 	<dictionary ref="dictionary"></dictionary>
 </template>
@@ -108,56 +112,58 @@
 	const API_SECRET = "MzYzZjM2OGQ2NWU0ZTI4YjdmODNlYTNh";
 	const API_KEY = "ca3a1899fffbe04843f348fcdf77e12b";
 	const recorder_duration = 60000
-	
-	var iatParams = function (status, audio) {
-	  var params = {
-	    common: {
-	      app_id: APPID
-	    },
-	    business: {
-	      domain: "iat" ,
-	      // language: 'zh_cn',
-		  language: 'en_us',
-	      accent: "mandarin", 
-	      dwa: "wpgs",
-	      vad_eos: 10000
-	      // vad_eos: 1000
-	    },
-	    data: {
-	      status: status,
-	      format: "audio/L16;rate=16000",
-	      encoding: "raw",
-	      audio: audio
-	    }
-	  }
-	  // console.log('params')
-	  // console.log(params)
-	  return JSON.stringify(params)
+
+	var iatParams = function(status, audio) {
+		var params = {
+			common: {
+				app_id: APPID
+			},
+			business: {
+				domain: "iat",
+				// language: 'zh_cn',
+				language: 'en_us',
+				accent: "mandarin",
+				dwa: "wpgs",
+				// vad_eos: 10000
+				vad_eos: 2000
+			},
+			data: {
+				status: status,
+				format: "audio/L16;rate=16000",
+				// encoding: "raw",
+				encoding: "lame",
+				audio: audio
+			}
+		}
+		// console.log('params')
+		// console.log(params)
+		return JSON.stringify(params)
 	}
-	
-	var geturl = function (appid, apisecret, apikey) {
-	
-	  var url = 'wss://iat-api.xfyun.cn/v2/iat'
-	  var algorithm = 'hmac-sha256'
-	  var headers = 'host date request-line'
-	  /* 生成时间 */
-	  var a = Number(new Date().getTime()) - 28800000
-	  var b = String(new Date(a)).split(' ')
-	  var time = b[0] + ',' + ' ' + b[2] + ' ' + b[1] + ' ' + b[3] + ' ' + b[4] + ' ' + 'GMT'
-	  /* 生成signature_origin */
-	  const signature_origin = "host: " + "iat-api.xfyun.cn" + "\n" + "date: " + time + "\n" + "GET /v2/iat HTTP/1.1"
-	  /* 哈希加密 */
-	  var signatureSha = CryptoJS.HmacSHA256(signature_origin, apisecret)
-	  // console.log(typeof (signatureSha))
-	  var signature = CryptoJS.enc.Base64.stringify(signatureSha)
-	  // console.log(signature)
-	  var authorizationOrigin = `api_key="${apikey}", algorithm="${algorithm}", headers="${headers}", signature="${signature}"`
-	  /* base64编码 */
-	  var authorization = base64.btoa(authorizationOrigin)
-	  var v = 'authorization=' + authorization + "&date=" + time + "&host=iat-api.xfyun.cn"
-	  var url = `${url}?` + v
-	  // console.log(encodeURI(url))
-	  return encodeURI(url)
+
+	var geturl = function(appid, apisecret, apikey) {
+
+		var url = 'wss://iat-api.xfyun.cn/v2/iat'
+		var algorithm = 'hmac-sha256'
+		var headers = 'host date request-line'
+		/* 生成时间 */
+		var a = Number(new Date().getTime()) - 28800000
+		var b = String(new Date(a)).split(' ')
+		var time = b[0] + ',' + ' ' + b[2] + ' ' + b[1] + ' ' + b[3] + ' ' + b[4] + ' ' + 'GMT'
+		/* 生成signature_origin */
+		const signature_origin = "host: " + "iat-api.xfyun.cn" + "\n" + "date: " + time + "\n" + "GET /v2/iat HTTP/1.1"
+		/* 哈希加密 */
+		var signatureSha = CryptoJS.HmacSHA256(signature_origin, apisecret)
+		// console.log(typeof (signatureSha))
+		var signature = CryptoJS.enc.Base64.stringify(signatureSha)
+		// console.log(signature)
+		var authorizationOrigin =
+			`api_key="${apikey}", algorithm="${algorithm}", headers="${headers}", signature="${signature}"`
+		/* base64编码 */
+		var authorization = base64.btoa(authorizationOrigin)
+		var v = 'authorization=' + authorization + "&date=" + time + "&host=iat-api.xfyun.cn"
+		var url = `${url}?` + v
+		// console.log(encodeURI(url))
+		return encodeURI(url)
 	}
 
 	export default {
@@ -168,6 +174,10 @@
 			return {
 				// none: 没有情况，recording: 用户录音，thinking: AI思考中，思考完后又回到none， halt:没钱停机，end: 已结束
 				status: 'none',
+				// chat: 对话，phone: 电话
+				mode: 'chat',
+				// speaking, listening
+				phone_status: 'none',
 				// status: 'thinking', //
 				conv: {},
 				messages: [],
@@ -182,6 +192,7 @@
 				current_content: '',
 				current_audio_file: null,
 				socket_status: 'none',
+				hangingUp: false
 				// playing_message: null,
 			}
 		},
@@ -203,7 +214,7 @@
 						// title: '提示',
 						title: '请先授权麦克风',
 						// content: '这是一个模态弹窗',
-						success: function (res) {
+						success: function(res) {
 							if (res.confirm) {
 								// console.log('用户点击确定');
 								uni.openSetting()
@@ -234,7 +245,9 @@
 					title: that.conv.topic ?? '会话'
 				})
 				// console.log(that.messages[that.messages.length - 1])
-				// that.scrollToBottom()
+				setTimeout(() => {
+					that.scrollToBottom()
+				}, 300)
 				// if (that.messages[that.messages.length - 1]) {
 				// 	that.play(that.messages[that.messages.length - 1])
 				// }
@@ -253,7 +266,7 @@
 
 
 
-			
+
 		},
 		onShow() {
 			this.createDialog()
@@ -281,6 +294,12 @@
 					}, (res) => {
 						// console.log(res)
 						message.recommends = res.recommends
+						console.log(message)
+						// 最后一个message
+						if (message.id == that.messages[that.messages.length - 1].id) {
+							console.log('last message')
+							that.scrollToBottom()
+						}
 					})
 				}
 				message.addition = 'recommend'
@@ -327,19 +346,15 @@
 				// console.log('this.conv', this.conv)
 
 			},
-			sendQuestion() {
-				this.sendMessage(this.question)
-				this.question = ''
-			},
-			testSend() {
-				console.log('testSend')
-				this.sendMessage('hello')
-			},
 			lookup(word) {
 				// console.log(word)
 				// var that = this
 				this.$refs.dictionary.lookup(word)
 
+			},
+			turnNotice() {
+				// console.log(utils.domain + '/static/turn-notice.mp3')
+				player.sound(utils.domain + '/static/turn-notice.mp3')
 			},
 			switchPlay(message) {
 				player.switchPlay(message)
@@ -347,6 +362,36 @@
 			play(cd) {
 				// innerAudioContext.go(cd)
 				player.play(cd)
+			},
+			startRecorderManager() {
+				this.initRecorderManager()
+				const options = {
+					// 2分钟
+					duration: recorder_duration,
+					sampleRate: 16000,
+					numberOfChannels: 1,
+					format: 'mp3',
+					frameSize: 1.28,
+				}
+				this.RecorderManager.start(options)
+			},
+			hangUp() {
+				this.RecorderManager.stop()
+				this.mode = 'chat'
+				this.phone_status = 'none'
+				this.status = 'none'
+				this.hangingUp = true;
+			},
+			call() {
+				if (this.mode == 'phone' && this.phone_status == 'listening') {
+					return;
+				}
+
+				console.log('call')
+				this.mode = 'phone'
+				this.phone_status = 'listening'
+				this.status = 'recording'
+				this.startRecord()
 			},
 			handleRecordStart() {
 				player.stop()
@@ -375,7 +420,7 @@
 								// title: '提示',
 								title: '请先授权麦克风',
 								// content: '这是一个模态弹窗',
-								success: function (res) {
+								success: function(res) {
 									if (res.confirm) {
 										// console.log('用户点击确定');
 										uni.openSetting()
@@ -401,7 +446,7 @@
 			},
 			startRecord() {
 				var that = this
-				
+
 				var url = geturl(APPID, API_SECRET, API_KEY)
 				// console.log(url)
 				// var status = 2
@@ -409,40 +454,31 @@
 					url: url,
 					method: "GET",
 				})
-					
-				
+
+
 				// console.log('socket')
 				// for (let i in this.socket) {
 				// 	console.log(i)
 				// }
-				
+
 				uni.onSocketOpen(function() {
 					console.log('合成链接已打开')
 					that.socket_status = 'connected'
 					uni.sendSocketMessage({
 						data: iatParams(0)
 					})
-					
-					that.initRecorderManager()
-					const options = {
-						// 2分钟
-						duration: recorder_duration,
-						sampleRate: 16000,
-						numberOfChannels: 1,
-						format: 'PCM',
-						frameSize: 1.28,
-					}
-					that.RecorderManager.start(options)
+
+					that.startRecorderManager()
 				})
 				uni.onSocketError(function(errMsg) {
 					that.socket_status = 'error'
 					console.log('websocket合成链接打开失败')
 					console.log(errMsg)
 				})
-				
+
 				let resultTextTemp = ''
 				let resultText = '';
-				
+
 				uni.onSocketMessage(function(res) {
 					console.log('receive socket message')
 					// console.log(res)
@@ -450,7 +486,7 @@
 					// renderResult(res.data)
 					let jsonData = JSON.parse(res.data);
 					console.log(jsonData)
-									
+
 					if (jsonData.data && jsonData.data.result) {
 						let data = jsonData.data.result;
 						let str = "";
@@ -479,9 +515,20 @@
 						// iatWS.close();
 						that.RecorderManager.stop();
 						uni.closeSocket()
-						setTimeout(() => {
-							that.sendMessage()
-						}, 100)
+
+						if (!that.hangingUp) {
+							let sil = setInterval(() => {
+								if (that.current_audio_file) {
+									clearInterval(sil)
+									that.sendMessage()
+									// if (that.mode == 'phone' && that.phone_status == 'listening') {
+									// 	that.phone_status = 'speaking'
+									// }
+								}
+							}, 100)
+						} else {
+							that.hangingUp = false
+						}
 					}
 					if (jsonData.code !== 0) {
 						// iatWS.close();
@@ -489,20 +536,20 @@
 						console.error(jsonData);
 					}
 				})
-				
-				uni.onSocketClose((res) =>{
+
+				uni.onSocketClose((res) => {
 					that.socket_status = 'close'
 					console.log('socket close')
 					// that.status = 'none'
 				})
-				
-				
-				
-				
-				
+
+
+
+
+
 				// if (!this.recoManager) {
-					// console.log('创建recoManager')
-					// var plugin = requirePlugin("WechatSI")
+				// console.log('创建recoManager')
+				// var plugin = requirePlugin("WechatSI")
 				// 	this.recoManager = plugin.getRecordRecognitionManager()
 				// 	this.recoManager.onRecognize = function(res) {
 				// 		console.log("current result", res.result)
@@ -513,10 +560,10 @@
 				// 		console.log("record file path", res.tempFilePath)
 				// 		console.log("content", res.result)
 				// 		// that.scrollToBottom()
-						
+
 				// 		// TODO
 				// 		res.result = 'hi, I am Allen. Nice to meet you';
-						
+
 				// 		if (!res.result) {
 				// 			uni.showToast({
 				// 				title: '未能识别，请再试',
@@ -548,11 +595,11 @@
 					var that = this;
 					this.RecorderManager = uni.getRecorderManager()
 					// console.log('ws链接打开成功，开始录音')
-					
+
 					this.RecorderManager.onStart((res) => {
 						that.recorder_status = 'recording'
 					})
-					
+
 					this.RecorderManager.onStop((res) => {
 						// console.log(res.duration)
 						if (res.duration >= recorder_duration - 1000) {
@@ -562,11 +609,12 @@
 						}
 						// console.log('close recorder')
 						// that.sendMessage(res.tempFilePath)
+						console.log('assign audio file')
 						that.current_audio_file = res.tempFilePath
 					})
-					
+
 					this.RecorderManager.onFrameRecorded(function(res) {
-						console.log('frame recorded')
+						// console.log('frame recorded')
 						// console.log(res.frameBuffer, res.isLastFrame)
 						// console.log(this.data.first_status)
 						// if (that.first_status) {
@@ -580,21 +628,28 @@
 						// 	console.log('socket not ready, return')
 						// 	return;
 						// }
-						
+
 						if (that.socket_status == 'connected') {
 							let status = res.isLastFrame ? 2 : 1
 							if (res.isLastFrame) {
 								console.log('last frame')
 							}
-							
+
 							// uni.socket_status
 							// console.log(wx.arrayBufferToBase64(res.frameBuffer))
 							// console.log(utils.iatParams(status, utils.toBase64(res.frameBuffer)))
+
+							// socked已断开而recorder未关闭会导致报错
 							uni.sendSocketMessage({
-								data: iatParams(status, uni.arrayBufferToBase64(res.frameBuffer))
+								data: iatParams(status, uni.arrayBufferToBase64(res.frameBuffer)),
+								fail: (res) => {
+									console.log('send socket message fail', res)
+								}
 							})
+
+
 						}
-						
+
 					})
 				}
 			},
@@ -604,7 +659,10 @@
 				// for (let i in this.recoManager) {
 				// 	console.log(i)
 				// }
-				this.RecorderManager.stop()
+				// 有可能未初始化
+				if (this.RecorderManager) {
+					this.RecorderManager.stop()
+				}
 			},
 			scrollToBottom: function() {
 				var query = wx.createSelectorQuery();
@@ -621,9 +679,9 @@
 
 			sendMessage() {
 				var that = this
-				
+
 				// this.current_content = 'Hi, my name is Allen';
-				
+
 				if (!this.current_content) {
 					uni.showToast({
 						title: '未识别内容，请重试',
@@ -632,6 +690,10 @@
 					this.status = 'none'
 					return;
 				}
+				
+				// if (this.mode == 'phone') {
+				// 	this.turnNotice()
+				// }
 
 				this.messages.push({
 					speaker: 'User',
@@ -641,9 +703,9 @@
 				this.scrollToBottom()
 
 				this.status = 'thinking'
-				
 
-				// console.log('this.current_audio_file', this.current_audio_file)
+
+				console.log('read current_audio_file', this.current_audio_file)
 				// 读取文件内容并进行Base64编码
 				uni.getFileSystemManager().readFile({
 					filePath: this.current_audio_file,
@@ -672,19 +734,35 @@
 						}, (res) => {
 							that.current_content = null
 							that.current_audio_file = null
-							
+
 							if (res.error == 0) {
 								// let message = res.message
 								// message.words = message.content.split(/([\.\?, ])/).filter(item => item !== '')
 								// console.log(message.words)
 								that.messages.push(res.message)
-								that.play(that.messages[that.messages.length - 1])
-								that.scrollToBottom()
-								if (res.end) {
-									that.status = 'end'
-								} else {
+								let context = player.play(that.messages[that.messages.length - 1])
+								// console.log('context', context)
+								console.log('mode', that.mode);
+								console.log('phone_status', that.phone_status);
+								if (that.mode == 'phone') {
+									that.phone_status = 'speaking'
 									that.status = 'none'
+									console.log('status phoning & speaking')
+									context.onEnded((res) => {
+										console.log('player ended')
+										context.offEnded()
+										that.turnNotice()
+										that.call()
+									})
+								} else {
+									if (res.end) {
+										that.status = 'end'
+									} else {
+										that.status = 'none'
+									}
 								}
+
+								that.scrollToBottom()
 							} else {
 								if (res.error == 102) {
 									that.status = 'halt'
@@ -705,7 +783,7 @@
 				});
 
 
-				
+
 			},
 		}
 	}
@@ -782,9 +860,16 @@
 		right: 0;
 		left: 0;
 
-		.btn-speak {
+		.placeholder {
+			width: 40px;
+			flex: none;
+		}
+
+		.button-wapper {
 			width: 80%;
-			background-color: white;
+		}
+
+		.btn-speak {
 			border-radius: 50px;
 			text-align: center;
 		}

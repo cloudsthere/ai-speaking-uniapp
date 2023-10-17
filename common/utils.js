@@ -1,6 +1,6 @@
 export default {
-	// domain: 'https://sp.ai-cn.net',
-	domain: 'http://t.ai-speaking.dev',
+	domain: 'https://sp.ai-cn.net',
+	// domain: 'http://t.ai-speaking.dev',
 	// #ifdef MP-WEIXIN
 	version: 'wx-0.0.8',
 	// #endif

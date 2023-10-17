@@ -11,6 +11,16 @@ let player = {
 		this.cd = cd
 		cd.playing = true
 		this.context.src = cd.audio_url ?? cd.audio
+		var that = this
+		this.context.onEnded(() => {
+			that.context.offEnded()
+			cd.playing = false
+		})
+		this.context.play()
+		return this.context
+	},
+	sound(url) {
+		this.context.src = url
 		this.context.play()
 	},
 	stop() {
