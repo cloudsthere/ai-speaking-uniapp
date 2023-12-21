@@ -1,20 +1,48 @@
 <template>
 	<view class="p-4">
-		<view class="header">
-			选择合适场景，开始今天练习
+		<view class="flex justify-between gap-2">
+			<!-- <view> -->
+			<view class="flex flex-col gap-3">
+				<view class="">{{teacher.greeting}}</view>
+				<view class="flex gap-3">
+					<navigator url="/pages/home/teacher"
+						class="py-1 px-2 border border-primary border-solid text-primary rounded-full">更换AI
+					</navigator>
+					<view class="py-1 px-2 border border-primary border-solid bg-primary text-white rounded-full"
+						@click="greeting">
+						Say Hi
+					</view>
+				</view>
+			</view>
+			<view class="relative" style="width: 120px; height: 120px; flex: none;">
+				<video id="still-video" v-show="!is_greeting" style="width: 120px; height: 120px;" object-fit="fill"
+					:src="teacher.avatar_video_still" :autoplay="true" :show-progress="false"
+					:show-fullscreen-btn="false" :show-play-btn="false" :show-center-play-btn="false"
+					:show-loading="false" :loop="true" :controls="false"></video>
+				<video id="greeting-video" v-show="is_greeting" style="width: 120px; height: 120px;"
+					object-fit="fill" @ended="greetingEnd" :src="teacher.avatar_video_greeting" :autoplay="false"
+					:show-progress="false" :show-fullscreen-btn="false" :show-play-btn="false"
+					:show-center-play-btn="false" :show-loading="false" :loop="false" :controls="false"></video>
+				<view class="absolute bottom-0 w-full" style="height: 40px; background-image: linear-gradient(to top, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));"></view>
+			</view>
+		</view>
+		<view class="mb-2 mt-10 flex gap-1 flex-col text-center">
+			<text>选择合适场景，开始今天练习</text>
+			<text class="text-xs text-primary">Choose a scene and practise now!</text>
 		</view>
 		<view class="content">
-			<navigator :url="'/pages/conversation/detail?topic_en=' + topic.enName + '&topic=' + topic.name + '&emoji=' + topic.emoji" v-for="(topic, topic_index) in topics"
-				:key="topic_index">
+			<navigator :url="'/pages/conversation/detail?scene_id=' + scene.id" v-for="(scene, scene_index) in scenes"
+				:key="scene_index">
 				<view class="scene-card text-center">
 					<view class="avatar text-3xl">
-						{{topic.emoji}}
+						<!-- {{scene.icon}} -->
+						<image :src="scene.icon" mode=""></image>
 					</view>
 					<view class="name text-xl">
-						<view>{{topic.name}}</view>
+						<view>{{scene.name}}</view>
 					</view>
 					<view class="brief text-sm">
-						<view>{{topic.enName}}</view>
+						<view>{{scene.en_name}}</view>
 					</view>
 				</view>
 			</navigator>
@@ -24,17 +52,24 @@
 
 <script>
 	import utils from '@/common/utils.js';
+
 	export default {
 		data() {
 			return {
 				// scenes: [],
-				topics: [],
+				scenes: [],
+				teacher: {},
+				is_greeting: false
 			}
 		},
 		onLoad() {
+
+		},
+		onShow() {
 			var that = this
 			utils.request('GET', '/api/scene', {}, (res) => {
-				that.topics = res.topics
+				that.scenes = res.scenes
+				that.teacher = res.teacher
 			})
 		},
 		onShareAppMessage(res) {
@@ -44,7 +79,19 @@
 			return utils.share()
 		},
 		methods: {
-
+			greeting() {
+				// play.sound(this.teacher.greeting)
+				this.is_greeting = true
+				// console.log(this.is_greeting)
+				let context = uni.createVideoContext('greeting-video')
+				context.play()
+			},
+			greetingEnd() {
+				console.log('greeting end')
+				this.is_greeting = false
+				let context = uni.createVideoContext('still-video')
+				context.play()
+			}
 		}
 	}
 </script>

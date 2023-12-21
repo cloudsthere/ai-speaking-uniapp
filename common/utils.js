@@ -1,6 +1,6 @@
 export default {
-	domain: 'https://sp.ai-cn.net',
-	// domain: 'http://t.ai-speaking.dev',
+	// domain: 'https://yw.ai7.pro',
+	domain: 'http://ai-speaking.local',
 	// #ifdef MP-WEIXIN
 	version: 'wx-0.0.8',
 	// #endif
@@ -54,6 +54,17 @@ export default {
 	setToken(token) {
 		getApp().globalData.token = token
 		uni.setStorageSync('token', token)
+	},
+	getToken() {
+		let token = getApp().globalData.token
+		if (token) {
+			return token;
+		} else {
+			let token = uni.getStorageSync('token')
+			if (token) {
+				return token
+			}
+		}
 	},
 	deleteUser() {
 		getApp().globalData.user = null

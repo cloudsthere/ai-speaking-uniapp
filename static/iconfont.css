@@ -13,6 +13,11 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+
+.icon-jiazaizhong:before {
+  content: "\e7bd";
+}
+
 .icon-dianhua:before {
   content: "\e65c";
 }
@@ -88,4 +93,5 @@
 .icon-duihua:before {
   content: "\e626";
 }
+
 

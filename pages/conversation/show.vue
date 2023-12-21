@@ -1,16 +1,13 @@
 <template>
 	<view class="content">
 		<template v-for="message in messages" :key="message.id">
-			<view class="session ai-session text-gray-600" v-if="message.speaker == 'System'">
+			<view class="session ai-session text-gray-600" v-if="message.role == 'assistant'">
 				<!-- <image class="avatar" :src="conv.avatar" mode=""></image> -->
 				<view class="message-box">
 					<!-- <view class="message-text">{{message.content}}</view> -->
 					<view class="message-text">
 
-						<template v-for="(word, i) in message.words" :key="i">
-							<text v-if="['.', ',', '?', ' '].includes(word)">{{word}}</text>
-							<text v-else @click="lookup(word)" class="word">{{word}}</text>
-						</template>
+						<words :words="message.words" @lookup="lookup"></words>
 
 					</view>
 					<view class="message-dashboard">
@@ -26,19 +23,29 @@
 					</view>
 					<view class="mt-2 flex flex-col gap-1 text-gray-500 text-xs"
 						v-show="message.addition == 'recommend'">
-						<view class="flex" v-for="(recommend, recommend_index) in message.recommends"
-							:key="recommend_index">
+						<view class="flex" v-show="message.recommends"
+							v-for="(recommend, recommend_index) in message.recommends" :key="recommend_index">
 							<span class="px-1 text-blue-500">•</span>
-							<view>{{recommend}}</view>
+							<view>
+								<words :words="recommend" @lookup="lookup"></words>
+							</view>
+						</view>
+						<view class="text-center" v-show="!message.recommends">
+							<view class="animate-spin">
+								<image src="@/static/icon-loading.png" mode="" class="w-5 h-5"></image>
+							</view>
 						</view>
 					</view>
 				</view>
 				<view class="placeholder"></view>
 			</view>
-			<view class="session user-session text-gray-600" v-if="message.speaker == 'User'">
+			<view class="session user-session text-gray-600" v-if="message.role == 'user'">
 				<!-- <image class="avatar" src="@/static/user-avatar.png" mode=""></image> -->
 				<view class="message-box">
-					<view class="message-text">{{message.content}}</view>
+					<view class="message-text">
+						<words :words="message.words" @lookup="lookup"></words>
+						
+					</view>
 
 					<view class="message-dashboard">
 						<!--
@@ -53,7 +60,7 @@
 		</template>
 		<view class="session ai-session recording" v-if="status == 'thinking'">
 			<!-- <image class="avatar" :src="conv.avatar" mode=""></image> -->
-			<view class="message-box">
+			<view class="message-box twinkling">
 				<view class="message-text">思考中...</view>
 			</view>
 			<view class="placeholder"></view>
@@ -97,6 +104,7 @@
 		</view>
 	</view>
 	<dictionary ref="dictionary"></dictionary>
+	<image src="@/static/search-color.png" class="fixed bottom-32 right-4 z-10 w-6 h-6" @click="showSearch"></image>
 </template>
 
 <script>
@@ -104,6 +112,7 @@
 	import player from '@/common/player.js';
 	import base64 from '@/common/base64.js';
 	import dictionary from '../component/dictionary.vue';
+	import words from '../component/words.vue';
 	import CryptoJS from 'crypto-js';
 
 	// const recorderManager = uni.getRecorderManager();
@@ -169,6 +178,7 @@
 	export default {
 		components: {
 			dictionary,
+			words,
 		},
 		data() {
 			return {
@@ -242,7 +252,7 @@
 				that.conv = res.conversation
 				that.messages = res.messages
 				uni.setNavigationBarTitle({
-					title: that.conv.topic ?? '会话'
+					title: that.conv.name ?? '会话'
 				})
 				// console.log(that.messages[that.messages.length - 1])
 				setTimeout(() => {
@@ -252,10 +262,12 @@
 				// 	that.play(that.messages[that.messages.length - 1])
 				// }
 				if (that.messages.length == 0) {
+					that.status = 'thinking'
 					utils.request('POST', '/api/message', {
 						conv_id: options.conv_id
 					}, (res) => {
 						// console.log(res)
+						that.status = 'none'
 						that.messages.push(res.message)
 						// console.log(that.messages[0])
 						that.play(that.messages[0])
@@ -349,8 +361,12 @@
 			lookup(word) {
 				// console.log(word)
 				// var that = this
-				this.$refs.dictionary.lookup(word)
+				// this.$refs.dictionary.showSearch()
+				this.$refs.dictionary.search(word)
 
+			},
+			showSearch() {
+				this.$refs.dictionary.showSearch()
 			},
 			turnNotice() {
 				// console.log(utils.domain + '/static/turn-notice.mp3')
@@ -690,13 +706,13 @@
 					this.status = 'none'
 					return;
 				}
-				
+
 				// if (this.mode == 'phone') {
 				// 	this.turnNotice()
 				// }
 
 				this.messages.push({
-					speaker: 'User',
+					role: 'user',
 					content: this.current_content,
 					audio_url: this.current_audio_file
 				})
@@ -889,7 +905,5 @@
 		animation: twinkle 1s infinite alternate;
 	}
 
-	.word:hover {
-		text-decoration-line: underline;
-	}
+
 </style>

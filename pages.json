@@ -12,7 +12,14 @@
 			"style": {
 				"navigationBarTitleText": "AI会话英语"
 			}
-		}, {
+		}, 
+		{
+			"path": "pages/home/teacher",
+			"style": {
+				"navigationBarTitleText": "选择AI"
+			}
+		}, 
+		{
 			"path": "pages/conversation/index",
 			"style": {
 				"navigationBarTitleText": "",

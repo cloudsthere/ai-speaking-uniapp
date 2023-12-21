@@ -41,6 +41,9 @@ view, input, navigator, button {
 .border-primary {
 	border-color: $uni-color-primary;
 }
+.border-solid {
+	border-style: solid;
+}
 
 .bg-primary {
 	background-color: $uni-color-primary;

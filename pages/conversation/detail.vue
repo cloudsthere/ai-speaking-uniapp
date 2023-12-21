@@ -7,8 +7,8 @@
 		<view v-show="conv.id">
 			<view class="p-4 text-sm">
 				<view class="flex text-xl gap-4">
-					<view class="">{{conv.emoji}}</view>
-					<view class="">{{conv.topic}}</view>
+					<view class="">{{conv.icon}}</view>
+					<view class="">{{conv.name}}</view>
 				</view>
 				<view class="flex mt-4 gap-2">
 					<view class="text-gray-600 ">
@@ -64,9 +64,7 @@
 			})
 			var that = this
 			utils.request('POST', '/api/conversation', {
-				topic_en: options.topic_en,
-				topic: options.topic,
-				emoji: options.emoji
+				scene_id: options.scene_id,
 			}, (res) => {
 				// console.log(res)
 				that.conv = res.conversation
