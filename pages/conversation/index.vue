@@ -11,11 +11,17 @@
 					{{conv.name}}
 				</view>
 				<view class="time text-sm text-gray-400">
-					{{utils.readableDate(conv.exited_at * 1000)}}
+					{{conv.brief}}
 				</view>
 			</view>
 			<view class="buttons mt-2">
 				<button>继续</button>
+			</view>
+			<view class="buttons mt-2">
+				<button @tap.stop="deleteConv(conv.id)">删除</button>
+			</view>
+			<view class="buttons mt-2">
+				<button @tap.stop="top(conv.id)">置顶</button>
 			</view>
 		</navigator>
 	</view>
@@ -46,7 +52,20 @@
 			return utils.share()
 		},
 		methods: {
-
+			deleteConv(conv_id) {
+				// console.log(conv_id)
+				utils.request('POST', '/api/conversation/' + conv_id + '/delete', {}, (res) => {
+					console.log(res)
+					// that.convs = res.conversations
+				})
+			},
+			top(conv_id) {
+				// console.log(conv_id)
+				utils.request('POST', '/api/conversation/' + conv_id + '/top', {}, (res) => {
+					console.log(res)
+					// that.convs = res.conversations
+				})
+			}
 		}
 	}
 </script>

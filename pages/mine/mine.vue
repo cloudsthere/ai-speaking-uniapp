@@ -3,7 +3,7 @@
 
 		<view class="p-4 bg-white">
 			<view class="flex gap-4 items-start border-b border-gray-100 items-stretch pb-4">
-				<template v-if="user">
+				<navigator url="/pages/mine/profile" class="flex gap-4" v-if="user">
 					<image :src="user.avatar" class="avatar" mode=""></image>
 					<view class="flex flex-col justify-between">
 						<view class="text-xl font-medium">
@@ -16,7 +16,8 @@
 							<text class="text-sm text-gray-400">{{member.plan_name}}</text>
 						</view>
 					</view>
-				</template>
+					<view>></view>
+				</navigator>
 				<navigator url="/pages/auth/login"
 					class="login-text w-full m-auto flex flex-col justify-center items-center" v-else>
 					<view class="text-xl">登录/注册</view>
@@ -81,7 +82,7 @@
 	export default {
 		data() {
 			return {
-				user: utils.getUser(),
+				user: {},
 				member: {
 					duration: '-',
 					used_duration: '-',
@@ -95,12 +96,17 @@
 		onShow() {
 			// console.log('onshow')
 			// 登录页跳来
-			this.user = utils.getUser()
+			// this.user = utils.getUser()
 
 			var that = this
 			utils.request('GET', '/api/member', {}, (res) => {
 				// console.log(res)
 				that.member = res.member
+			})
+			
+			utils.request('GET', '/api/user', {}, (res) => {
+				// console.log(res)
+				that.user = res.user
 			})
 		},
 		onShareAppMessage(res) {

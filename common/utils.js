@@ -1,5 +1,6 @@
+
 export default {
-	// domain: 'https://yw.ai7.pro',
+	// domain: 'https://yw.dev.ai7.pro',
 	domain: 'http://ai-speaking.local',
 	// #ifdef MP-WEIXIN
 	version: 'wx-0.0.8',
@@ -309,7 +310,8 @@ export default {
 					// console.log('发login请求')
 					uni.login({
 						success: function(res) {
-
+							// console.log(res.code)
+							// return;
 							uni.request({
 								url: that.domain + '/api/token',
 								method: 'POST',

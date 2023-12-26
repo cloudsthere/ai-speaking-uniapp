@@ -8,6 +8,14 @@
 		// 	}
 		// }, 
 		{
+			"path": "pages/conversation/index",
+			"style": {
+				"navigationBarTitleText": "",
+				"enablePullDownRefresh": false
+			}
+		
+		}, 
+		{
 			"path": "pages/home/index",
 			"style": {
 				"navigationBarTitleText": "AI会话英语"
@@ -19,14 +27,8 @@
 				"navigationBarTitleText": "选择AI"
 			}
 		}, 
-		{
-			"path": "pages/conversation/index",
-			"style": {
-				"navigationBarTitleText": "",
-				"enablePullDownRefresh": false
-			}
 
-		}, {
+		{
 			"path": "pages/conversation/detail",
 			"style": {
 				"navigationBarTitleText": "",
@@ -103,6 +105,14 @@
 				"enablePullDownRefresh": false
 			}
 
+		},
+		{
+			"path" : "pages/mine/profile",
+			"style" : 
+			{
+				"navigationBarTitleText" : "用户信息",
+				"enablePullDownRefresh" : false
+			}
 		}
 
 	],
@@ -118,18 +128,20 @@
 		"selectedColor": "#38b5b3",
 		"borderStyle": "black",
 		"backgroundColor": "#ffffff",
-		"list": [{
-				"pagePath": "pages/home/index",
-				"iconPath": "static/home.png",
-				"selectedIconPath": "static/home-selected.png",
-				"text": "首页"
-			},
+		"list": [
 			{
 				"pagePath": "pages/conversation/index",
 				"iconPath": "static/conversation.png",
 				"selectedIconPath": "static/conversation-selected.png",
 				"text": "会话"
 			},
+			{
+				"pagePath": "pages/home/index",
+				"iconPath": "static/home.png",
+				"selectedIconPath": "static/home-selected.png",
+				"text": "广场"
+			},
+
 			{
 				"pagePath": "pages/collection/index",
 				"iconPath": "static/note.png",

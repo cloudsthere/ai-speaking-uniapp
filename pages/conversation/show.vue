@@ -209,9 +209,7 @@
 		onLoad(options) {
 			// console.log(options)
 			var that = this
-			var method = 'GET'
-			var url = '/api/conversation/' + options.conv_id
-			var data = {}
+
 
 			uni.authorize({
 				scope: 'scope.record',
@@ -242,22 +240,33 @@
 				}
 			})
 
-
-			utils.request(method, url, data, (res) => {
-				if (res.conversation.end) {
-					that.status = 'end'
-				} else if (res.halt) {
-					that.status = 'halt'
+			var method = 'GET'
+			var url = '/api/conversation/' + options.conv_id
+			var data = {}
+			if (options.scene_id) {
+				method = 'POST'
+				url = '/api/conversation/'
+				data = {
+					scene_id: options.scene_id,
 				}
+			}
+			
+			utils.request(method, url, data, (res) => {
+				// if (res.conversation.end) {
+				// 	that.status = 'end'
+				// } else if (res.halt) {
+				// 	that.status = 'halt'
+				// }
 				that.conv = res.conversation
+				// that.messages = [res.message]
 				that.messages = res.messages
+				// console.log(that.messages[0])
+				
 				uni.setNavigationBarTitle({
 					title: that.conv.name ?? '会话'
 				})
 				// console.log(that.messages[that.messages.length - 1])
-				setTimeout(() => {
-					that.scrollToBottom()
-				}, 300)
+				that.scrollToBottom()
 				// if (that.messages[that.messages.length - 1]) {
 				// 	that.play(that.messages[that.messages.length - 1])
 				// }
@@ -272,6 +281,8 @@
 						// console.log(that.messages[0])
 						that.play(that.messages[0])
 					})
+				} else {
+					that.play(that.messages[that.messages.length - 1])
 				}
 			})
 
@@ -281,7 +292,7 @@
 
 		},
 		onShow() {
-			this.createDialog()
+			// this.createDialog()
 		},
 		onHide() {
 			this.cleanUp()
@@ -306,10 +317,10 @@
 					}, (res) => {
 						// console.log(res)
 						message.recommends = res.recommends
-						console.log(message)
+						// console.log(message)
 						// 最后一个message
 						if (message.id == that.messages[that.messages.length - 1].id) {
-							console.log('last message')
+							// console.log('last message')
 							that.scrollToBottom()
 						}
 					})
@@ -681,16 +692,19 @@
 				}
 			},
 			scrollToBottom: function() {
-				var query = wx.createSelectorQuery();
-				query.select('.content').boundingClientRect();
-				query.exec(function(res) {
-					// console.log(res[0])
-					if (res[0]) {
-						uni.pageScrollTo({
-							scrollTop: res[0].height + 900
-						})
-					}
-				})
+				setTimeout(() => {
+					var query = wx.createSelectorQuery();
+					query.select('.content').boundingClientRect();
+					query.exec(function(res) {
+						// console.log(res[0])
+						if (res[0]) {
+							uni.pageScrollTo({
+								scrollTop: res[0].height + 900
+							})
+						}
+					})
+				}, 100)
+				
 			},
 
 			sendMessage() {

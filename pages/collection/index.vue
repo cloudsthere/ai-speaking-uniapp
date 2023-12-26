@@ -10,11 +10,11 @@
 		
 		<view class="" :key="collection.date" v-for="collection in collections">
 			<view class="px-4 text-gray-400 py-1 text-sm">{{collection.date}}</view>
-			<view @click="lookup(c.dictionary.word)" v-for="c in collection.collections" :key="c.id" class="bg-white flex px-4 items-center gap-4 py-4 border-b border-gray-100">
+			<view @click="lookup(c.dictionary.query)" v-for="c in collection.items" :key="c.id" class="bg-white flex px-4 items-center gap-4 py-4 border-b border-gray-100">
 				<uni-icons @click="play(c.dictionary)" :class="{playing: c.dictionary.playing}"
 					custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons>
 					<view class="flex flex-col gap-1" style="min-width:0;flex-shrink:1;">
-						<text class="text-base text-xl">{{c.dictionary.word}}</text>
+						<text class="text-base text-xl">{{c.dictionary.query}}</text>
 						<text class="text-sm text-gray-400 overflow-hidden whitespace-nowrap text-ellipsis">{{c.dictionary.brief}}</text>
 					</view>
 			</view>
@@ -56,7 +56,7 @@
 			lookup(word) {
 				// console.log(word)
 				// return;
-				this.$refs.dictionary.lookup(word)
+				this.$refs.dictionary.search(word)
 			}
 		}
 	}

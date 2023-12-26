@@ -31,18 +31,17 @@
 			<text class="text-xs text-primary">Choose a scene and practise now!</text>
 		</view>
 		<view class="content">
-			<navigator :url="'/pages/conversation/detail?scene_id=' + scene.id" v-for="(scene, scene_index) in scenes"
+			<navigator :url="'/pages/conversation/show?scene_id=' + scene.id" v-for="(scene, scene_index) in scenes"
 				:key="scene_index">
 				<view class="scene-card text-center">
 					<view class="avatar text-3xl">
-						<!-- {{scene.icon}} -->
-						<image :src="scene.icon" mode=""></image>
+						<image :src="scene.avatar" mode=""></image>
 					</view>
 					<view class="name text-xl">
 						<view>{{scene.name}}</view>
 					</view>
 					<view class="brief text-sm">
-						<view>{{scene.en_name}}</view>
+						<view>{{scene.brief}}</view>
 					</view>
 				</view>
 			</navigator>

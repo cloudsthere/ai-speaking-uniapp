@@ -68,7 +68,7 @@
 			}, (res) => {
 				// console.log(res)
 				that.conv = res.conversation
-				that.halt = res.halt
+				// that.halt = res.halt
 				uni.hideLoading()
 			})
 		},
