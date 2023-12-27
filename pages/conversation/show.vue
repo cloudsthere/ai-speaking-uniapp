@@ -43,8 +43,8 @@
 				<!-- <image class="avatar" src="@/static/user-avatar.png" mode=""></image> -->
 				<view class="message-box">
 					<view class="message-text">
-						<words :words="message.words" @lookup="lookup"></words>
-						
+						<!-- <words :words="message.words" @lookup="lookup"></words> -->
+						{{message.content}}
 					</view>
 
 					<view class="message-dashboard">
@@ -93,14 +93,16 @@
 			</view>
 		</view>
 		<view class="flex items-center gap-2 px-2">
-			<view class="placeholder"></view>
+			<uni-icons @click="switchMode" type="plusempty" size="16"></uni-icons>
 			<view class="button-wapper">
 				<button class="btn-speak text-gray-400" v-if="status == 'end'">已结束</button>
 				<button class="btn-speak btn-danger" v-else-if="mode == 'phone'" @click="hangUp">挂断</button>
-				<button class="btn-speak bg-white" v-else @longpress="handleRecordStart" @touchend="handleRecordStop">按住
+				<button class="btn-speak bg-white" v-else-if="mode == 'chat'" @longpress="handleRecordStart" @touchend="handleRecordStop">按住
 					说话</button>
+				<input v-else-if="mode == 'keyboard'" type="text" v-model="text" class="py-2 border-b border-x-0 border-t-0 text-left border-gray-200 border-solid bg-white"/>
 			</view>
-			<uni-icons @click="call" :class="{}" custom-prefix="iconfont" type="icon-maikefeng" size="40"></uni-icons>
+			<uni-icons v-if="mode == 'chat'" @click="call" :class="{}" custom-prefix="iconfont" type="icon-maikefeng" size="40"></uni-icons>
+			<uni-icons v-else-if="mode == 'keyboard'" @click="sendText" type="paperplane-filled" size="16"></uni-icons>
 		</view>
 	</view>
 	<dictionary ref="dictionary"></dictionary>
@@ -184,7 +186,7 @@
 			return {
 				// none: 没有情况，recording: 用户录音，thinking: AI思考中，思考完后又回到none， halt:没钱停机，end: 已结束
 				status: 'none',
-				// chat: 对话，phone: 电话
+				// chat: 对话，phone: 电话, keyboard: 键盘
 				mode: 'chat',
 				// speaking, listening
 				phone_status: 'none',
@@ -202,7 +204,8 @@
 				current_content: '',
 				current_audio_file: null,
 				socket_status: 'none',
-				hangingUp: false
+				hangingUp: false,
+				text: '',
 				// playing_message: null,
 			}
 		},
@@ -252,6 +255,7 @@
 			}
 			
 			utils.request(method, url, data, (res) => {
+				console.log(res)
 				// if (res.conversation.end) {
 				// 	that.status = 'end'
 				// } else if (res.halt) {
@@ -273,7 +277,7 @@
 				if (that.messages.length == 0) {
 					that.status = 'thinking'
 					utils.request('POST', '/api/message', {
-						conv_id: options.conv_id
+						conv_id: that.conv.id
 					}, (res) => {
 						// console.log(res)
 						that.status = 'none'
@@ -307,6 +311,13 @@
 			return utils.share()
 		},
 		methods: {
+			switchMode() {
+				if (this.mode == 'chat') {
+					this.mode = 'keyboard'
+				} else {
+					this.mode = 'chat'
+				}
+			},
 			recommend(message) {
 				if (!message.recommends) {
 					var that = this
@@ -507,12 +518,12 @@
 				let resultText = '';
 
 				uni.onSocketMessage(function(res) {
-					console.log('receive socket message')
+					// console.log('receive socket message')
 					// console.log(res)
 					// console.log(JSON.parse(res.data))
 					// renderResult(res.data)
 					let jsonData = JSON.parse(res.data);
-					console.log(jsonData)
+					// console.log(jsonData)
 
 					if (jsonData.data && jsonData.data.result) {
 						let data = jsonData.data.result;
@@ -534,7 +545,7 @@
 							resultText = resultText + str;
 						}
 						let text = resultTextTemp || resultText || "";
-						console.log('result', text)
+						// console.log('result', text)
 						that.current_content = text
 					}
 					if (jsonData.code === 0 && jsonData.data.status === 2) {
@@ -707,6 +718,73 @@
 				
 			},
 
+			sendText() {
+				console.log(this.text)
+				if (this.text.length == 0) {
+					return;
+				}
+				
+				this.messages.push({
+					role: 'user',
+					content: this.text,
+					// audio_url: this.current_audio_file
+				})
+				this.scrollToBottom()
+				
+				this.status = 'thinking'
+				var that = this
+				
+				utils.request('POST', '/api/message', {
+					content: that.text,
+					conv_id: that.conv.id,
+					// audio: audio_str,
+				}, (res) => {
+					that.current_content = null
+					that.text = null
+					that.current_audio_file = null
+				
+					if (res.error == 0) {
+						// let message = res.message
+						// message.words = message.content.split(/([\.\?, ])/).filter(item => item !== '')
+						// console.log(message.words)
+						that.messages.push(res.message)
+						let context = player.play(that.messages[that.messages.length - 1])
+						// console.log('context', context)
+						console.log('mode', that.mode);
+						console.log('phone_status', that.phone_status);
+						if (that.mode == 'phone') {
+							that.phone_status = 'speaking'
+							that.status = 'none'
+							console.log('status phoning & speaking')
+							context.onEnded((res) => {
+								console.log('player ended')
+								context.offEnded()
+								that.turnNotice()
+								that.call()
+							})
+						} else {
+							if (res.end) {
+								that.status = 'end'
+							} else {
+								that.status = 'none'
+							}
+						}
+				
+						that.scrollToBottom()
+					} else {
+						if (res.error == 102) {
+							that.status = 'halt'
+						} else {
+							uni.showToast({
+								title: '网络错误，请稍后再试',
+								icon: 'none',
+							})
+						}
+				
+					}
+				
+				})
+			},
 			sendMessage() {
 				var that = this
 
@@ -735,7 +813,7 @@
 				this.status = 'thinking'
 
 
-				console.log('read current_audio_file', this.current_audio_file)
+				// console.log('read current_audio_file', this.current_audio_file)
 				// 读取文件内容并进行Base64编码
 				uni.getFileSystemManager().readFile({
 					filePath: this.current_audio_file,

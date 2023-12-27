@@ -1,7 +1,7 @@
 
 export default {
-	// domain: 'https://yw.dev.ai7.pro',
-	domain: 'http://ai-speaking.local',
+	domain: 'https://yw.dev.ai7.pro',
+	// domain: 'http://ai-speaking.local',
 	// #ifdef MP-WEIXIN
 	version: 'wx-0.0.8',
 	// #endif
@@ -215,7 +215,7 @@ export default {
 
 					} else if (res.statusCode != 200) {
 						uni.showToast({
-							title: '网络错误，请稍后再试',
+							title: `网络错误，请稍后再试(${res.statusCode})`,
 							icon: 'error',
 						})
 					} else {

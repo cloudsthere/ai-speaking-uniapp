@@ -82,7 +82,7 @@
 	export default {
 		data() {
 			return {
-				user: {},
+				user: null,
 				member: {
 					duration: '-',
 					used_duration: '-',
@@ -96,7 +96,7 @@
 		onShow() {
 			// console.log('onshow')
 			// 登录页跳来
-			// this.user = utils.getUser()
+			this.user = utils.getUser()
 
 			var that = this
 			utils.request('GET', '/api/member', {}, (res) => {
@@ -104,10 +104,10 @@
 				that.member = res.member
 			})
 			
-			utils.request('GET', '/api/user', {}, (res) => {
-				// console.log(res)
-				that.user = res.user
-			})
+			// utils.request('GET', '/api/user', {}, (res) => {
+			// 	// console.log(res)
+			// 	that.user = res.user
+			// })
 		},
 		onShareAppMessage(res) {
 			return utils.share()
