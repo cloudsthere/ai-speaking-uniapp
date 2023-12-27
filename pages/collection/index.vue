@@ -40,10 +40,11 @@
 				count: '',
 			}
 		},
-		onLoad() {
+		onShow() {
+			console.log('onShow')
 			var that = this
 			utils.request('GET', '/api/collection', {}, (res) => {
-				// console.log(res)
+				console.log(res)
 				that.collections = res.collections
 				that.count = res.count
 			})
