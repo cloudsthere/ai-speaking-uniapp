@@ -203,7 +203,7 @@ export default {
 						uni.removeStorageSync('token_expires_at')
 
 						uni.reLaunch({
-							url: '/pages/index/index',
+							url: '/pages/conversation/index',
 							success() {
 								// console.log('relaunch success')
 							},

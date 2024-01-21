@@ -32,11 +32,7 @@
 				</view>
 				<view class="">
 					<label class="px-1 text-sky-500">•</label>
-					<text>好友购买会员后，您可获得支付金额的10%的一级佣金</text>
-				</view>
-				<view class="flex">
-					<label class="px-1 text-sky-500">•</label>
-					<text>若好友甲再发展他的受邀者乙，您可获得乙的购买金额的3%的二级佣金</text>
+					<text>好友购买会员后，您可获得支付金额的10%的佣金</text>
 				</view>
 			</view>
 		</view>

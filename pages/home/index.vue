@@ -15,15 +15,7 @@
 				</view>
 			</view>
 			<view class="relative" style="width: 120px; height: 120px; flex: none;">
-				<video id="still-video" v-show="!is_greeting" style="width: 120px; height: 120px;" object-fit="fill"
-					:src="teacher.avatar_video_still" :autoplay="true" :show-progress="false"
-					:show-fullscreen-btn="false" :show-play-btn="false" :show-center-play-btn="false"
-					:show-loading="false" :loop="true" :controls="false"></video>
-				<video id="greeting-video" v-show="is_greeting" style="width: 120px; height: 120px;"
-					object-fit="fill" @ended="greetingEnd" :src="teacher.avatar_video_greeting" :autoplay="false"
-					:show-progress="false" :show-fullscreen-btn="false" :show-play-btn="false"
-					:show-center-play-btn="false" :show-loading="false" :loop="false" :controls="false"></video>
-				<view class="absolute bottom-0 w-full" style="height: 40px; background-image: linear-gradient(to top, rgba(255, 255, 255, 1), rgba(255, 255, 255, 0));"></view>
+				<image :src="teacher.avatar_pic" mode=""></image>
 			</view>
 		</view>
 		<view class="mb-2 mt-10 flex gap-1 flex-col text-center">
@@ -51,6 +43,7 @@
 
 <script>
 	import utils from '@/common/utils.js';
+	import player from '@/common/player.js';
 
 	export default {
 		data() {
@@ -79,18 +72,18 @@
 		},
 		methods: {
 			greeting() {
-				// play.sound(this.teacher.greeting)
-				this.is_greeting = true
+				player.sound(this.teacher.audio)
+				// this.is_greeting = true
 				// console.log(this.is_greeting)
-				let context = uni.createVideoContext('greeting-video')
-				context.play()
+				// let context = uni.createVideoContext('greeting-video')
+				// context.play()
 			},
-			greetingEnd() {
-				console.log('greeting end')
-				this.is_greeting = false
-				let context = uni.createVideoContext('still-video')
-				context.play()
-			}
+			// greetingEnd() {
+			// 	console.log('greeting end')
+			// 	this.is_greeting = false
+			// 	let context = uni.createVideoContext('still-video')
+			// 	context.play()
+			// }
 		}
 	}
 </script>
