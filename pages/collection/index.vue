@@ -53,7 +53,7 @@
 					that.is_login = false
 				} else {
 					that.collections = res.collections
-					that.count = res.count
+					that.count = res.collections.length
 				}
 			})
 		},
