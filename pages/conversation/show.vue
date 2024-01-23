@@ -32,7 +32,7 @@
 						</view>
 						<view class="text-center" v-show="!message.recommends">
 							<view class="animate-spin">
-								<image src="@/static/icon-loading.png" mode="" class="w-5 h-5"></image>
+								<!-- <image src="@/static/icon-loading.png" mode="" class="w-5 h-5"></image> -->
 							</view>
 						</view>
 					</view>

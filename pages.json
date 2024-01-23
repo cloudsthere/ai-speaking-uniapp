@@ -1,16 +1,10 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
-		// {
-		// 	"path": "pages/test/test",
-		// 	"style": {
-		// 		"navigationBarTitleText": "",
-		// 		"enablePullDownRefresh": false
-		// 	}
-		// }, 
 		{
 			"path": "pages/conversation/index",
 			"style": {
-				"navigationBarTitleText": "",
+				"navigationBarTitleText": "聊天",
+				"navigationStyle": "custom",
 				"enablePullDownRefresh": false
 			}
 		
@@ -125,33 +119,33 @@
 	"uniIdRouter": {},
 	"tabBar": {
 		"color": "#7A7E83",
-		"selectedColor": "#38b5b3",
+		"selectedColor": "#23CF9E",
 		"borderStyle": "black",
 		"backgroundColor": "#ffffff",
 		"list": [
 			{
 				"pagePath": "pages/conversation/index",
-				"iconPath": "static/conversation.png",
-				"selectedIconPath": "static/conversation-selected.png",
-				"text": "会话"
+				"iconPath": "static/conversation.jpg",
+				"selectedIconPath": "static/conversation-selected.jpg",
+				"text": "聊天"
 			},
 			{
 				"pagePath": "pages/home/index",
-				"iconPath": "static/home.png",
-				"selectedIconPath": "static/home-selected.png",
-				"text": "广场"
+				"iconPath": "static/home.jpg",
+				"selectedIconPath": "static/home-selected.jpg",
+				"text": "发现"
 			},
 
 			{
 				"pagePath": "pages/collection/index",
-				"iconPath": "static/note.png",
-				"selectedIconPath": "static/note-selected.png",
+				"iconPath": "static/note.jpg",
+				"selectedIconPath": "static/note-selected.jpg",
 				"text": "单词本"
 			},
 			{
 				"pagePath": "pages/mine/mine",
-				"iconPath": "static/wode.png",
-				"selectedIconPath": "static/wode-selected.png",
+				"iconPath": "static/mine.jpg",
+				"selectedIconPath": "static/mine-selected.jpg",
 				"text": "我的"
 			}
 		]
