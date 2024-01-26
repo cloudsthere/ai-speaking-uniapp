@@ -3,6 +3,105 @@ view, input, navigator, button {
 	border-style: solid;
 }
 
+view, text {
+	font-family: PingFang SC, PingFang SC;
+}
+
+.mt-8 {
+	margin-top: 8rpx;
+}
+.mt-32 {
+	margin-top: 32rpx;
+}
+
+.ml-24 {
+	margin-left: 24rpx;
+}
+
+.p-12 {
+	padding: 12rpx;
+}
+
+.p-24 {
+	padding: 24rpx;
+}
+
+.pt-8 {
+	padding-top: 8rpx;
+}
+.pt-32 {
+	padding-top: 32rpx
+}
+
+.z-behind {
+	z-index: -1
+}
+
+.c-gray-1 {
+	color: #8C8E9D;
+}
+
+.c-gray-2 {
+	color: #666A73;
+}
+
+.c-blue-1 {
+	color: #151727;
+}
+
+.lh-30 {
+	line-height: 30rpx;
+}
+.fs-24 {
+	font-size: 24rpx;
+}
+.fs-26 {
+	font-size: 26rpx;
+}
+.fs-30 {
+	font-size: 30rpx;
+}
+.fs-32 {
+	font-size: 32rpx;
+}
+
+.bg-orange {
+	background-color: #FF8741;
+}
+
+.bg-red {
+	background-color: #FF5661;
+}
+
+.bg-gray {
+	background-color: #F1F2F6;
+}
+
+.rounded-half {
+	border-radius: 50%;
+}
+
+.br-16 {
+	border-radius: 16rpx;
+}
+
+.p-h-32 {
+	padding-left: 32rpx;
+	padding-right: 32rpx;
+}
+
+.hp100 {
+	height: 100%;
+}
+
+.wp50 {
+	width: 50%;
+}
+
+.justify-end {
+	justify-content: flex-end;
+}
+
 .btn {
     align-items: center;
     border-color: transparent;

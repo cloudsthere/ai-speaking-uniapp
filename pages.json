@@ -12,7 +12,8 @@
 		{
 			"path": "pages/home/index",
 			"style": {
-				"navigationBarTitleText": "AI会话英语"
+				"navigationBarTitleText": "发现",
+				"navigationStyle": "custom"
 			}
 		}, 
 		{

@@ -1,67 +1,96 @@
 <template>
-	<tui-navigation-bar splitLine @init="initNavigation" transparent :isOpacity="false" @change="opacityChange" :scrollTop="scrollTop" title="聊天" color="#333">
-	 <view class="tui-header-icon" :style="{ marginTop: top + 'px' }">
-	   <tui-icon name="arrowleft" color="#333" @click="back"></tui-icon>
+	<tui-navigation-bar splitLine  transparent title="聊天" color="#000">
+	 <view class="tui-header-icon">
+		<navigator v-if="userInfo.avatar" url="/pages/home/price">
+			<img class="nav-avatar rounded-half" :src="userInfo.avatar" />
+		</navigator>
+		<navigator v-else url="/pages/auth/login">
+			<img class="nav-avatar rounded-half" src="/static/default_avatar.jpg" />
+		</navigator>
 	 </view>
-	</tui-navigation-bar>
-	<view class="main">
-		<view v-if="convs.length === 0" class="text-center ">
-			<image mode="widthFix" class="mt-10" src="@/static/search-no-data.png" style="width: 50%;"></image>
-			<view class="mt-2">您还没有会话...</view>
-		</view>
-		<view class="content" v-else>
-			<navigator :url="'/pages/conversation/show?conv_id=' + conv.id"
-				class="session flex shadow-md text-sm justify-between p-2 mb-4 mx-2" v-for="conv in convs" :key="conv.id">
-				<view class="info">
-					<view class="name text-lg">
-						{{conv.name}}
-					</view>
-					<view class="time text-sm text-gray-400">
-						{{conv.brief}}
-					</view>
-				</view>
-				<view class="buttons mt-2">
-					<button>继续</button>
-				</view>
-				<view class="buttons mt-2">
-					<button @tap.stop="deleteConv(conv.id)">删除</button>
-				</view>
-				<view class="buttons mt-2">
-					<button @tap.stop="top(conv.id)">置顶</button>
-				</view>
-			</navigator>
-		</view>
-	</view>
 	
-	<view class="bg">
-		<img class="img" mode="scaleToFill" src="/static/chat-bg.jpg" alt="" />
+		<view class="bg">
+			<img class="img" mode="scaleToFill" src="/static/chat-bg.jpg" alt="" />
+		</view>
+	</tui-navigation-bar>
+	<view class="main content" :style="{marginTop: height + 'px'}">
+		<tui-list-view backgroundColor="#fff">
+			<tui-swipe-action 
+				v-for="conv in convs" 
+				:key="conv.id" 
+				:actions="[
+					{
+						color: '#fff',
+						fontsize: 32,
+						width: 56,
+						imgWidth: 56,
+						imgHeight: 56,
+						icon: conv.sort > 0 ? '/static/icon-pin-cancel.svg' : '/static/icon-pin.svg',
+						background: '#FF8741',
+					},{
+						color: '#fff',
+						fontsize: 32,
+						width: 56,
+						imgWidth: 56,
+						imgHeight: 56,
+						icon: '/static/icon-delete.svg',
+						background: '#FF5661'
+				 }]" 
+				 :forbid="conv.is_primary"
+				 @click="(param) => handleSwiperBtn(conv, param)"
+				>
+				<template v-slot:content>
+					<navigator :url="'/pages/conversation/show?conv_id=' + conv.id">
+						<tui-list-cell unlined :arrow="false" padding="24rpx 32rpx" :backgroundColor="conv.is_primary ? '#FAFAFA' : '#fff'">
+							<view class="flex justify-between items-center">
+								<view class="flex">
+									<img class="avatar" :src="conv.avatar" />
+									<view class="cell-title">
+										<view class="font-semibold fs-32">{{conv.name}}</view>	
+										<view class="cell-brief mt-8 c-gray-1">{{conv.brief}}</view>
+									</view>
+								</view>
+								<image class="btn-icon" src="/static/icon-phone.svg" />
+							</view>
+						</tui-list-cell>
+					</navigator>
+				</template>
+			</tui-swipe-action>
+		</tui-list-view>
+		
 	</view>
 </template>
 
 <script>
-	import utils from '@/common/utils.js'
 	import tuiNavigationBar from "@/components/thorui/tui-navigation-bar/tui-navigation-bar.vue"
-	import tuiIcon from "@/components/thorui/tui-icon/tui-icon.vue"
+	import tuiSwipeAction from "@/components/thorui/tui-swipe-action/tui-swipe-action.vue"
+	import tuiListView from "@/components/thorui/tui-list-view/tui-list-view.vue"
+	import tuiListCell from "@/components/thorui/tui-list-cell/tui-list-cell.vue"
+	import utils from '@/common/utils.js'
 
 	export default {
 		components:{
+			tuiListView,
 			tuiNavigationBar,
-			tuiIcon
+			tuiListCell,
+			tuiSwipeAction
 		},
 		data() {
 			return {
-				top: 24, //标题图标距离顶部距离
-				scrollTop: 0.5,
-
-				utils,
+				userInfo: {},
 				convs: [],
 			}
 		},
 		onShow() {
-			var that = this
-			utils.request('GET', '/api/conversation', {}, (res) => {
-				// console.log(res)
-				that.convs = res.conversations
+			this.userInfo = utils.getUser()
+			this.getData()
+		},
+		onReady() {
+			uni.getSystemInfo({
+				success: (e) => {
+					let custom = uni.getMenuButtonBoundingClientRect();
+					this.height = custom.height + custom.top  * 2 - e.statusBarHeight + 4;
+				}
 			})
 		},
 		onShareAppMessage(res) {
@@ -71,25 +100,69 @@
 			return utils.share()
 		},
 		methods: {
+			getData() {
+				utils.request('GET', '/api/conversation', {}, (res) => {
+					this.convs = res.conversations
+					console.log(res.conversations)
+				})
+			},
 			deleteConv(conv_id) {
-				// console.log(conv_id)
 				utils.request('POST', '/api/conversation/' + conv_id + '/delete', {}, (res) => {
-					console.log(res)
-					// that.convs = res.conversations
+					this.getData()
+				})
+			},
+			handleSwiperBtn(conv, p) {
+				switch(p.index) {
+					case 0: return conv.sort > 0 ? this.cancelTop(conv.id) : this.top(conv.id)
+					case 1: return this.deleteConv(conv.id)
+				}
+			},
+			cancelTop(conv_id) {
+				utils.request('POST', '/api/conversation/' + conv_id + '/down', {}, (res) => {
+					this.getData()
 				})
 			},
 			top(conv_id) {
-				// console.log(conv_id)
 				utils.request('POST', '/api/conversation/' + conv_id + '/top', {}, (res) => {
-					console.log(res)
-					// that.convs = res.conversations
+					this.getData()
 				})
 			}
 		}
 	}
 </script>
 
-<style>
+<style scoped>
+>>> .tui-navigation-bar {
+	overflow: hidden;
+}
+>>> .tui-navigation-bar .tui-navigation_bar-title {
+	font-size: 32rpx;
+	font-family: PingFang SC, PingFang SC;
+	font-weight: 600;
+}
+
+.nav-avatar {
+	margin-left: 32rpx;
+	width: 56rpx;
+	height: 56rpx;
+}
+.avatar {
+	width: 96rpx;
+	height: 96rpx;
+	margin-right: 24rpx
+}
+
+.btn-icon {
+	width: 48rpx;
+	height: 48rpx;
+}
+
+.tui-list-item {
+  	padding: 40rpx 30rpx;
+  	display: flex;
+  	align-items: center;
+  	box-sizing: border-box;
+}
 .header {
 	padding-top: var(--status-bar-height);
 	height: 32px;
@@ -98,12 +171,10 @@
 }
 .header .nav {
 	width: 100%;
-	/* display: flex;
-	align-items: center; */
 	text-align: center;
 }
 .main {
-	margin-top: 64px;
+	margin-top: 69px;
 }
 .bg {
 	position: absolute;
@@ -115,7 +186,7 @@
 }
 .bg .img {
 	width: 100%;
-	height: 174rpx;
+	height: 348rpx;
 }
 .tui-header-icon {
 	width: 100%;
@@ -129,4 +200,6 @@
 	z-index: 99999;
 	box-sizing: border-box;
 }
+
+
 </style>

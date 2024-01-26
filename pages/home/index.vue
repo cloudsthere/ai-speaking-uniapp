@@ -1,53 +1,64 @@
 <template>
-	<view class="p-4">
-		<view class="flex justify-between gap-2">
-			<!-- <view> -->
-			<view class="flex flex-col gap-3">
-				<view class="">{{teacher.greeting}}</view>
-				<view class="flex gap-3">
-					<navigator url="/pages/home/teacher"
-						class="py-1 px-2 border border-primary border-solid text-primary rounded-full">更换AI
-					</navigator>
-					<view class="py-1 px-2 border border-primary border-solid bg-primary text-white rounded-full"
-						@click="greeting">
-						Say Hi
+	<page-meta page-style="background-image: url(/static/chat-bg.jpg);background-repeat: no-repeat">
+		<tui-navigation-bar transparent splitLine title="发现" color="#000"></tui-navigation-bar>
+	</page-meta>
+	<scroll-view scroll-y :style="{position: 'absolute', top: height + 'px', height: `calc(100% - ${height}px)`}" >
+		<view class="main p-h-32">
+			<view class="flex">
+				<view class="mt-8 relative">
+					<view class="mt-32 c-blue-1 font-semibold lh-30 fs-26 greeting">{{teacher.greeting}}</view>
+					<view class="flex gap-3">
+						<navigator url="/pages/home/teacher"
+							class="mt-32 fs-24 br-16 c-gray-2 bg-gray changeRole">更换角色
+						</navigator>
+						<view class="mt-32 p-12 br-16 voice-box"
+							@click="greeting">
+							<img class="voice" src="/static/icon-voice-white.svg" />
+						</view>
 					</view>
+					
+					<image class="absolute top-0 left-0 z-behind bg-text" src="/static/bg-marks.svg" />
+				</view>
+				<view class="relative pt-32 ml-24 rounded-half overflow-hidden" >
+					<image class="teacher-avatar" :src="teacher.avatar_pic" mode=""></image>
 				</view>
 			</view>
-			<view class="relative" style="width: 120px; height: 120px; flex: none;">
-				<image :src="teacher.avatar_pic" mode=""></image>
+			<view class="c-blue-1 section-title font-semibold">
+				<text>场景</text>
+			</view>
+			<view class="content">
+				<navigator :url="'/pages/conversation/show?scene_id=' + scene.id" v-for="(scene, scene_index) in scenes"
+					:key="scene_index">
+					<view class="p-24 scene-card">
+						<view class="name flex justify-between">
+							<view class="c-blue-1 fs-30">{{scene.name}}</view>
+							<image class="voice-sleep" src="/static/icon-voice-grey.svg" />
+						</view>
+						<view class="brief c-gray-1 fs-24">
+							<view>{{scene.brief}}</view>
+						</view>
+						<view class="flex justify-end">
+							<image class="scene-img" :src="scene.avatar" mode=""></image>
+						</view>
+					</view>
+				</navigator>
 			</view>
 		</view>
-		<view class="mb-2 mt-10 flex gap-1 flex-col text-center">
-			<text>选择合适场景，开始今天练习</text>
-			<text class="text-xs text-primary">Choose a scene and practise now!</text>
-		</view>
-		<view class="content">
-			<navigator :url="'/pages/conversation/show?scene_id=' + scene.id" v-for="(scene, scene_index) in scenes"
-				:key="scene_index">
-				<view class="scene-card text-center">
-					<view class="avatar text-3xl">
-						<image :src="scene.avatar" mode=""></image>
-					</view>
-					<view class="name text-xl">
-						<view>{{scene.name}}</view>
-					</view>
-					<view class="brief text-sm">
-						<view>{{scene.brief}}</view>
-					</view>
-				</view>
-			</navigator>
-		</view>
-	</view>
+	</scroll-view>
 </template>
 
 <script>
 	import utils from '@/common/utils.js';
 	import player from '@/common/player.js';
+	import tuiNavigationBar from "@/components/thorui/tui-navigation-bar/tui-navigation-bar.vue"
 
 	export default {
+		components: {
+			tuiNavigationBar
+		},
 		data() {
 			return {
+				height: 0,
 				// scenes: [],
 				scenes: [],
 				teacher: {},
@@ -62,6 +73,14 @@
 			utils.request('GET', '/api/scene', {}, (res) => {
 				that.scenes = res.scenes
 				that.teacher = res.teacher
+			})
+		},
+		onReady() {
+			uni.getSystemInfo({
+				success: (e) => {
+					let custom = uni.getMenuButtonBoundingClientRect();
+					this.height = custom.height + custom.top  * 2 - e.statusBarHeight + 4;
+				}
 			})
 		},
 		onShareAppMessage(res) {
@@ -89,13 +108,58 @@
 </script>
 
 <style lang="scss">
-	// .content {
-	// 	display: grid;
-	// 	padding: 0 10px 0 10px;
-	// 	gap: 10px;
-	// 	grid-template-columns: repeat(2, 1fr);
-	// 	grid-template-rows: repeat(2, 1fr);
-	// }
+	.bg {
+		position: absolute;
+		top: 0;
+		height: 348rpx;
+		width: 100%;
+		z-index: -1;
+	}
+	
+	.bg-text {
+		width: 96rpx;
+		height: 78rpx;
+	}
+	
+	.greeting {
+		font-family: PingFang SC, PingFang SC;
+		width: 398rpx;
+	}
+	
+	.voice-box {
+		display: flex;
+		background: linear-gradient(40deg, #1CD1AD 0%, #39E9C6 100%);
+	}
+	.voice {
+		width: 28rpx;
+		height: 28rpx;
+	}
+	
+	.changeRole {
+		padding: 8rpx 24rpx;
+	}
+	
+	.teacher-avatar {
+		width: 208rpx;
+		height: 208rpx;
+	}
+	
+	.section-title {
+		margin-top: 48rpx;
+		margin-bottom: 46rpx;
+		margin-left: 24rpx;
+	}
+	
+	.voice-sleep {
+		width: 32rpx;
+		height: 32rpx;
+	}
+	
+	.scene-img {
+		width: 80rpx;
+		height: 80rpx;
+	}
+	
 	.content {
 		display: flex;
 		align-items: stretch;
@@ -142,10 +206,8 @@
 		}
 
 		.brief {
-			margin-top: 10px;
-			height: 32px;
-			color: $uni-text-color-grey;
-			font-size: $uni-font-size-sm;
+			margin-top: 16rpx;
+			margin-bottom: 26rpx;
 		}
 	}
 </style>
