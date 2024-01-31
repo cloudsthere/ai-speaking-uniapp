@@ -187,7 +187,8 @@
 				// none: 没有情况，recording: 用户录音，thinking: AI思考中，思考完后又回到none， halt:没钱停机，end: 已结束
 				status: 'none',
 				// chat: 对话，phone: 电话, keyboard: 键盘
-				mode: 'chat',
+				// mode: 'chat',
+				mode: 'keyboard',
 				// speaking, listening
 				phone_status: 'none',
 				// status: 'thinking', //
@@ -733,6 +734,51 @@
 				
 				this.status = 'thinking'
 				var that = this
+				
+								
+				let task = uni.request({
+					url: utils.domain + '/api/message',
+					method: 'POST',
+					data: {
+						content: that.text,
+						conv_id: that.conv.id,
+					// audio: audio_str,
+					},
+					header: {
+						Authorization: 'Bearer ' + utils.getToken(),
+						Accept: 'application/json',
+						Platform: utils.platform
+					},
+					enableChunked: true,
+					success(res) {
+						console.log('suceess', res)
+					}
+				})
+				console.log(task)
+				
+				that.current_content = null
+				that.text = null
+				that.current_audio_file = null
+				
+				task.onChunkReceived((response) => {
+					console.log(response)
+					
+					let arrayBuffer = new Uint8Array(response.data).buffer;
+					let text = utils.arrayBufferToText(arrayBuffer);
+					console.log('receive')
+					console.log(text); // 输出 "Hello"
+					let lines = text.split("\n").filter()
+					lines.forEach((line) => {
+						if (line) {
+							let data = JSON.parse(line)
+							if (data.status == 'init') {
+								
+							}
+						}
+					})
+					
+				})
+				return;
 				
 				utils.request('POST', '/api/message', {
 					content: that.text,
