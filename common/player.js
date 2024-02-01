@@ -19,8 +19,11 @@ let player = {
 		this.context.play()
 		return this.context
 	},
-	sound(url) {
+	sound(url, cb) {
 		this.context.src = url
+		cb && this.context.onEnded(() => {
+			cb()
+		})
 		this.context.play()
 	},
 	stop() {

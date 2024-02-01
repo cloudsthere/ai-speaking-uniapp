@@ -1,5 +1,5 @@
 <template>
-	<tui-navigation-bar splitLine  transparent title="聊天" color="#000">
+	<tui-navigation-bar  transparent title="聊天" color="#000">
 	 <view class="tui-header-icon">
 		<navigator v-if="userInfo.avatar" url="/pages/home/price">
 			<img class="nav-avatar rounded-half" :src="userInfo.avatar" />

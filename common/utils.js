@@ -362,5 +362,32 @@ export default {
 		return arr;
 
 	},
+	
+	// 根据某个字段分段数组
+	chunk(arr, key, formKey) {
+		const res = []
+		arr.forEach(val => {
+			const formattedKey = formKey ? formKey(val[key]) : val[key]
+			if(res.length === 0 || res[res.length - 1].key !== formattedKey) {
+				res.push({
+					key: formattedKey,
+					items: [val]
+				})
+			} else {
+				res[res.length - 1].items.push(val)
+			}
+		})
+		
+		return res
+	},
 
+	isEqualDate(targetDate, date) {
+		var target = new Date(targetDate);
+		
+		return (
+			target.getDate() === date.getDate() &&
+			target.getMonth() === date.getMonth() &&
+			target.getFullYear() === date.getFullYear()
+		  );
+	} 
 }

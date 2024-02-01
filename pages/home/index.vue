@@ -1,6 +1,6 @@
 <template>
-	<page-meta page-style="background-image: url(/static/chat-bg.jpg);background-repeat: no-repeat">
-		<tui-navigation-bar transparent splitLine title="发现" color="#000"></tui-navigation-bar>
+	<page-meta page-style="height: 375rpx; background-image: url(/static/chat-bg.jpg);background-repeat: no-repeat">
+		<tui-navigation-bar transparent title="发现" color="#000"></tui-navigation-bar>
 	</page-meta>
 	<scroll-view scroll-y :style="{position: 'absolute', top: height + 'px', height: `calc(100% - ${height}px)`}" >
 		<view class="main p-h-32">
@@ -11,8 +11,7 @@
 						<navigator url="/pages/home/teacher"
 							class="mt-32 fs-24 br-16 c-gray-2 bg-gray changeRole">更换角色
 						</navigator>
-						<view class="mt-32 p-12 br-16 voice-box"
-							@click="greeting">
+						<view class="mt-32 p-12 br-16 voice-box" @click="greeting">
 							<img class="voice" src="/static/icon-voice-white.svg" />
 						</view>
 					</view>
@@ -32,7 +31,8 @@
 					<view class="p-24 scene-card">
 						<view class="name flex justify-between">
 							<view class="c-blue-1 fs-30">{{scene.name}}</view>
-							<image class="voice-sleep" src="/static/icon-voice-grey.svg" />
+							<image v-if="scene.isPlaying" class="voice" src="/static/icon-voice-selected.svg" />
+							<image v-else class="voice-icon" src="/static/icon-voice-grey.svg" @tap.stop="playSceneVoice(scene)" />
 						</view>
 						<view class="brief c-gray-1 fs-24">
 							<view>{{scene.brief}}</view>
@@ -65,9 +65,6 @@
 				is_greeting: false
 			}
 		},
-		onLoad() {
-
-		},
 		onShow() {
 			var that = this
 			utils.request('GET', '/api/scene', {}, (res) => {
@@ -97,15 +94,28 @@
 				// let context = uni.createVideoContext('greeting-video')
 				// context.play()
 			},
-			// greetingEnd() {
-			// 	console.log('greeting end')
-			// 	this.is_greeting = false
-			// 	let context = uni.createVideoContext('still-video')
-			// 	context.play()
-			// }
+			playSceneVoice(scene) {
+				utils.request('GET', '/api/scene/' + scene.id + '/greeting', {}, (res) => {
+					scene.isPlaying = true
+					player.sound(res.greeting_url, () => {
+						scene.isPlaying = false
+					})
+				})
+			}
 		}
 	}
 </script>
+
+<style scoped>
+>>> .tui-navigation-bar {
+		overflow: hidden;
+	}
+>>>	.tui-navigation-bar .tui-navigation_bar-title {
+		font-size: 32rpx;
+		font-family: PingFang SC, PingFang SC;
+		font-weight: 600;
+	}
+</style>
 
 <style lang="scss">
 	.bg {
@@ -150,7 +160,7 @@
 		margin-left: 24rpx;
 	}
 	
-	.voice-sleep {
+	.voice-icon {
 		width: 32rpx;
 		height: 32rpx;
 	}
