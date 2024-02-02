@@ -10,7 +10,12 @@ let player = {
 		}
 		this.cd = cd
 		cd.playing = true
-		this.context.src = cd.audio_url ?? cd.audio
+		this.context.src = cd.audio
+		// console.log(this.context.src == cd.audio)
+		
+		// console.log('cd.audio', cd.audio)
+		// console.log('src', this.context.src)
+		
 		var that = this
 		this.context.onEnded(() => {
 			that.context.offEnded()
@@ -19,8 +24,11 @@ let player = {
 		this.context.play()
 		return this.context
 	},
-	sound(url) {
+	sound(url, cb) {
 		this.context.src = url
+		cb && this.context.onEnded(() => {
+			cb()
+		})
 		this.context.play()
 	},
 	stop() {

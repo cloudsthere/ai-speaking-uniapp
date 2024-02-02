@@ -1,7 +1,7 @@
 
 export default {
-	// domain: 'https://yw.dev.ai7.pro',
-	domain: 'http://ai-speaking.local',
+	domain: 'https://yw.dev.ai7.pro',
+	// domain: 'http://ai-speaking.local',
 	// #ifdef MP-WEIXIN
 	version: 'wx-0.0.8',
 	// #endif
@@ -369,6 +369,34 @@ export default {
 	    str += String.fromCharCode(byteArray[i]);
 	  }
 	  return str;
-	}
+	},
 
+	
+	// 根据某个字段分段数组
+	chunk(arr, key, formKey) {
+		const res = []
+		arr.forEach(val => {
+			const formattedKey = formKey ? formKey(val[key]) : val[key]
+			if(res.length === 0 || res[res.length - 1].key !== formattedKey) {
+				res.push({
+					key: formattedKey,
+					items: [val]
+				})
+			} else {
+				res[res.length - 1].items.push(val)
+			}
+		})
+		
+		return res
+	},
+
+	isEqualDate(targetDate, date) {
+		var target = new Date(targetDate);
+		
+		return (
+			target.getDate() === date.getDate() &&
+			target.getMonth() === date.getMonth() &&
+			target.getFullYear() === date.getFullYear()
+		  );
+	} 
 }

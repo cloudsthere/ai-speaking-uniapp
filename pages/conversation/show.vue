@@ -710,11 +710,11 @@
 				}, 100)
 				
 			},
-			generateMessage(audio_str = null) {
+			generateMessage(content, audio_str = null) {
 				var that = this
 				
 				let data = 	{
-						content: that.text,
+						content,
 						conv_id: that.conv.id,
 					// audio: audio_str,
 					}	
@@ -753,7 +753,7 @@
 					lines.forEach((line) => {
 						if (line) {
 							let data = JSON.parse(line)
-							// console.log(data)
+							console.log(data)
 							if (data.error == 0) {
 								if (data.status == 'init') {
 									that.messages.push(data.message)
@@ -766,7 +766,7 @@
 										that.phone_status = 'speaking'
 										that.status = 'none'
 										console.log('status phoning & speaking')
-										context.onEnded((res) => {
+										context.onEnded(() => {
 											console.log('player ended')
 											context.offEnded()
 											that.turnNotice()
@@ -783,7 +783,7 @@
 									that.scrollToBottom()
 								}
 							} else {
-								if (res.error == 102) {
+								if (data.error == 102) {
 									// that.status = 'halt'
 									uni.showToast({
 										title: '试用结束，请购买会员',
@@ -817,7 +817,7 @@
 				
 				this.status = 'thinking'
 				
-				this.generateMessage()
+				this.generateMessage(this.text)
 			},
 			sendMessage() {
 				var that = this
@@ -869,7 +869,7 @@
 						// console.log(audio_str);
 						// 发送Base64编码后的音频数据到PHP服务端
 						// sendDataToServer(audioData);
-						that.generateMessage(audio_str)
+						that.generateMessage(that.current_content, audio_str)
 					},
 					fail(error) {
 						console.log('读取文件失败', error);

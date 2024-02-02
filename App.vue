@@ -2,6 +2,12 @@
 	export default {
 		onLaunch: function() {
 			console.log('App Launch')
+			uni.getSystemInfo({
+				success: (e) => {
+					let custom = uni.getMenuButtonBoundingClientRect();
+					this.globalData.height = custom.height + custom.top  * 2 - e.statusBarHeight + 4;
+				}
+			})
 		},
 		onShow: function() {
 			console.log('App Show')
@@ -10,7 +16,8 @@
 			console.log('App Hide')
 		},
 		globalData: {
-			userInfo: {}
+			userInfo: {},
+			height: 0
 		}
 	}
 </script>
