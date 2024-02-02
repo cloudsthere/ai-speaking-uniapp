@@ -256,7 +256,7 @@
 			}
 			
 			utils.request(method, url, data, (res) => {
-				console.log(res)
+				// console.log(res)
 				// if (res.conversation.end) {
 				// 	that.status = 'end'
 				// } else if (res.halt) {
@@ -277,15 +277,7 @@
 				// }
 				if (that.messages.length == 0) {
 					that.status = 'thinking'
-					utils.request('POST', '/api/message', {
-						conv_id: that.conv.id
-					}, (res) => {
-						// console.log(res)
-						that.status = 'none'
-						that.messages.push(res.message)
-						// console.log(that.messages[0])
-						that.play(that.messages[0])
-					})
+					that.generateMessage()
 				} else {
 					that.play(that.messages[that.messages.length - 1])
 				}
@@ -718,9 +710,100 @@
 				}, 100)
 				
 			},
-
+			generateMessage(audio_str = null) {
+				var that = this
+				
+				let data = 	{
+						content: that.text,
+						conv_id: that.conv.id,
+					// audio: audio_str,
+					}	
+				
+				if (audio_str) {
+					data.audio = audio_str
+				}
+				let task = uni.request({
+					url: utils.domain + '/api/message',
+					method: 'POST',
+					data,
+					header: {
+						Authorization: 'Bearer ' + utils.getToken(),
+						Accept: 'application/json',
+						Platform: utils.platform
+					},
+					enableChunked: true,
+					success(res) {
+						// console.log('suceess', res)
+					}
+				})
+				// console.log(task)
+				
+				that.current_content = null
+				that.text = null
+				that.current_audio_file = null
+				
+				task.onChunkReceived((response) => {
+					// console.log(response)
+					
+					let arrayBuffer = new Uint8Array(response.data).buffer;
+					let text = utils.arrayBufferToText(arrayBuffer);
+					// console.log('receive')
+					// console.log(text); // 输出 "Hello"
+					let lines = text.split("\n")
+					lines.forEach((line) => {
+						if (line) {
+							let data = JSON.parse(line)
+							// console.log(data)
+							if (data.error == 0) {
+								if (data.status == 'init') {
+									that.messages.push(data.message)
+								}
+								if (data.status == 'ready') {
+									console.log('status ready')
+									let context = player.play(that.messages[that.messages.length - 1])
+									
+									if (that.mode == 'phone') {
+										that.phone_status = 'speaking'
+										that.status = 'none'
+										console.log('status phoning & speaking')
+										context.onEnded((res) => {
+											console.log('player ended')
+											context.offEnded()
+											that.turnNotice()
+											that.call()
+										})
+									} else {
+										// if (res.end) {
+										// 	that.status = 'end'
+										// } else {
+										// }
+										that.status = 'none'
+									}
+													
+									that.scrollToBottom()
+								}
+							} else {
+								if (res.error == 102) {
+									// that.status = 'halt'
+									uni.showToast({
+										title: '试用结束，请购买会员',
+										icon: 'none',
+									})
+								} else {
+									uni.showToast({
+										title: '网络错误，请稍后再试',
+										icon: 'none',
+									})
+								}
+											
+							}
+						}
+					})
+					
+				})
+			},
 			sendText() {
-				console.log(this.text)
+				// console.log(this.text)
 				if (this.text.length == 0) {
 					return;
 				}
@@ -733,103 +816,8 @@
 				this.scrollToBottom()
 				
 				this.status = 'thinking'
-				var that = this
 				
-								
-				let task = uni.request({
-					url: utils.domain + '/api/message',
-					method: 'POST',
-					data: {
-						content: that.text,
-						conv_id: that.conv.id,
-					// audio: audio_str,
-					},
-					header: {
-						Authorization: 'Bearer ' + utils.getToken(),
-						Accept: 'application/json',
-						Platform: utils.platform
-					},
-					enableChunked: true,
-					success(res) {
-						console.log('suceess', res)
-					}
-				})
-				console.log(task)
-				
-				that.current_content = null
-				that.text = null
-				that.current_audio_file = null
-				
-				task.onChunkReceived((response) => {
-					console.log(response)
-					
-					let arrayBuffer = new Uint8Array(response.data).buffer;
-					let text = utils.arrayBufferToText(arrayBuffer);
-					console.log('receive')
-					console.log(text); // 输出 "Hello"
-					let lines = text.split("\n").filter()
-					lines.forEach((line) => {
-						if (line) {
-							let data = JSON.parse(line)
-							if (data.status == 'init') {
-								
-							}
-						}
-					})
-					
-				})
-				return;
-				
-				utils.request('POST', '/api/message', {
-					content: that.text,
-					conv_id: that.conv.id,
-					// audio: audio_str,
-				}, (res) => {
-					that.current_content = null
-					that.text = null
-					that.current_audio_file = null
-				
-					if (res.error == 0) {
-						// let message = res.message
-						// message.words = message.content.split(/([\.\?, ])/).filter(item => item !== '')
-						// console.log(message.words)
-						that.messages.push(res.message)
-						let context = player.play(that.messages[that.messages.length - 1])
-						// console.log('context', context)
-						console.log('mode', that.mode);
-						console.log('phone_status', that.phone_status);
-						if (that.mode == 'phone') {
-							that.phone_status = 'speaking'
-							that.status = 'none'
-							console.log('status phoning & speaking')
-							context.onEnded((res) => {
-								console.log('player ended')
-								context.offEnded()
-								that.turnNotice()
-								that.call()
-							})
-						} else {
-							if (res.end) {
-								that.status = 'end'
-							} else {
-								that.status = 'none'
-							}
-						}
-				
-						that.scrollToBottom()
-					} else {
-						if (res.error == 102) {
-							that.status = 'halt'
-						} else {
-							uni.showToast({
-								title: '网络错误，请稍后再试',
-								icon: 'none',
-							})
-						}
-				
-					}
-				
-				})
+				this.generateMessage()
 			},
 			sendMessage() {
 				var that = this
@@ -881,55 +869,7 @@
 						// console.log(audio_str);
 						// 发送Base64编码后的音频数据到PHP服务端
 						// sendDataToServer(audioData);
-						utils.request('POST', '/api/message', {
-							content: that.current_content,
-							conv_id: that.conv.id,
-							audio: audio_str,
-						}, (res) => {
-							that.current_content = null
-							that.current_audio_file = null
-
-							if (res.error == 0) {
-								// let message = res.message
-								// message.words = message.content.split(/([\.\?, ])/).filter(item => item !== '')
-								// console.log(message.words)
-								that.messages.push(res.message)
-								let context = player.play(that.messages[that.messages.length - 1])
-								// console.log('context', context)
-								console.log('mode', that.mode);
-								console.log('phone_status', that.phone_status);
-								if (that.mode == 'phone') {
-									that.phone_status = 'speaking'
-									that.status = 'none'
-									console.log('status phoning & speaking')
-									context.onEnded((res) => {
-										console.log('player ended')
-										context.offEnded()
-										that.turnNotice()
-										that.call()
-									})
-								} else {
-									if (res.end) {
-										that.status = 'end'
-									} else {
-										that.status = 'none'
-									}
-								}
-
-								that.scrollToBottom()
-							} else {
-								if (res.error == 102) {
-									that.status = 'halt'
-								} else {
-									uni.showToast({
-										title: '网络错误，请稍后再试',
-										icon: 'none',
-									})
-								}
-
-							}
-
-						})
+						that.generateMessage(audio_str)
 					},
 					fail(error) {
 						console.log('读取文件失败', error);
