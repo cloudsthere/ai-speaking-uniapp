@@ -59,7 +59,7 @@
 			</view>
 		</view>
 	</navContainer>
-	<dictionary ref="dictionary"></dictionary>
+	<dictionary ref="dictionary" @cancelCollect="getData"></dictionary>
 </template>
 
 <script>
@@ -119,7 +119,11 @@
 				],
 			}
 		},
-		created() {
+		onShow() {
+			this.isShowDefinition = false
+			this.isShowSortPopup = false
+			this.isAllChecked = false
+			this.isEdit = false
 			this.getData()
 		},
 		methods: {

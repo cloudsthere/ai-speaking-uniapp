@@ -5,7 +5,7 @@
 			uni.getSystemInfo({
 				success: (e) => {
 					let custom = uni.getMenuButtonBoundingClientRect();
-					this.globalData.height = custom.height + custom.top  * 2 - e.statusBarHeight + 4;
+					this.globalData.height = custom.height + custom.top  * 2 - e.statusBarHeight
 				}
 			})
 		},

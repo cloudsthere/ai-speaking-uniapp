@@ -1,5 +1,5 @@
 <template>
-	<tui-navigation-bar  transparent title="聊天" color="#000">
+	<tui-navigation-bar backgroundColor="#F7FFFE" title="聊天" color="#000">
 	 <view class="tui-header-icon">
 		<navigator v-if="userInfo.avatar" url="/pages/home/price">
 			<img class="nav-avatar rounded-half" :src="userInfo.avatar" />
@@ -14,7 +14,7 @@
 		</view>
 	</tui-navigation-bar>
 	<view class="main content" :style="{marginTop: height + 'px'}">
-		<tui-list-view backgroundColor="#fff">
+		<tui-list-view unlined="all" backgroundColor="#fff">
 			<tui-swipe-action 
 				v-for="conv in convs" 
 				:key="conv.id" 
@@ -23,16 +23,16 @@
 						color: '#fff',
 						fontsize: 32,
 						width: 56,
-						imgWidth: 56,
-						imgHeight: 56,
+						imgWidth: 48,
+						imgHeight: 48,
 						icon: conv.sort > 0 ? '/static/icon-pin-cancel.svg' : '/static/icon-pin.svg',
 						background: '#FF8741',
 					},{
 						color: '#fff',
 						fontsize: 32,
 						width: 56,
-						imgWidth: 56,
-						imgHeight: 56,
+						imgWidth: 48,
+						imgHeight: 48,
 						icon: '/static/icon-delete.svg',
 						background: '#FF5661'
 				 }]" 
@@ -41,7 +41,7 @@
 				>
 				<template v-slot:content>
 					<navigator :url="'/pages/conversation/show?conv_id=' + conv.id">
-						<tui-list-cell unlined :arrow="false" padding="24rpx 32rpx" :backgroundColor="conv.is_primary ? '#FAFAFA' : '#fff'">
+						<tui-list-cell unlined :arrow="false" padding="24rpx 32rpx" :backgroundColor="(conv.is_primary || conv.sort > 0) ? '#FAFAFA' : '#fff'">
 							<view class="flex justify-between items-center">
 								<view class="flex">
 									<img class="avatar" :src="conv.avatar" />
@@ -77,6 +77,8 @@
 		},
 		data() {
 			return {
+				height: getApp().globalData.height,
+				
 				userInfo: {},
 				convs: [],
 			}
@@ -84,14 +86,6 @@
 		onShow() {
 			this.userInfo = utils.getUser()
 			this.getData()
-		},
-		onReady() {
-			uni.getSystemInfo({
-				success: (e) => {
-					let custom = uni.getMenuButtonBoundingClientRect();
-					this.height = custom.height + custom.top  * 2 - e.statusBarHeight + 4;
-				}
-			})
 		},
 		onShareAppMessage(res) {
 			return utils.share()
@@ -139,6 +133,9 @@
 	font-size: 32rpx;
 	font-family: PingFang SC, PingFang SC;
 	font-weight: 600;
+}
+page {
+	background-color: #F7FFFE;
 }
 
 .nav-avatar {

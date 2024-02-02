@@ -258,12 +258,13 @@
 					return;
 				}
 				utils.request('POST', '/api/collection/delete', {
-					dict_id: dict.id
+					dict_ids: [dict.id]
 				}, (res) => {
 					dict.is_collected = false
 					uni.showToast({
 						title: '从单词本删除'
 					})
+					this.$emit('cancelCollect')
 				})
 			},
 		}

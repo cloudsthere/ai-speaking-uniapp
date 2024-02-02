@@ -1,6 +1,6 @@
 <template>
-	<page-meta page-style="height: 375rpx; background-image: url(/static/chat-bg.jpg);background-repeat: no-repeat">
-		<tui-navigation-bar transparent title="发现" color="#000"></tui-navigation-bar>
+	<page-meta page-style="height: 375rpx; background-color:#F7FFFE;">
+		<tui-navigation-bar backgroundColor="#F7FFFE" title="发现" color="#000"></tui-navigation-bar>
 	</page-meta>
 	<scroll-view scroll-y :style="{position: 'absolute', top: height + 'px', height: `calc(100% - ${height}px)`}" >
 		<view class="main p-h-32">
@@ -23,14 +23,17 @@
 				</view>
 			</view>
 			<view class="c-blue-1 section-title font-semibold">
-				<text>场景</text>
+				场景
 			</view>
 			<view class="content">
-				<navigator :url="'/pages/conversation/show?scene_id=' + scene.id" v-for="(scene, scene_index) in scenes"
-					:key="scene_index">
+				<navigator
+					:url="'/pages/conversation/show?scene_id=' + scene.id"
+					v-for="(scene, scene_index) in scenes"
+					:key="scene_index"
+				>
 					<view class="p-24 scene-card">
 						<view class="name flex justify-between">
-							<view class="c-blue-1 fs-30">{{scene.name}}</view>
+							<view class="c-blue-1 fs-30 font-semibold">{{scene.name}}</view>
 							<image v-if="scene.isPlaying" class="voice" src="/static/icon-voice-selected.svg" />
 							<image v-else class="voice-icon" src="/static/icon-voice-grey.svg" @tap.stop="playSceneVoice(scene)" />
 						</view>
@@ -134,6 +137,7 @@
 	.greeting {
 		font-family: PingFang SC, PingFang SC;
 		width: 398rpx;
+		line-height: 36rpx;
 	}
 	
 	.voice-box {
@@ -179,7 +183,10 @@
 			flex-basis: calc(50% - 10px);
 			/* 50%宽度减去间距 */
 			margin: 5px;
+			background-color: #fff;
+			border-radius: 24rpx;
 			/* 间距 */
+			box-shadow: 0rpx 0rpx 60rpx 0rpx rgba(241,241,241,0.6), 0rpx 4rpx 8rpx 0rpx rgba(241,241,241,0.3);
 		}
 	}
 
@@ -196,8 +203,6 @@
 
 	.scene-card {
 		padding: 20rpx;
-		border-radius: $uni-border-radius-lg;
-		box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
 
 		.avatar {
 			text-align: center;
