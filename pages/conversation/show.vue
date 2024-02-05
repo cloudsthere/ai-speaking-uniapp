@@ -97,11 +97,14 @@
 			<view class="button-wapper">
 				<button class="btn-speak text-gray-400" v-if="status == 'end'">已结束</button>
 				<button class="btn-speak btn-danger" v-else-if="mode == 'phone'" @click="hangUp">挂断</button>
-				<button class="btn-speak bg-white" v-else-if="mode == 'chat'" @longpress="handleRecordStart" @touchend="handleRecordStop">按住
+				<button class="btn-speak bg-white" v-else-if="mode == 'chat'" @longpress="handleRecordStart"
+					@touchend="handleRecordStop">按住
 					说话</button>
-				<input v-else-if="mode == 'keyboard'" type="text" v-model="text" class="py-2 border-b border-x-0 border-t-0 text-left border-gray-200 border-solid bg-white"/>
+				<input v-else-if="mode == 'keyboard'" type="text" v-model="text"
+					class="py-2 border-b border-x-0 border-t-0 text-left border-gray-200 border-solid bg-white" />
 			</view>
-			<uni-icons v-if="mode == 'chat'" @click="call" :class="{}" custom-prefix="iconfont" type="icon-maikefeng" size="40"></uni-icons>
+			<uni-icons v-if="mode == 'chat'" @click="call" :class="{}" custom-prefix="iconfont" type="icon-maikefeng"
+				size="40"></uni-icons>
 			<uni-icons v-else-if="mode == 'keyboard'" @click="sendText" type="paperplane-filled" size="16"></uni-icons>
 		</view>
 	</view>
@@ -177,6 +180,9 @@
 		return encodeURI(url)
 	}
 
+
+
+
 	export default {
 		components: {
 			dictionary,
@@ -207,6 +213,8 @@
 				socket_status: 'none',
 				hangingUp: false,
 				text: '',
+				audioCtx: null,
+				audioSource: null,
 				// playing_message: null,
 			}
 		},
@@ -244,6 +252,11 @@
 				}
 			})
 
+			this.audioCtx = wx.createWebAudioContext()
+			this.audioSource = this.audioCtx.createBufferSource()
+
+
+
 			var method = 'GET'
 			var url = '/api/conversation/' + options.conv_id
 			var data = {}
@@ -254,7 +267,7 @@
 					scene_id: options.scene_id,
 				}
 			}
-			
+
 			utils.request(method, url, data, (res) => {
 				// console.log(res)
 				// if (res.conversation.end) {
@@ -266,7 +279,7 @@
 				// that.messages = [res.message]
 				that.messages = res.messages
 				// console.log(that.messages[0])
-				
+
 				uni.setNavigationBarTitle({
 					title: that.conv.name ?? '会话'
 				})
@@ -344,7 +357,7 @@
 			},
 			cleanUp() {
 				// this.handleRecordStop()
-				player.stop();
+				this.stopPlay();
 				clearInterval(this.tik)
 				this.tik = null
 				if (this.dialog_id) {
@@ -387,12 +400,67 @@
 				// console.log(utils.domain + '/static/turn-notice.mp3')
 				player.sound(utils.domain + '/static/turn-notice.mp3')
 			},
+			// switchPlay(message) {
+			// 	player.switchPlay(message)
+			// },
 			switchPlay(message) {
-				player.switchPlay(message)
+				console.log('switchPlay')
+				console.log(message)
+				if (message.playing) {
+					message.playing = false
+					this.stopPlay()
+				} else {
+					this.play(message)
+				}
 			},
+			stopPlay() {
+				this.audioSource.stop()
+			},
+			// play(cd) {
+			// 	// innerAudioContext.go(cd)
+			// 	player.play(cd)
+			// },
 			play(cd) {
-				// innerAudioContext.go(cd)
-				player.play(cd)
+				let that = this
+				cd.playing = true
+				console.log('cd.audio', cd.audio)
+				this.loadAudio(cd.audio).then(buffer => {
+					this.audioSource = this.audioCtx.createBufferSource()
+					that.audioSource.buffer = buffer
+					that.audioSource.connect(that.audioCtx.destination)
+					that.audioSource.start()
+
+					that.audioSource.onended = () => {
+						that.audioSource.onended = () => {}
+						cd.playing = false
+					}
+
+				}).catch((e) => {
+					console.log('play fail', e)
+				})
+			},
+			loadAudio(url) {
+				var that = this
+				return new Promise((resolve) => {
+					wx.request({
+						url,
+						responseType: 'arraybuffer',
+						success: res => {
+							console.log('res.data', res.data)
+							that.audioCtx.decodeAudioData(res.data, buffer => {
+								console.log('decode success')
+								resolve(buffer)
+							}, err => {
+								console.error('decodeAudioData fail', err)
+								reject()
+							})
+						},
+						fail: res => {
+							console.error('request fail', res)
+							reject()
+						}
+					})
+				})
 			},
 			startRecorderManager() {
 				this.initRecorderManager()
@@ -708,17 +776,17 @@
 						}
 					})
 				}, 100)
-				
+
 			},
 			generateMessage(content, audio_str = null) {
 				var that = this
-				
-				let data = 	{
-						content,
-						conv_id: that.conv.id,
+
+				let data = {
+					content,
+					conv_id: that.conv.id,
 					// audio: audio_str,
-					}	
-				
+				}
+
 				if (audio_str) {
 					data.audio = audio_str
 				}
@@ -737,14 +805,14 @@
 					}
 				})
 				// console.log(task)
-				
+
 				that.current_content = null
 				that.text = null
 				that.current_audio_file = null
-				
+
 				task.onChunkReceived((response) => {
 					// console.log(response)
-					
+
 					let arrayBuffer = new Uint8Array(response.data).buffer;
 					let text = utils.arrayBufferToText(arrayBuffer);
 					// console.log('receive')
@@ -753,15 +821,15 @@
 					lines.forEach((line) => {
 						if (line) {
 							let data = JSON.parse(line)
-							console.log(data)
+							// console.log(data)
 							if (data.error == 0) {
 								if (data.status == 'init') {
 									that.messages.push(data.message)
 								}
 								if (data.status == 'ready') {
 									console.log('status ready')
-									let context = player.play(that.messages[that.messages.length - 1])
-									
+									let context = that.play(that.messages[that.messages.length - 1])
+
 									if (that.mode == 'phone') {
 										that.phone_status = 'speaking'
 										that.status = 'none'
@@ -779,7 +847,7 @@
 										// }
 										that.status = 'none'
 									}
-													
+
 									that.scrollToBottom()
 								}
 							} else {
@@ -795,11 +863,11 @@
 										icon: 'none',
 									})
 								}
-											
+
 							}
 						}
 					})
-					
+
 				})
 			},
 			sendText() {
@@ -807,16 +875,16 @@
 				if (this.text.length == 0) {
 					return;
 				}
-				
+
 				this.messages.push({
 					role: 'user',
 					content: this.text,
 					// audio_url: this.current_audio_file
 				})
 				this.scrollToBottom()
-				
+
 				this.status = 'thinking'
-				
+
 				this.generateMessage(this.text)
 			},
 			sendMessage() {
@@ -982,6 +1050,4 @@
 	.twinkling {
 		animation: twinkle 1s infinite alternate;
 	}
-
-
 </style>
