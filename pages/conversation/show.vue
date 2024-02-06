@@ -23,12 +23,9 @@
 					</view>
 					<view class="mt-2 flex flex-col gap-1 text-gray-500 text-xs"
 						v-show="message.addition == 'recommend'">
-						<view class="flex" v-show="message.recommends"
-							v-for="(recommend, recommend_index) in message.recommends" :key="recommend_index">
-							<span class="px-1 text-blue-500">•</span>
-							<view>
-								<words :words="recommend" @lookup="lookup"></words>
-							</view>
+
+						<view v-if="message.recommend">
+							<words :words="message.recommend.words" @lookup="lookup"></words>
 						</view>
 						<view class="text-center" v-show="!message.recommends">
 							<view class="animate-spin">
@@ -100,7 +97,7 @@
 				<button class="btn-speak bg-white" v-else-if="mode == 'chat'" @longpress="handleRecordStart"
 					@touchend="handleRecordStop">按住
 					说话</button>
-				<input v-else-if="mode == 'keyboard'" type="text" v-model="text"
+				<input v-else-if="mode == 'keyboard'" @keyup.enter="sendText" type="text" v-model="text"
 					class="py-2 border-b border-x-0 border-t-0 text-left border-gray-200 border-solid bg-white" />
 			</view>
 			<uni-icons v-if="mode == 'chat'" @click="call" :class="{}" custom-prefix="iconfont" type="icon-maikefeng"
@@ -333,7 +330,7 @@
 						message_id: message.id
 					}, (res) => {
 						// console.log(res)
-						message.recommends = res.recommends
+						message.recommend = res.recommend
 						// console.log(message)
 						// 最后一个message
 						if (message.id == that.messages[that.messages.length - 1].id) {
