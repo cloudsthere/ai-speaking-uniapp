@@ -36,7 +36,7 @@
 						icon: '/static/icon-delete.svg',
 						background: '#FF5661'
 				 }]" 
-				 :forbid="conv.is_primary"
+				 :forbid="!!conv.is_primary"
 				 @click="(param) => handleSwiperBtn(conv, param)"
 				>
 				<template v-slot:content>

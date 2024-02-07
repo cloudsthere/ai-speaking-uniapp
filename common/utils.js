@@ -398,5 +398,15 @@ export default {
 			target.getMonth() === date.getMonth() &&
 			target.getFullYear() === date.getFullYear()
 		  );
-	} 
+	},
+	
+	debounce(fn) {
+		let timer = null
+		return function(...args) {
+			clearTimeout(timer)
+			timer = setTimeout(() => {
+				fn.call(this, ...args)
+			}, 300)
+		}
+	}
 }

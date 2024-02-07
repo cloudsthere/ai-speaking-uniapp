@@ -1,10 +1,19 @@
 <template>
-	<uni-popup ref="popup" type="bottom" background-color="#fff" @change="change">
-		<view class="" style="height: 60vh;">
-			<view class="bg-white" style="height:10px;"></view>
-			<view class="px-4 pb-4 bg-white overflow-scroll" style="height: calc(60vh - 20px);">
-				<view class="relative">
-					<view class="flex gap-3 items-center">
+	<uni-popup ref="popup" type="bottom" @change="change">
+		<view class="bg-white" style="border-radius: 20rpx 20rpx 0 0;">
+			<view class="hp100 relative" :style="suggestions.length === 0 && 'overflow-y: auto;'">
+				<view class="popup-box">
+					<view class="w-full flex items-center justify-between" style="gap: 28rpx">
+						<uni-search-bar ref="search" class="flex-grow br-16" :class="!!query ? 'input' : 'placeholder'" bgColor="#FAFAFA" :focus="true" cancelButton="none" placeholder="查询中文或英文" @confirm="search(query.trim())" @input="suggest">
+							<template v-slot:searchIcon>
+								<uni-icons v-if="query_stack.length > 1" @click="back" color="#353E50" class="w-32" type="arrow-left" />
+								<uni-icons v-else class="w-32" type="search" />
+							</template>
+						</uni-search-bar>
+						<uni-icons type="closeempty" @click="close" size="24"></uni-icons>
+					</view>
+					
+					<!-- <view class="flex gap-3 items-center">
 						<image class="w-5 h-5" src="@/static/back.png" @click="back"
 							v-show="query_stack.length > 1"></image>
 						<view class="relative flex-auto">
@@ -17,102 +26,104 @@
 								</image>
 							</view>
 						</view>
-					</view>
-					<view class="p-2 shadow absolute w-full box-border flex flex-col gap-2 z-10 bg-white"
+					</view> -->
+					<view class="shadow absolute flex flex-col z-10 bg-white suggestion-box"
 						v-show="suggestions.length > 0">
-						<view class="flex gap-3 flex-nowrap overflow-hidden text-ellipsis whitespace-nowrap"
+						<view class="flex flex-nowrap w-full overflow-hidden text-ellipsis whitespace-nowrap items-center suggestion-item"
 							@click="search(suggestion.entry)" v-for="suggestion in suggestions"
 							:key="suggestion.entry">
-							<view class="">{{suggestion.entry}}</view>
-							<view class="text-gray-400 overflow-hidden text-ellipsis">{{suggestion.explain}}</view>
+							<view class="c-blue-1 fs-32 font-semibold">{{suggestion.entry}}</view>
+							<view class="ml-24 c-gray-1 fs-26 overflow-hidden text-ellipsis">{{suggestion.explain}}</view>
 						</view>
 					</view>
 	
 					<template v-if="dict">
-						<view class="flex flex-col gap-2 justify-center items-center mt-4" v-if="dict.no_data">
+						<view class="flex flex-col gap-2 justify-center items-center mt-32" v-if="dict.no_data">
 							<image mode="widthFix" src="@/static/search-no-data.png" style="width: 50%;"></image>
 							<view class="text-gray-400">搜索无结果</view>
 						</view>
 	
-						<view class="text-gray-800 text-sm flex flex-col gap-3 mt-4" v-else>
-							<view class="font-semibold flex gap-3 items-baseline" v-if="dict.type != 'zh'">
-								<text class="text-2xl">{{dict.query}}</text>
-								<uni-icons v-if="dict.audio" @click="play(dict)" :class="{playing: dict.playing}"
-									custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons>
-								<image class="w-5 h-5" @click="uncollect(dict)" v-if="dict.is_collected"
-									src="@/static/collected.png" mode=""></image>
-								<image class="w-4 h-4" @click="collect(dict)" v-else src="@/static/collect.png"
-									mode=""></image>
+						<view class="flex flex-col mt-32" v-else>
+							<view class="font-semibold flex justify-between items-baseline" v-if="dict.type != 'zh'">
+								<view class="flex items-center">
+									<text class="c-blue-1 word">{{dict.query}}</text>
+									<image v-if="dict.audio" @click="play(dict)" class="w-32" src="/static/icon-voice-green-m.svg" />
+									<!-- <uni-icons   :class="{playing: dict.playing}"
+										custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons> -->
+								</view>
+								<image class="w-48" @click="uncollect(dict)" v-if="dict.is_collected"
+									src="/static/icon-collect-selected.svg" />
+								<image class="w-48" @click="collect(dict)" v-else src="/static/icon-collect-normal.svg" />
 							</view>
-							<view class="flex gap-4" v-if="dict.pronounces">
-								<view class="flex gap-1" v-for="p in dict.pronounces" :key="p.accent">
-									<text>{{p.accent}}</text>
-									<text>{{p.phonetic}}</text>
-									<uni-icons @click="play(p)" :class="{playing: p.playing}"
-										custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons>
+							<view class="flex gap-24 mt-24" v-if="dict.pronounces">
+								<view class="flex pronounce items-center" v-for="p in dict.pronounces" :key="p.accent">
+									<text class="c-blue-1 fs-24">{{p.accent}}</text>
+									<text class="c-gray-1 fs-24">{{p.phonetic.replaceAll(' ', '')}}</text>
+									<image @click="play(p)" class="w-32" src="/static/icon-voice-green-m.svg" />
+									<!-- <uni-icons @click="play(p)" :class="{playing: p.playing}"
+										custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons> -->
 								</view>
 							</view>
-							<view class="flex flex-col gap-2">
-								<view class="flex gap-2" v-for="(explain, explain_index) in dict.explains"
+							<view class="flex flex-col gap-24 mt-32">
+								<view class="flex no-grow" v-for="(explain, explain_index) in dict.explains"
 									:key="explain_index">
-									<text class="text-gray-400" v-if="explain.pos">{{explain.pos}}</text>
-									<view>
+									<text class="c-gray-1 fs-24 mr-20" v-if="explain.pos">{{explain.pos}}</text>
+									<view class="c-blue-1 fs-26 font-semibold">
 										{{explain.trans}}
 									</view>
 								</view>
 							</view>
-							<view class="flex flex-col gap-2" v-if="dict.choices">
-								<view class="flex gap-2" v-for="(choice, choice_index) in dict.choices"
+							<view class="flex flex-col absolute choice-box" v-if="dict.choices && dict.choices.length > 0">
+								<view class="flex" v-for="(choice, choice_index) in dict.choices"
 									:key="choice_index">
-									<text class="text-gray-400">{{choice_index + 1}}</text>
-									<view class="flex flex-col gap-1">
-										<view class="flex gap-2">
-											<text class="text-indigo-600"
+									<view class="w-full choice-item">
+										<view class="flex gap-24 items-center">
+											<text class="c-blue-1 fs-32 font-semibold"
 												@click="search(choice.point)">{{choice.point}}</text>
-											<uni-icons @click="play(choice)" :class="{playing: choice.playing}"
-												custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons>
+											<image v-if="choice.playing" @click="play(choice)" class="w-32" src="/static/icon-voice-selected.svg" />
+											<image v-else @click="play(choice)" class="w-32" src="/static/icon-voice-grey.svg" />
+											<!-- <uni-icons @click="play(choice)" :class="{playing: choice.playing}"
+												custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons> -->
 										</view>
-										<view class="">
+										<view class="mt-12 fs-26 c-gray-1">
 											{{choice.trans}}
 										</view>
 									</view>
 								</view>
 							</view>
-							<view class="flex flex-wrap">
-								<view class="mb-1 mr-3 flex gap-2"
+							<view v-if="dict.exchanges" class="flex flex-wrap exchange">
+								<view class="flex gap-12"
 									v-for="(exchange, exchange_index) in dict.exchanges" :key="exchange_index">
-									<text class="text-gray-400">{{exchange.name}}</text>
-									<text class="font-semibold">{{exchange.word}}</text>
+									<text class="fs-24 c-gray-1">{{exchange.name}}</text>
+									<text class="fs-26 c-blue-1 font-medium">{{exchange.word}}</text>
 								</view>
 							</view>
-							<view class="flex gap-2 text-gray-400 flex-wrap">
-								<view class="bg-gray-100 p-1" :key="exam_type" v-for="exam_type in dict.exam_types">
+							<view class="flex gap-12 c-gray-1 flex-wrap" style="margin-top: 40rpx;">
+								<view class="bg-gray-2 fs-22 tag" :key="exam_type" v-for="exam_type in dict.exam_types">
 									{{exam_type}}
 								</view>
 							</view>
-							<template v-if="dict.examples && dict.examples.length > 0">
-								<view class="border-b py-2 border-gray-100"></view>
-								<view class="text-xl">例句</view>
-								<view class="flex flex-col gap-2">
-									<view class="flex gap-2 justify-between" :key="example_index"
+							<view class="c-blue-1 example-box" v-if="dict.examples && dict.examples.length > 0">
+								<view class="fs-26">例句</view>
+								<view class="flex flex-col mt-24">
+									<view class="flex justify-between" style="margin-bottom: 36rpx;" :key="example_index"
 										v-for="(example, example_index) in dict.examples">
-										<view class="flex gap-2">
-											<text>{{example_index + 1}}.</text>
-											<view class="flex flex-col gap-1">
-												<rich-text :nodes="example.sentence_en_html"></rich-text>
-												<text>{{example.sentence_zh}}</text>
-												<text class="text-gray-400">{{example.source}}</text>
-											</view>
+										<view class="flex flex-col gap-16">
+											<rich-text class="rich-text" :nodes="example.sentence_en_html"></rich-text>
+											<text class="fs-24 c-gray-1">{{example.sentence_zh}}</text>
+											<text class="fs-20 c-gray-3">一{{example.source}}</text>
 										</view>
-										<view class="">
-											<uni-icons @click="play(example)" :class="{playing: example.playing}"
-												custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons>
+										<view class="no-shrink" style="margin-left: 32rpx;">
+											<image v-if="example.playing" @click="play(example)" class="w-32" src="/static/icon-voice-selected.svg" />
+											<image v-else @click="play(example)" class="w-32" src="/static/icon-voice-grey.svg" />
+											<!-- <uni-icons @click="play(example)" :class="{playing: example.playing}"
+												custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons> -->
 										</view>
 									</view>
 	
 	
 								</view>
-							</template>
+							</view>
 	
 						</view>
 					</template>
@@ -126,25 +137,32 @@
 	import utils from '@/common/utils.js';
 	import player from '@/common/player.js';
 	
-	var suggest_task = null;
-	
 	export default {
 		name: "dictionary",
 		data() {
 			return {
 				query: '',
 				suggestions: [],
-				// dict: null,
 				dict: null,
 				query_stack: [],
+				
+				doNotSuggest: Object.freeze(false)
 			}
 		},
 		onLoad() {
 			this.$refs.popup.open()
 		},
+		options: {
+			styleIsolation: 'shared'
+		},
 		methods: {
 			change(e) {
-				console.log(e)
+				if(!e.show) {
+					this.$emit('close')
+				}
+			},
+			close() {
+				this.$refs.popup.close()
 			},
 			showSearch() {
 				this.dict = null;
@@ -155,7 +173,7 @@
 			},
 			back() {
 				let query = this.query_stack.pop()
-				
+				this.dict = null;
 				this.search(this.query_stack[this.query_stack.length - 1], true)
 			},
 			search(query, back) {
@@ -166,22 +184,14 @@
 				}
 				
 				// 重复查询
-				if (query == this.query_stack[this.query_stack.length - 1]) {
-					return;
-				}
+				// if (query == this.query_stack[this.query_stack.length - 1]) {
+				// 	return;
+				// }
 	
 				if (!back) {
-					// if (this.last_query) {
-						this.query_stack.push(query)
-					// }
-					// this.last_query = query
+					this.query_stack.push(query)
 				} 
-	
-				// console.log(this.query_stack)
-				// console.log(this.last_query)
-	
-	
-				var that = this
+				
 				uni.showLoading({
 					title: '加载中'
 				})
@@ -189,34 +199,30 @@
 					query,
 				}, (res) => {
 					// console.log(res)
-					that.dict = res.dict
-					that.suggestions = []
+					this.dict = res.dict
+					this.suggestions = []
 					uni.hideLoading()
-					that.query = query
-	
+					this.doNotSuggest = true
+					this.$refs.search.searchVal = query
 				})
 			},
-			suggest(e) {
-				// console.log(e)
-				if (e.type != 'input') {
-					return;
+			suggest: utils.debounce(function(keyword) {
+				this.query = keyword
+				
+				if(this.doNotSuggest) {
+					return this.doNotSuggest = false
 				}
 	
-				if (suggest_task) {
-					suggest_task.abort();
-				}
-	
-				if (this.query.length == 0) {
+				if (keyword.length == 0) {
 					this.suggestions = []
 					return;
 				}
 	
-				var that = this
-				suggest_task = wx.request({
+				wx.request({
 					url: utils.domain + '/api/suggest',
 					method: 'GET',
 					data: {
-						query: this.query,
+						query: keyword,
 					},
 					header: {
 						Accept: 'application/json',
@@ -224,13 +230,11 @@
 						Platform: utils.platform,
 						Authorization: 'Bearer ' + utils.getToken(),
 					},
-					success(res) {
-						suggest_task = null;
-						// console.log(res)
-						that.suggestions = res.data.suggestions
+					success: (res) => {
+						this.suggestions = res.data.suggestions
 					}
 				})
-			},
+			}),
 			play(cd) {
 				player.play(cd)
 			},
@@ -264,12 +268,85 @@
 					uni.showToast({
 						title: '从单词本删除'
 					})
-					this.$emit('cancelCollect')
 				})
 			},
 		}
 	}
 </script>
 
-<style>
+<style scoped>
+.popup-box {
+	height: 60vh; 
+	padding: 40rpx 40rpx 0;
+	box-sizing: border-box;
+}
+>>> .uni-searchbar {
+	padding: 0;
+}
+>>> .uni-searchbar__box {
+	border: 2rpx solid #F1F3F5;
+}
+.placeholder >>> .uni-searchbar__box-search-input {
+	color: #8C8E9D;
+}
+
+.input >>> .uni-searchbar__box-search-input {
+	color: #000;
+}
+
+.mt-44 {
+	margin-top: 44rpx;
+}
+
+.word {
+	font-size: 48rpx;
+	margin-right: 24rpx;
+	line-height: 60rpx;
+}
+
+.pronounce {
+	border-radius: 26rpx;
+	border: 2rpx solid #F1F3F5;
+	padding: 10rpx 24rpx;
+	gap: 10rpx;
+	height: 52rpx;
+	box-sizing: border-box;
+}
+
+.exchange {
+	margin-top: 40rpx;
+	row-gap: 16rpx;
+	column-gap: 40rpx;
+}
+
+.tag {
+	padding: 8rpx 16rpx;
+	border-radius: 8rpx;
+}
+.example-box {
+	margin-top: 48rpx;
+}
+.rich-text {
+	font-size: 26rpx
+}
+.suggestion-box {
+	width: 100vw;
+	box-sizing: border-box;
+	left: 0;
+	height: calc(60vh - 112rpx);
+}
+.suggestion-item {
+	height: 108rpx;
+	padding: 0 40rpx;
+	box-sizing: border-box;
+	border-bottom: 2rpx solid #F1F3F5;
+}
+.choice-box {
+	left: 0;
+	width: 100vw;
+}
+.choice-item {
+	padding: 32rpx 40rpx;
+	border-bottom: 2rpx solid #F1F3F5;
+}
 </style>

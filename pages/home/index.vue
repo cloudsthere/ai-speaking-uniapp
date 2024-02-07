@@ -1,6 +1,6 @@
 <template>
-	<page-meta page-style="height: 375rpx; background-color:#F7FFFE;">
-		<tui-navigation-bar backgroundColor="#F7FFFE" title="发现" color="#000"></tui-navigation-bar>
+	<page-meta page-style="height: 375rpx; background-image: url(/static/chat-bg.jpg);background-repeat: no-repeat">
+		<tui-navigation-bar transparent title="发现" color="#000"></tui-navigation-bar>
 	</page-meta>
 	<scroll-view scroll-y :style="{position: 'absolute', top: height + 'px', height: `calc(100% - ${height}px)`}" >
 		<view class="main p-h-32">

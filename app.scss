@@ -10,6 +10,9 @@ view, text {
 .mt-8 {
 	margin-top: 8rpx;
 }
+.mt-24 {
+	margin-top: 24rpx;
+}
 .mt-32 {
 	margin-top: 32rpx;
 }
@@ -19,10 +22,13 @@ view, text {
 .ml-16 {
 	margin-left: 16rpx;
 }
+
 .ml-24 {
 	margin-left: 24rpx;
 }
-
+.mr-20 {
+	margin-right: 20rpx;
+}
 .mb-16 {
 	margin-bottom: 16rpx;
 }
@@ -61,6 +67,9 @@ view, text {
 .c-gray-2 {
 	color: #666A73;
 }
+.c-gray-3 {
+	color: #B3B5C0;
+}
 
 .c-blue-1 {
 	color: #151727;
@@ -77,6 +86,9 @@ view, text {
 	line-height: 30rpx;
 }
 
+.fs-20 {
+	font-size: 20rpx;
+}
 .fs-22 {
 	font-size: 22rpx;
 }
@@ -98,6 +110,11 @@ view, text {
 	height: 32rpx
 }
 
+.w-48 {
+	width: 48rpx;
+	height: 48rpx;
+}
+
 .bg-orange {
 	background-color: #FF8741;
 }
@@ -109,6 +126,9 @@ view, text {
 .bg-gray {
 	background-color: #F1F2F6;
 }
+.bg-gray-2 {
+	background-color: #FAFAFA;
+}
 
 .rounded-half {
 	border-radius: 50%;
@@ -117,7 +137,9 @@ view, text {
 .br-16 {
 	border-radius: 16rpx;
 }
-
+.br-20 {
+	border-radius: 20rpx;
+}
 .br-24 {
 	border-radius: 24rpx;
 }
@@ -135,9 +157,28 @@ view, text {
 	width: 50%;
 }
 
+.gap-12 {
+	gap: 12rpx;
+}
+.gap-16 {
+	gap: 16rpx;
+}
+.gap-24 {
+	gap: 24rpx;
+}
+.gap-40 {
+	gap: 40rpx;
+}
+
 .justify-end {
 	justify-content: flex-end;
 }
 .no-shrink {
 	flex-shrink: 0;
+}
+.flex-grow {
+	flex-grow: 1
+}
+.no-grow {
+	flex-grow: 0;
 }

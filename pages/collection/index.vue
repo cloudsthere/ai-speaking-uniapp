@@ -14,7 +14,7 @@
 						<tui-bubble-popup :show="isShowSortPopup" @close="toggleSortPopup(false)" backgroundColor="#fff" position="absolute" direction="null" radius="24rpx" width="220rpx"
 						right="0" top="45rpx">
 							<view class="w-full c-blue-2 fs-24 br-24 popup-box">
-								<view v-for="(item, i) in sortData" class="sort-item flex items-center" @tap="() => changeSort(item, i)">
+								<view v-for="(item, i) in sortData" :key="item.key" class="sort-item flex items-center" @tap="() => changeSort(item, i)">
 									<image v-if="item.isActive" class="sort-icon" :src="item.activeIcon" />
 									<image v-else class="sort-icon" :src="item.icon" />
 									<text class="ml-12">{{ item.text }}</text>
@@ -59,7 +59,7 @@
 			</view>
 		</view>
 	</navContainer>
-	<dictionary ref="dictionary" @cancelCollect="getData"></dictionary>
+	<dictionary ref="dictionary" @close="getData"></dictionary>
 </template>
 
 <script>
