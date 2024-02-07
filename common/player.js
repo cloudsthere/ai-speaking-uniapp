@@ -10,12 +10,7 @@ let player = {
 		}
 		this.cd = cd
 		cd.playing = true
-		this.context.src = cd.audio
-		// console.log(this.context.src == cd.audio)
-		
-		// console.log('cd.audio', cd.audio)
-		// console.log('src', this.context.src)
-		
+		this.context.src = cd.audio_url ?? cd.audio
 		var that = this
 		this.context.onEnded(() => {
 			that.context.offEnded()
