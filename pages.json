@@ -71,6 +71,12 @@
 				"navigationBarTitleText": "隐私政策",
 				"enablePullDownRefresh": false
 			}
+		}, {
+			"path": "pages/home/protocol",
+			"style": {
+				"navigationBarTitleText": "用户协议",
+				"enablePullDownRefresh": false
+			}
 
 		}, {
 			"path": "pages/auth/login",

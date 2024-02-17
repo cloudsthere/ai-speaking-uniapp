@@ -9,7 +9,7 @@
 		<view class="text-sm text-gray-600 mt-4 flex justify-center items-center">
 			<radio @click="switchChecked" :checked="checked" style="transform:scale(0.7);" color="#38b5b3" />
 			<view @click="switchChecked" class="text-gray-400">
-				我已阅读并同意<navigator url="/pages/home/privacy" class="text-primary inline">隐私政策</navigator>
+				我已阅读并同意<navigator url="/pages/home/privacy" class="text-primary inline">隐私政策</navigator>和<navigator url="/pages/home/protocol" class="text-primary inline">用户协议</navigator>
 			</view>
 		</view>
 	</view>
