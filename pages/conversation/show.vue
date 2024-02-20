@@ -824,7 +824,7 @@
 									that.messages.push(data.message)
 								}
 								if (data.status == 'ready') {
-									console.log('status ready')
+									// console.log('status ready')
 									let context = that.play(that.messages[that.messages.length - 1])
 
 									if (that.mode == 'phone') {
@@ -848,7 +848,13 @@
 									that.scrollToBottom()
 								}
 							} else {
-								if (data.error == 102) {
+								if (data.error == 116) {
+									uni.showToast({
+										title: '敏感信息，不便展示',
+										icon: 'none',
+									})
+									that.status = 'none'
+								}else if (data.error == 102) {
 									// that.status = 'halt'
 									uni.showToast({
 										title: '试用结束，请购买会员',
