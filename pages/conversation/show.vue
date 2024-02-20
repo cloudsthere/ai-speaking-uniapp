@@ -2,7 +2,9 @@
 	<view class="content">
 		<template v-for="message in messages" :key="message.id">
 			<view class="session ai-session text-gray-600" v-if="message.role == 'assistant'">
-				<!-- <image class="avatar" :src="conv.avatar" mode=""></image> -->
+				<navigator :url="'/pages/conversation/setting?conv_id=' + conv.id">
+					<image class="avatar" :src="conv.avatar" mode=""></image>
+				</navigator>
 				<view class="message-box">
 					<!-- <view class="message-text">{{message.content}}</view> -->
 					<view class="message-text">
@@ -37,7 +39,7 @@
 				<view class="placeholder"></view>
 			</view>
 			<view class="session user-session text-gray-600" v-if="message.role == 'user'">
-				<!-- <image class="avatar" src="@/static/user-avatar.png" mode=""></image> -->
+				<image class="avatar" :src="user.avatar ?? '/static/user-avatar.png'" mode=""></image>
 				<view class="message-box">
 					<view class="message-text">
 						<!-- <words :words="message.words" @lookup="lookup"></words> -->
@@ -63,7 +65,7 @@
 			<view class="placeholder"></view>
 		</view>
 		<view class="session user-session recording" v-show="status == 'recording'">
-			<!-- <image class="avatar" src="@/static/user-avatar.png" mode=""></image> -->
+			<!-- <image class="avatar" :src="user.avatar" mode=""></image> -->
 
 			<view class="message-box twinkling">
 				<view class="message-text">
@@ -190,8 +192,8 @@
 				// none: 没有情况，recording: 用户录音，thinking: AI思考中，思考完后又回到none， halt:没钱停机，end: 已结束
 				status: 'none',
 				// chat: 对话，phone: 电话, keyboard: 键盘
-				// mode: 'chat',
-				mode: 'keyboard',
+				mode: 'chat',
+				// mode: 'keyboard',
 				// speaking, listening
 				phone_status: 'none',
 				// status: 'thinking', //
@@ -212,6 +214,7 @@
 				text: '',
 				audioCtx: null,
 				audioSource: null,
+				user: utils.getUser()
 				// playing_message: null,
 			}
 		},
@@ -417,7 +420,7 @@
 			// 	// innerAudioContext.go(cd)
 			// 	player.play(cd)
 			// },
-			play(cd) {
+			play(cd, callback) {
 				let that = this
 				cd.playing = true
 				console.log('cd.audio', cd.audio)
@@ -428,8 +431,12 @@
 					that.audioSource.start()
 
 					that.audioSource.onended = () => {
-						that.audioSource.onended = () => {}
 						cd.playing = false
+						if (callback) {
+							console.log('play callback')
+							callback()
+						}
+						that.audioSource.onended = () => {}
 					}
 
 				}).catch((e) => {
@@ -825,15 +832,14 @@
 								}
 								if (data.status == 'ready') {
 									// console.log('status ready')
-									let context = that.play(that.messages[that.messages.length - 1])
 
 									if (that.mode == 'phone') {
 										that.phone_status = 'speaking'
 										that.status = 'none'
-										console.log('status phoning & speaking')
-										context.onEnded(() => {
+										// console.log('status phoning & speaking')
+										that.play(that.messages[that.messages.length - 1], () => {
 											console.log('player ended')
-											context.offEnded()
+											// context.offEnded()
 											that.turnNotice()
 											that.call()
 										})
@@ -842,6 +848,7 @@
 										// 	that.status = 'end'
 										// } else {
 										// }
+										that.play(that.messages[that.messages.length - 1])
 										that.status = 'none'
 									}
 
@@ -854,7 +861,7 @@
 										icon: 'none',
 									})
 									that.status = 'none'
-								}else if (data.error == 102) {
+								} else if (data.error == 102) {
 									// that.status = 'halt'
 									uni.showToast({
 										title: '试用结束，请购买会员',
