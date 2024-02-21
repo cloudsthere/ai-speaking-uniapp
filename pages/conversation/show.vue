@@ -58,14 +58,14 @@
 			</view>
 		</template>
 		<view class="session ai-session recording" v-if="status == 'thinking'">
-			<!-- <image class="avatar" :src="conv.avatar" mode=""></image> -->
+			<image class="avatar" :src="conv.avatar" mode=""></image>
 			<view class="message-box twinkling">
 				<view class="message-text">思考中...</view>
 			</view>
 			<view class="placeholder"></view>
 		</view>
 		<view class="session user-session recording" v-show="status == 'recording'">
-			<!-- <image class="avatar" :src="user.avatar" mode=""></image> -->
+			<image class="avatar" :src="user.avatar ?? '/static/user-avatar.png'" mode=""></image>
 
 			<view class="message-box twinkling">
 				<view class="message-text">
@@ -196,10 +196,9 @@
 				// mode: 'keyboard',
 				// speaking, listening
 				phone_status: 'none',
-				// status: 'thinking', //
 				conv: {},
 				messages: [],
-				recording: false,
+				// recording: false,
 				recoManager: null,
 				voice_file: null,
 				question: '',
@@ -221,6 +220,7 @@
 		onLoad(options) {
 			// console.log(options)
 			var that = this
+
 
 
 			uni.authorize({
@@ -288,12 +288,27 @@
 				// if (that.messages[that.messages.length - 1]) {
 				// 	that.play(that.messages[that.messages.length - 1])
 				// }
+
 				if (that.messages.length == 0) {
 					that.status = 'thinking'
 					that.generateMessage()
 				} else {
-					that.play(that.messages[that.messages.length - 1])
+					if (options.mode == 'phone') {
+						// that.call()
+						that.mode = 'phone'
+						that.phone_status = 'speaking'
+						// that.status = 'recording'
+						that.play(that.messages[that.messages.length - 1], () => {
+							that.call()
+						})
+						// that.startRecord()
+					} else {
+						that.play(that.messages[that.messages.length - 1])
+
+					}
 				}
+
+
 			})
 
 
@@ -404,8 +419,8 @@
 			// 	player.switchPlay(message)
 			// },
 			switchPlay(message) {
-				console.log('switchPlay')
-				console.log(message)
+				// console.log('switchPlay')
+				// console.log(message)
 				if (message.playing) {
 					message.playing = false
 					this.stopPlay()
@@ -423,29 +438,43 @@
 			play(cd, callback) {
 				let that = this
 				cd.playing = true
-				console.log('cd.audio', cd.audio)
-				this.loadAudio(cd.audio).then(buffer => {
-					this.audioSource = this.audioCtx.createBufferSource()
-					that.audioSource.buffer = buffer
-					that.audioSource.connect(that.audioCtx.destination)
-					that.audioSource.start()
-
-					that.audioSource.onended = () => {
+				console.log('cd', cd)
+				if (cd.audio_file) {
+					let context = uni.createInnerAudioContext({
+						obeyMuteSwitch: false,
+					});
+					context.src = cd.audio_file
+					context.onEnded(() => {
+						context.offEnded()
 						cd.playing = false
-						if (callback) {
-							console.log('play callback')
-							callback()
-						}
-						that.audioSource.onended = () => {}
-					}
+					})
+					context.play()
+					
+				} else {
+					this.loadAudio(cd.audio).then(buffer => {
+						this.audioSource = this.audioCtx.createBufferSource()
+						that.audioSource.buffer = buffer
+						that.audioSource.connect(that.audioCtx.destination)
+						that.audioSource.start()
 
-				}).catch((e) => {
-					console.log('play fail', e)
-				})
+						that.audioSource.onended = () => {
+							cd.playing = false
+							if (callback) {
+								console.log('play callback')
+								callback()
+							}
+							that.audioSource.onended = () => {}
+						}
+
+					}).catch((e) => {
+						console.log('play fail', e)
+					})
+
+				}
 			},
 			loadAudio(url) {
 				var that = this
-				return new Promise((resolve) => {
+				return new Promise((resolve, reject) => {
 					wx.request({
 						url,
 						responseType: 'arraybuffer',
@@ -479,7 +508,9 @@
 				this.RecorderManager.start(options)
 			},
 			hangUp() {
-				this.RecorderManager.stop()
+				if (this.RecorderManager) {
+					this.RecorderManager.stop()
+				}
 				this.mode = 'chat'
 				this.phone_status = 'none'
 				this.status = 'none'
@@ -490,7 +521,7 @@
 					return;
 				}
 
-				console.log('call')
+				// console.log('call')
 				this.mode = 'phone'
 				this.phone_status = 'listening'
 				this.status = 'recording'
@@ -697,13 +728,16 @@
 				if (!this.RecorderManager) {
 					var that = this;
 					this.RecorderManager = uni.getRecorderManager()
-					// console.log('ws链接打开成功，开始录音')
+					console.log('ws链接打开成功，开始录音')
 
 					this.RecorderManager.onStart((res) => {
-						that.recorder_status = 'recording'
+						console.log('recorder onstart')
+						// that.recorder_status = 'recording'
+						that.status = 'recording'
 					})
 
 					this.RecorderManager.onStop((res) => {
+						console.log('recorder onstop')
 						// console.log(res.duration)
 						if (res.duration >= recorder_duration - 1000) {
 							that.recorder_status = '超时结束'
@@ -712,7 +746,7 @@
 						}
 						// console.log('close recorder')
 						// that.sendMessage(res.tempFilePath)
-						console.log('assign audio file')
+						// console.log('assign audio file')
 						that.current_audio_file = res.tempFilePath
 					})
 
@@ -825,7 +859,7 @@
 					lines.forEach((line) => {
 						if (line) {
 							let data = JSON.parse(line)
-							// console.log(data)
+							console.log('receive data', data)
 							if (data.error == 0) {
 								if (data.status == 'init') {
 									that.messages.push(data.message)
@@ -918,7 +952,7 @@
 				this.messages.push({
 					role: 'user',
 					content: this.current_content,
-					audio_url: this.current_audio_file
+					audio_file: this.current_audio_file
 				})
 				this.scrollToBottom()
 

@@ -129,7 +129,7 @@
 		methods: {
 			getData() {
 				utils.request('GET', '/api/collection', {}, (res) => {
-					console.log(res)
+					// console.log(res)
 					if (res.error == 101) {
 						this.is_login = false
 					} else {

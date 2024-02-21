@@ -50,7 +50,7 @@
 										<view class="cell-brief mt-8 c-gray-1">{{conv.brief}}</view>
 									</view>
 								</view>
-								<image class="btn-icon" src="/static/icon-phone.svg" />
+								<image class="btn-icon" src="/static/icon-phone.svg" @click.stop.prevent="call(conv.id)"/>
 							</view>
 						</tui-list-cell>
 					</navigator>
@@ -119,6 +119,11 @@
 			top(conv_id) {
 				utils.request('POST', '/api/conversation/' + conv_id + '/top', {}, (res) => {
 					this.getData()
+				})
+			},
+			call(conv_id) {
+				uni.navigateTo({
+					url: `/pages/conversation/show?conv_id=${conv_id}&mode=phone`
 				})
 			}
 		}
