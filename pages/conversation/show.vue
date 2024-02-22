@@ -538,11 +538,7 @@
 					return;
 				}
 
-				// #ifdef MP-WEIXIN
-				wx.vibrateShort({
-					type: 'light'
-				})
-				// #endif
+
 
 				var that = this
 				// 先取得权限
@@ -733,6 +729,13 @@
 					this.RecorderManager.onStart((res) => {
 						console.log('recorder onstart')
 						// that.recorder_status = 'recording'
+						
+						// #ifdef MP-WEIXIN
+						wx.vibrateShort({
+							type: 'light'
+						})
+						// #endif
+						
 						that.status = 'recording'
 					})
 
