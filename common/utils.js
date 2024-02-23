@@ -327,6 +327,7 @@ export default {
 									// console.log('login success')
 									// console.log(login_res)
 									that.setToken(login_res.data.token)
+									that.deleteUser()
 									// uni.setStorageSync('token_expires_at', login_res.data.expires_at)
 
 									// 打开锁
