@@ -8,7 +8,7 @@
 	export default {
 		data() {
 			return {
-				url: utils.domain + '/privary',
+				url: utils.domain + '/privacy',
 			}
 		},
 	}
