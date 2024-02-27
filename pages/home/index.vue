@@ -27,21 +27,21 @@
 			</view>
 			<view class="content">
 				<navigator
-					:url="'/pages/conversation/show?scene_id=' + scene.id"
-					v-for="(scene, scene_index) in scenes"
-					:key="scene_index"
+					:url="'/pages/conversation/show?agent_id=' + agent.id"
+					v-for="(agent, agent_index) in agents"
+					:key="agent_index"
 				>
 					<view class="p-24 scene-card">
 						<view class="name flex justify-between">
-							<view class="c-blue-1 fs-30 font-semibold">{{scene.name}}</view>
-							<image v-if="scene.isPlaying" class="voice" src="/static/icon-voice-selected.svg" />
-							<image v-else class="voice-icon" src="/static/icon-voice-grey.svg" @tap.stop="playSceneVoice(scene)" />
+							<view class="c-blue-1 fs-30 font-semibold">{{agent.name}}</view>
+							<image v-if="agent.isPlaying" class="voice" src="/static/icon-voice-selected.svg" />
+							<image v-else class="voice-icon" src="/static/icon-voice-grey.svg" @tap.stop="playSceneVoice(agent)" />
 						</view>
 						<view class="brief c-gray-1 fs-24">
-							<view>{{scene.brief}}</view>
+							<view>{{agent.brief}}</view>
 						</view>
 						<view class="flex justify-end">
-							<image class="scene-img" :src="scene.avatar" mode=""></image>
+							<image class="scene-img" :src="agent.avatar" mode=""></image>
 						</view>
 					</view>
 				</navigator>
@@ -63,15 +63,15 @@
 			return {
 				height: 0,
 				// scenes: [],
-				scenes: [],
+				agents: [],
 				teacher: {},
 				is_greeting: false
 			}
 		},
 		onShow() {
 			var that = this
-			utils.request('GET', '/api/scene', {}, (res) => {
-				that.scenes = res.scenes
+			utils.request('GET', '/api/agent', {}, (res) => {
+				that.agents = res.agents
 				that.teacher = res.teacher
 			})
 		},
@@ -98,7 +98,7 @@
 				// context.play()
 			},
 			playSceneVoice(scene) {
-				utils.request('GET', '/api/scene/' + scene.id + '/greeting', {}, (res) => {
+				utils.request('GET', '/api/agent/' + scene.id + '/greeting', {}, (res) => {
 					scene.isPlaying = true
 					player.sound(res.greeting_url, () => {
 						scene.isPlaying = false

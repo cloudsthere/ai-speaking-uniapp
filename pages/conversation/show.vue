@@ -260,11 +260,11 @@
 			var method = 'GET'
 			var url = '/api/conversation/' + options.conv_id
 			var data = {}
-			if (options.scene_id) {
+			if (options.agent_id) {
 				method = 'POST'
 				url = '/api/conversation/'
 				data = {
-					scene_id: options.scene_id,
+					agent_id: options.agent_id,
 				}
 			}
 
