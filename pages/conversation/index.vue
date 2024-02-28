@@ -1,5 +1,5 @@
 <template>
-	<tui-navigation-bar backgroundColor="#F7FFFE" title="聊天" color="#000">
+	<tui-navigation-bar backgroundColor="#F7FFFE" :is-opacity="false" title="聊天" color="#000">
 	 <view class="tui-header-icon">
 		<navigator v-if="userInfo.avatar" url="/pages/home/price">
 			<img class="nav-avatar rounded-half" :src="userInfo.avatar" />
@@ -9,9 +9,9 @@
 		</navigator>
 	 </view>
 	
-		<view class="bg">
-			<img class="img" mode="scaleToFill" src="/static/chat-bg.jpg" alt="" />
-		</view>
+	<!-- <view class="bg">
+		<img class="img" mode="scaleToFill" src="/static/chat-bg.jpg" alt="" />
+	</view> -->
 	</tui-navigation-bar>
 	<view class="main content" :style="{marginTop: height + 'px'}">
 		<tui-list-view unlined="all" backgroundColor="#fff">

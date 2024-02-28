@@ -1,113 +1,102 @@
 <template>
-	<view class="content">
-
-		<view class="p-4 bg-white">
-			<view class="flex gap-4 items-start border-b border-gray-100 items-stretch pb-4">
-				<navigator url="/pages/mine/profile" class="flex gap-4" v-if="user">
-					<image :src="user.avatar" class="avatar" mode=""></image>
-					<view class="flex flex-col justify-between">
-						<view class="text-xl font-medium">
-							{{user.name}}
-						</view>
-						<view class="flex items-center gap-1">
-							<image class="w-6 h-6" src="@/static/icon-no-member.png" v-if="member.plan == 'none'"
-								mode=""></image>
-							<image class="w-6 h-6" src="@/static/icon-member.png" v-else mode=""></image>
-							<text class="text-sm text-gray-400">{{member.plan_name}}</text>
-						</view>
+	<page-meta page-style="height: 375rpx; background-image: url(/static/chat-bg.jpg);background-repeat: no-repeat"></page-meta>
+	<scroll-view class="content" scroll-y :style="{position: 'absolute', top: height + 'px', height: `calc(100% - ${height}px)`}" >
+		<view class="flex gap-24">
+			<image :src="user && user.avatar || '/static/default_avatar.jpg'" class="rounded-half avatar no-shrink"></image>
+			<view  v-if="user" class="flex justify-between flex-auto"  @click="routeTo({url: '/pages/mine/profile'})">
+				<view class="flex flex-col justify-center gap-16">
+					<view class="font-semibold fs-32 c-blue-1">
+						{{user.name}}
 					</view>
-					<view>></view>
-				</navigator>
-				<navigator url="/pages/auth/login"
-					class="login-text w-full m-auto flex flex-col justify-center items-center" v-else>
-					<view class="text-xl">登录/注册</view>
-				</navigator>
+					<image v-if="member.is_member" class="no-stretch" src="/static/label-pro.svg" style="width: 82rpx;height: 34rpx" mode="aspectFit" />
+					<view v-else class="br-16 flex items-center fs-20 c-white no-stretch normal_user">
+						{{member.plan_name}}
+					</view>
+				</view>
+				<view class="flex items-center">
+					<image class="w-32" src="/static/icon-rightarrow.svg" />
+				</view>
 			</view>
-			<view class="flex justify-between px-4">
-				<view class="flex flex-col justify-between items-center pt-4 gap-2">
-					<view class="text-gray-400 text-sm">套餐剩余</view>
-					<view class="text-xl">{{member.duration}}</view>
-				</view>
-				<view class="flex flex-col justify-between items-center pt-4 gap-2">
-					<view class="text-gray-400 text-sm">已使用</view>
-					<view class="text-xl">{{member.used_duration}}</view>
-				</view>
-				<view class="flex flex-col justify-between items-center pt-4 gap-2">
-					<view class="text-gray-400 text-sm">已赠送</view>
-					<view class="text-xl">{{member.given_duration}}</view>
+			<view v-else class="flex flex-auto items-center"  @click="routeTo({url: '/pages/auth/login'})">
+				<view class="font-semibold c-blue-1 fs-32">请登录/注册</view>
+			</view>
+		</view>
+		<view class="sub-section">
+			<view class="flex justify-between items-center" style="margin-bottom: 10rpx;">
+				<text class="fs-24 c-gray-4">剩余课时</text>
+				<text class="fs-32 c-blue-1">{{ `${member.available_minutes}/${member.total_minutes} min` }}</text>
+			</view>
+			
+			<Progress :percent="member.available_minutes/member.total_minutes * 100" />
+		</view>
+		
+		<view v-if="member.is_member" class="member_banner relative">
+			<image class="member_banner w-full hp100" src="/static/icon-pro-banner.svg" />
+			<view class="front w-full hp100 flex items-center" style="padding-left: 36rpx;">
+				<view class="flex flex-col">
+					<image class="banner-text" src="/static/icon-banner-text.svg" />
+					<view class="fs-20" style="color: #FA931C;">有效期至{{ member.expires_at }}</view>
 				</view>
 			</view>
 		</view>
-		<view class="px-4 bg-white mt-4">
-			<view class="flex items-center gap-3 py-4">
-				<navigator url="/pages/home/price"
-					class="w-full bg-primary text-color-white flex justify-between rounded p-2 items-center">
-					<view class="text-white">加入会员<span class="px-1">•</span>享更多权益</view>
-					<view class="bg-white rounded-3xl text-primary py-2 px-3 text-xs">购买会员</view>
-				</navigator>
-			</view>
-			<navigator url="/pages/mine/promote" class="flex items-center gap-3 border-b border-gray-100 py-4">
-				<uni-icons custom-prefix="iconfont" type="icon-jiangli" size="20"></uni-icons>
-				<view class="">推广有奖</view>
+		<navigator v-else url="/pages/home/price">
+			<image class="member_banner" src="/static/icon-banner.svg" />
+		</navigator>
+		
+		<view>
+			<navigator url="/pages/mine/promote" class="cell flex justify-between">
+				<text class="c-blue-1 fs-28 font-semibold">分享有奖</text>
+				<view class="flex gap-16 items-center">
+					<view class="tag c-white fs-24 flex items-center justify-center br-22" style="background-color: #FA9422;">赠送课时</view>
+					<image class="w-32" src="/static/icon-rightarrow.svg" />
+				</view>
 			</navigator>
-			<view class="flex items-center gap-3 py-4">
-				<uni-icons custom-prefix="iconfont" type="icon-fanyi" size="20"></uni-icons>
-				<view class="">
-					钱包
+			
+			<navigator url="/pages/mine/invite-code" class="cell flex justify-between">
+				<text class="c-blue-1 fs-28 font-semibold">填写邀请码</text>
+				<view class="flex gap-16 items-center">
+					<view class="tag c-white fs-24 flex items-center justify-center br-22" style="background-color: #40BBFF;">9折优惠</view>
+					<image class="w-32" src="/static/icon-rightarrow.svg" />
 				</view>
-			</view>
-		</view>
-
-		<view class="px-4 bg-white mt-4">
-			<navigator url="/pages/mine/invite-code" class="flex justify-between border-b border-gray-100 py-4">
-				<view class="flex items-center gap-3 ">
-					<uni-icons custom-prefix="iconfont" type="icon-yaoqing" size="20"></uni-icons>
-					<view class="">填写邀请码</view>
-				</view>
-				<view class="text-gray-300">&gt;</view>
 			</navigator>
-			<view class="flex items-center gap-3 py-4" @tap="showLogout">
-				<uni-icons custom-prefix="iconfont" type="icon-tuichu" size="20"></uni-icons>
-				<view class="">
-					退出登录
+			
+			<!-- <navigator url="/pages/mine/promote" class="cell flex justify-between">
+				<text class="c-blue-1 fs-28 font-semibold">申请推广大使</text>
+				<view class="flex gap-16 items-center">
+					<image class="w-32" src="/static/icon-rightarrow.svg" />
 				</view>
-			</view>
+			</navigator> -->
 		</view>
-	</view>
+	</scroll-view>
 </template>
 
 <script>
 	import utils from '@/common/utils.js';
+	import Progress from '../component/progress.vue'
 
 	export default {
+		components:{
+			Progress
+		},
 		data() {
 			return {
+				height: getApp().globalData.height,
 				user: null,
 				member: {
-					duration: '-',
-					used_duration: '-',
-					given_duration: '-',
+					plan_name: '-',
+					total_minutes: '-',
+					available_minutes: '-',
 				},
 			}
 		},
-		onLoad() {
-
-		},
 		onShow() {
-			// console.log('onshow')
-			// 登录页跳来
 			this.user = utils.getUser()
 
-			var that = this
 			utils.request('GET', '/api/member', {}, (res) => {
 				// console.log(res)
-				that.member = res.member
+				this.member = res.member
+				this.member.is_member = true
 			})
-			
-			// utils.request('GET', '/api/user', {}, (res) => {
-			// 	// console.log(res)
-			// 	that.user = res.user
-			// })
 		},
 		onShareAppMessage(res) {
 			return utils.share()
@@ -116,13 +105,10 @@
 			return utils.share()
 		},
 		methods: {
+			routeTo(params) {
+				uni.navigateTo(params)
+			},
 			getUserInfo() {
-				// uni.getUserProfile({
-				// 	desc: '完善用户资料',
-				// 	success(res) {
-				// 		console.log(res)
-				// 	}
-				// })
 				wx.getUserProfile({
 				      desc: '用于完善会员资料', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
 				      success: (res) => {
@@ -134,51 +120,79 @@
 				console.log(e.detail.userInfo)
 				//
 			},
-			showLogout() {
-				var that = this
-				uni.showModal({
-					// title: '确认退出登录吗',
-					content: '确认退出登录吗',
-					success: function(res) {
-						if (res.confirm) {
-							// console.log('用户点击确定');
-							that.logout()
-						} else if (res.cancel) {
-							// console.log('用户点击取消');
-						}
-					}
-				});
-			},
-			logout() {
-				if (this.user) {
-					// console.log('request')
-					utils.request('POST', '/api/logout', {}, (res) => {
-						utils.deleteUser()
-						utils.setToken(res.token)
-						uni.reLaunch({
-							url: '/pages/mine/mine',
-						})
-					})
-				}
+			// showLogout() {
+			// 	var that = this
+			// 	uni.showModal({
+			// 		content: '确认退出登录吗',
+			// 		success: function(res) {
+			// 			if (res.confirm) {
+			// 				that.logout()
+			// 			} else if (res.cancel) {
+			// 				// console.log('用户点击取消');
+			// 			}
+			// 		}
+			// 	});
+			// },
+			// logout() {
+			// 	if (this.user) {
+			// 		// console.log('request')
+			// 		utils.request('POST', '/api/logout', {}, (res) => {
+			// 			utils.deleteUser()
+			// 			utils.setToken(res.token)
+			// 			uni.reLaunch({
+			// 				url: '/pages/mine/mine',
+			// 			})
+			// 		})
+			// 	}
 
-			}
+			// }
 		}
 	}
 </script>
 
 <style lang="scss">
 	.content {
-		background: $uni-bg-color-grey;
-		min-height: 100vh;
+		padding: 0 40rpx;
+		box-sizing: border-box;
 	}
 
 	.avatar {
-		width: 80px;
-		height: 80px;
+		width: 128rpx;
+		height: 128rpx;
 	}
-
-	.login-text {
-		height: 80px;
+	
+	.normal_user {
+		background-color: #1CD1AD;
+		padding: 4rpx 12rpx;
+	}
+	
+	.member_user {
+		padding: 8rpx 14rpx;
+		background: linear-gradient( 320deg, #FFA450 0%, #FFAC1B 22%, #FFB800 82%, #FFC700 100%);
+	}
+	
+	.sub-section {
+		margin: 44rpx 0;
+	}
+	
+	.member_banner {
+		width: 100%;
+		height: 150rpx;
+	}
+	
+	.banner-text {
+		width: 174rpx;
+		height: 40rpx;
+		margin-bottom: 12rpx;
+	}
+	
+	.tag {
+		width: 128rpx;
+		height: 42rpx;
+	}
+	
+	.cell {
+		margin-top: 64rpx;
 	}
 
 	.bg-gradient {

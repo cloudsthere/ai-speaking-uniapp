@@ -1,17 +1,19 @@
 <template>
 	<uni-popup ref="popup" type="bottom" @change="change">
 		<view class="bg-white" style="border-radius: 20rpx 20rpx 0 0;">
+			<view class="w-full flex items-center justify-between header-box" style="gap: 28rpx">
+				<uni-search-bar ref="search" class="flex-grow br-16" :class="!!query ? 'input' : 'placeholder'" bgColor="#FAFAFA" :focus="true" cancelButton="none" placeholder="查询中文或英文" @confirm="search(query.trim())" @input="suggest">
+					<template v-slot:searchIcon>
+						<uni-icons v-if="query_stack.length > 1" @click="back" color="#353E50" class="w-32" type="arrow-left" />
+						<uni-icons v-else class="w-32" type="search" />
+					</template>
+				</uni-search-bar>
+				<uni-icons type="closeempty" @click="close" size="24"></uni-icons>
+			</view>
+			
 			<view class="hp100 relative" :style="suggestions.length === 0 && 'overflow-y: auto;'">
 				<view class="popup-box">
-					<view class="w-full flex items-center justify-between" style="gap: 28rpx">
-						<uni-search-bar ref="search" class="flex-grow br-16" :class="!!query ? 'input' : 'placeholder'" bgColor="#FAFAFA" :focus="true" cancelButton="none" placeholder="查询中文或英文" @confirm="search(query.trim())" @input="suggest">
-							<template v-slot:searchIcon>
-								<uni-icons v-if="query_stack.length > 1" @click="back" color="#353E50" class="w-32" type="arrow-left" />
-								<uni-icons v-else class="w-32" type="search" />
-							</template>
-						</uni-search-bar>
-						<uni-icons type="closeempty" @click="close" size="24"></uni-icons>
-					</view>
+					
 					
 					<!-- <view class="flex gap-3 items-center">
 						<image class="w-5 h-5" src="@/static/back.png" @click="back"
@@ -276,7 +278,11 @@
 
 <style scoped>
 .popup-box {
-	height: 60vh; 
+	height: calc(60vh - 35px - 40rpx); 
+	padding: 0 40rpx 0;
+	box-sizing: border-box;
+}
+.header-box {
 	padding: 40rpx 40rpx 0;
 	box-sizing: border-box;
 }

@@ -71,6 +71,10 @@ view, text {
 	color: #B3B5C0;
 }
 
+.c-gray-4 {
+	color: #666
+}
+
 .c-blue-1 {
 	color: #151727;
 }
@@ -97,6 +101,9 @@ view, text {
 }
 .fs-26 {
 	font-size: 26rpx;
+}
+.fs-28 {
+	font-size: 28rpx;
 }
 .fs-30 {
 	font-size: 30rpx;
@@ -140,6 +147,9 @@ view, text {
 .br-20 {
 	border-radius: 20rpx;
 }
+.br-22 {
+	border-radius: 22rpx;
+}
 .br-24 {
 	border-radius: 24rpx;
 }
@@ -181,4 +191,13 @@ view, text {
 }
 .no-grow {
 	flex-grow: 0;
+}
+.no-stretch {
+	align-self: baseline;
+}
+
+.front {
+	position: absolute;
+	top: 0;
+	left: 0;
 }
