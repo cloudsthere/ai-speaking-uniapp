@@ -138,7 +138,7 @@
 				accent: "mandarin",
 				dwa: "wpgs",
 				// vad_eos: 10000
-				vad_eos: 2000
+				vad_eos: 5000
 			},
 			data: {
 				status: status,
