@@ -190,18 +190,4 @@ page {
 	width: 100%;
 	height: 348rpx;
 }
-.tui-header-icon {
-	width: 100%;
-	position: absolute;
-	bottom: 12rpx;
-	padding: 0 12rpx;
-	display: flex;
-	align-items: center;
-	height: 32px;
-	transform: translateZ(0);
-	z-index: 99999;
-	box-sizing: border-box;
-}
-
-
 </style>

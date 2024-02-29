@@ -1,7 +1,9 @@
 <template>
-	<tui-navigation-bar v-bind="$attrs" :isOpacity="false" :title="title" color="#000"></tui-navigation-bar>
+	<tui-navigation-bar v-bind="$attrs" :isOpacity="false" :title="title" color="#000">
+		<slot name="navBar"></slot>
+	</tui-navigation-bar>
 	<view :style="{ paddingTop: height + 'px' }">
-		<slot></slot>
+		<slot name="default"></slot>
 	</view>
 </template>
 

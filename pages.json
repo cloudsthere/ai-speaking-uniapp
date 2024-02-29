@@ -97,14 +97,16 @@
 			"path": "pages/auth/login",
 			"style": {
 				"navigationBarTitleText": "登录",
-				"enablePullDownRefresh": false
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#fff"
 			}
 
 		}, {
 			"path": "pages/auth/mobile",
 			"style": {
-				"navigationBarTitleText": "登录",
-				"enablePullDownRefresh": false
+				"navigationBarTitleText": "手机号登录",
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#fff"
 			}
 
 		}, {

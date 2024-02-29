@@ -40,7 +40,7 @@
 			</view>
 		</view>
 		<navigator v-else url="/pages/home/price">
-			<image class="member_banner" src="/static/icon-banner.svg" />
+			<image class="member_banner" src="/static/icon-banner.png" />
 		</navigator>
 		
 		<view>
@@ -95,7 +95,6 @@
 			utils.request('GET', '/api/member', {}, (res) => {
 				// console.log(res)
 				this.member = res.member
-				this.member.is_member = true
 			})
 		},
 		onShareAppMessage(res) {

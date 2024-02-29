@@ -1,15 +1,17 @@
 <template>
-	<view class="content pt-10 px-4 text-center">
-		<image src="@/static/logo.png" class="m-auto mb-8 logo"></image>
-		<view class="flex flex-col gap-4">
-			<button class="btn btn-primary" @click="checkLogin" :open-type="checked ? 'getPhoneNumber' : ''"
-				@getphonenumber="decryptPhoneNumber">一键登录</button>
-			<button @click="toMobile" class="btn-default btn">手机号登录/注册</button>
-		</view>
-		<view class="text-sm text-gray-600 mt-4 flex justify-center items-center">
-			<radio @click="switchChecked" :checked="checked" style="transform:scale(0.7);" color="#38b5b3" />
-			<view @click="switchChecked" class="text-gray-400">
-				我已阅读并同意<navigator url="/pages/home/privacy" class="text-primary inline underline">隐私政策</navigator>和<navigator url="/pages/home/protocol" class="text-primary inline underline">用户协议</navigator>
+	<view class="bg-page flex flex-col items-center box-border w-full">
+		<image src="/static/default_avatar.jpg" class="rounded-half logo"></image>
+		<image src="/static/slogan.png" class="logo-text"></image>
+		<button class="btn btn-primary w-full br-16 c-white fs-32" @click="checkLogin" :open-type="checked ? 'getPhoneNumber' : ''"
+			@getphonenumber="decryptPhoneNumber">微信一键登录</button>
+		<button @click="toMobile" class="btn-default btn w-full c-blue-1 br-16 fs-32">手机号登录/注册</button>
+		<view class="flex justify-center items-center" @click="switchChecked">
+			<radio :checked="checked" style="transform:scale(0.7);" color="#38b5b3" />
+			<view class="c-gray-4 fs-26">
+				我已阅读并同意
+				<navigator url="/pages/home/privacy" class="text-primary inline c-green-1">隐私政策</navigator>
+				和
+				<navigator url="/pages/home/protocol" class="text-primary inline c-green-1">用户协议</navigator>
 			</view>
 		</view>
 	</view>
@@ -99,8 +101,38 @@
 </script>
 
 <style>
+	page-meta {
+		background-color: #fff;
+	}
+	.bg-page {
+		background-image: url(/static/chat-bg.jpg);
+		background-repeat: no-repeat;
+		padding: 70rpx 80rpx 0;
+	}
 	.logo {
-		width: 100px;
-		height: 100px;
+		width: 208rpx;
+		height: 208rpx;
+		margin-bottom: 32rpx;
+	}
+	.logo-text {
+		width: 244rpx;
+		height: 86rpx;
+		margin-bottom: 96rpx;
+	}
+	
+	.btn-primary {
+		background-color: #1CD1AD;
+		padding: 30rpx 0;
+		line-height: 1;
+		margin-bottom: 24rpx;
+		border: none
+	}
+	
+	.btn-default {
+		background-color: #F3F4F6;
+		padding: 30rpx 0;
+		line-height: 1;
+		margin-bottom: 46rpx;
+		border: none
 	}
 </style>

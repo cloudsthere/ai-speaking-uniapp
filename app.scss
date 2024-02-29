@@ -86,6 +86,10 @@ view, text {
 	color: #fff
 }
 
+.c-green-1 {
+	color: #1CD1AD;
+}
+
 .lh-30 {
 	line-height: 30rpx;
 }
@@ -200,4 +204,17 @@ view, text {
 	position: absolute;
 	top: 0;
 	left: 0;
+}
+
+.tui-header-icon {
+	width: 100%;
+	position: absolute;
+	bottom: 12rpx;
+	padding: 0 12rpx;
+	display: flex;
+	align-items: center;
+	height: 32px;
+	transform: translateZ(0);
+	z-index: 99999;
+	box-sizing: border-box;
 }

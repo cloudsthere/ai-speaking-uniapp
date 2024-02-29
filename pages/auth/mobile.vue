@@ -1,26 +1,27 @@
 <template>
-	<view class="content pt-10 px-4 text-center">
-		<image src="@/static/logo.png" class="m-auto mb-8 logo"></image>
-		<view class="flex flex-col gap-4">
-			<view class="relative">
-				<view class="text-gray-600 absolute left-0 top-0 bottom-0 flex flex-col items-center justify-center"><text>+86</text></view>
-				<input name="phone" type="number" v-model="phone" placeholder="手机号" class="pl-10 py-2 border-b border-x-0 border-t-0 text-left border-gray-200 border-solid"/>
+	<view class="bg-page flex flex-col items-center box-border w-full">
+		<image src="/static/default_avatar.jpg" class="rounded-half logo"></image>
+		<view class="flex flex-col gap-24 w-full">
+			<view class="relative br-16 input-box c-blue-1 flex items-center fs-28">
+				<view class="flex items-center justify-center"><text>+86</text></view>
+				<input name="phone" type="number" v-model="phone" placeholder="手机号" class="border-none text-left"/>
 			</view>
-			<view class="relative">
-				<input name="code" v-model="code" placeholder="验证码" type="number" class="py-2 border-b border-x-0 border-t-0 text-left border-gray-200 border-solid"/>
-				<view @tap="sendCode" class="z-10 text-primary absolute pl-2 right-0 top-0 bottom-0 flex flex-col items-center justify-center">
-					<text v-show="['none', 'sending'].includes(status)">发送验证码</text>
-					<text v-show="['counting'].includes(status)">{{counter}}秒后重发</text>
+			<view class="relative br-16 input-box c-blue-1 flex items-center fs-28 justify-space-between">
+				<input name="code" v-model="code" placeholder="验证码" type="number" class="border-none flex-auto"/>
+				<view @tap="sendCode" class="z-10 flex items-center justify-center">
+					<text class="c-green-1" v-show="['none', 'sending'].includes(status)">发送验证码</text>
+					<text class="c-gray-1" v-show="['counting'].includes(status)">{{counter}}s</text>
 				</view>
 			</view>
 		</view>
-		<view class="flex flex-col gap-4 mt-4">
-			<button class="btn btn-primary" @click="login" >登录/注册</button>
-		</view>
-		<view class="text-sm text-gray-600 mt-4 flex justify-center items-center">
-			<radio @click="switchChecked" :checked="checked" style="transform:scale(0.7);" color="#38b5b3"/>
-			<view @click="switchChecked" class="text-gray-400">
-				我已阅读并同意<navigator url="/pages/home/privacy" class="text-primary inline">隐私政策</navigator>
+		<button class="btn btn-primary w-full br-16 c-white fs-32" @click="login">登录/注册</button>
+		<view class="flex justify-center items-center" @click="switchChecked">
+			<radio :checked="checked" style="transform:scale(0.7);" color="#38b5b3" />
+			<view class="c-gray-4 fs-26">
+				我已阅读并同意
+				<navigator url="/pages/home/privacy" class="text-primary inline c-green-1">隐私政策</navigator>
+				和
+				<navigator url="/pages/home/protocol" class="text-primary inline c-green-1">用户协议</navigator>
 			</view>
 		</view>
 	</view>
@@ -28,7 +29,6 @@
 
 <script>
 	import utils from '@/common/utils.js';
-	
 	
 	export default {
 		data() {
@@ -49,7 +49,6 @@
 		},
 		methods: {
 			sendCode() {
-				var that = this
 				if (['sending', 'counting'].includes(this.status)) {
 					console.log('not in')
 					return
@@ -61,16 +60,15 @@
 				
 				this.status = 'sending'
 				utils.request('GET', '/api/send-code', {mobile: this.phone}, (res) => {
-					// console.log(res)
 					if (res.error == 0) {
-						that.status = 'counting'
+						this.status = 'counting'
 						var sil = setInterval(() => {
-							if (that.counter == 0) {
-								that.status = 'none';
-								that.counter = 60
+							if (this.counter == 0) {
+								this.status = 'none';
+								this.counter = 60
 								clearInterval(sil)
 							}
-							that.counter--;
+							this.counter--;
 						}, 1000)
 					}
 				})
@@ -139,8 +137,29 @@
 </script>
 
 <style>
+	.bg-page {
+		background-image: url(/static/chat-bg.jpg);
+		background-repeat: no-repeat;
+		padding: 70rpx 80rpx 0;
+	}
 	.logo {
-		width: 100px;
-		height: 100px;
+		width: 208rpx;
+		height: 208rpx;
+		margin-bottom: 70rpx;
+	}
+	.input-box {
+		background: #F3F4F6;
+		height: 104rpx;
+		padding: 0 40rpx;
+		gap: 32rpx;
+	}
+	.btn-primary {
+		background-color: #1CD1AD;
+		padding: 30rpx 0;
+		line-height: 1;
+		margin-bottom: 24rpx;
+		border: none;
+		margin-top: 56rpx;
+		margin-bottom: 32rpx;
 	}
 </style>
