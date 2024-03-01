@@ -19,7 +19,9 @@
 		{
 			"path": "pages/home/teacher",
 			"style": {
-				"navigationBarTitleText": "选择声音"
+				"navigationBarTitleText": "选择角色",
+				"navigationBarBackgroundColor": "#FAFAFA",
+				"backgroundColor": "#FAFAFA"
 			}
 		}, 
 
@@ -34,7 +36,7 @@
 		{
 			"path": "pages/conversation/teacher",
 			"style": {
-				"navigationBarTitleText": "选择声音",
+				"navigationBarTitleText": "选择角色",
 				"enablePullDownRefresh": false
 			}
 		

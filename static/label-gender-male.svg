@@ -1,0 +1,16 @@
+<svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="label-gender-male">
+<circle id="Ellipse 11" cx="8" cy="8" r="7.5" fill="#2F98F7" stroke="white"/>
+<g id="gender-male 1" clip-path="url(#clip0_1736_2859)">
+<path id="Vector" d="M4.5 9C4.5 9.66304 4.76339 10.2989 5.23223 10.7678C5.70107 11.2366 6.33696 11.5 7 11.5C7.66304 11.5 8.29893 11.2366 8.76777 10.7678C9.23661 10.2989 9.5 9.66304 9.5 9C9.5 8.33696 9.23661 7.70107 8.76777 7.23223C8.29893 6.76339 7.66304 6.5 7 6.5C6.33696 6.5 5.70107 6.76339 5.23223 7.23223C4.76339 7.70107 4.5 8.33696 4.5 9Z" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_2" d="M11.5 4.5L8.79999 7.2" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_3" d="M11.5 4.5H9" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+<path id="Vector_4" d="M11.5 4.5V7" stroke="white" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+</g>
+<defs>
+<clipPath id="clip0_1736_2859">
+<rect width="12" height="12" fill="white" transform="translate(2 2)"/>
+</clipPath>
+</defs>
+</svg>

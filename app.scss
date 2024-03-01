@@ -29,6 +29,10 @@ view, text {
 .mr-20 {
 	margin-right: 20rpx;
 }
+
+.mr-24 {
+	margin-right: 24rpx;
+}
 .mb-16 {
 	margin-bottom: 16rpx;
 }
@@ -47,6 +51,9 @@ view, text {
 
 .pt-8 {
 	padding-top: 8rpx;
+}
+.pt-12 {
+	padding-top: 12rpx;
 }
 .pt-32 {
 	padding-top: 32rpx
@@ -115,6 +122,9 @@ view, text {
 .fs-32 {
 	font-size: 32rpx;
 }
+.fs-34 {
+	font-size: 34rpx;
+}
 
 .w-32 {
 	width: 32rpx;
@@ -171,6 +181,9 @@ view, text {
 	width: 50%;
 }
 
+.gap-8 {
+	gap: 8rpx;
+}
 .gap-12 {
 	gap: 12rpx;
 }
@@ -186,6 +199,9 @@ view, text {
 
 .justify-end {
 	justify-content: flex-end;
+}
+.items-baseline {
+	align-items: baseline;
 }
 .no-shrink {
 	flex-shrink: 0;
