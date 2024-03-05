@@ -1,31 +1,28 @@
 <template>
 	<view class="content">
 		<template v-for="message in messages" :key="message.id">
-			<view class="session ai-session text-gray-600" v-if="message.role == 'assistant'">
-				<navigator :url="'/pages/conversation/setting?conv_id=' + conv.id">
-					<image class="avatar" :src="conv.avatar" mode=""></image>
-				</navigator>
-				<view class="message-box">
-					<!-- <view class="message-text">{{message.content}}</view> -->
-					<view class="message-text">
+			<view class="c-gray-1 text-center fs-22">{{message.date}}</view>
+			<view class="session ai-session" v-if="message.role == 'assistant'">
+				<image class="avatar" :src="conv.avatar" />
+				<view class="message-box assistant-box">
+					<view class="message-text c-blue-1 fs-30">
 
-						<words :words="message.words" @lookup="lookup"></words>
+						<words :class="message.playing ? 'filter' : ''" :words="message.words" @lookup="lookup"></words>
 
 					</view>
 					<view class="message-dashboard">
-						<uni-icons @click="translate(message)" :class="{playing: message.addition == 'translate'}"
-							custom-prefix="iconfont" type="icon-fanyi" size="20"></uni-icons>
-						<uni-icons @click="switchPlay(message)" :class="{playing: message.playing}"
-							custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons>
-						<uni-icons @click="recommend(message)" :class="{playing: message.addition == 'recommend'}"
-							custom-prefix="iconfont" type="icon-deng" size="20"></uni-icons>
+						<view>
+							<image v-if="message.addition === 'translate'" @tap="translate(message)" class="w-40 mr-32" src="/static/icon-translate-selected.svg" />
+							<image v-else @tap="translate(message)" class="w-40 mr-32" src="/static/icon-translate-normal.svg" />
+							<image v-if="message.addition === 'recommend'" @tap="recommend(message)" class="w-40" src="/static/icon-aireply-selected.svg" />
+							<image v-else class="w-40" @tap="recommend(message)" src="/static/icon-aireply-normal.svg" />
+						</view>
+						<image @tap="switchPlay(message)" class="w-40" src="/static/icon-play.svg" />
 					</view>
-					<view class="mt-2 text-gray-500 text-xs" v-show="message.addition == 'translate'">
+					<view class="addition" v-show="message.addition == 'translate'">
 						{{message.translate}}
 					</view>
-					<view class="mt-2 flex flex-col gap-1 text-gray-500 text-xs"
-						v-show="message.addition == 'recommend'">
-
+					<view class="addition" v-show="message.addition == 'recommend'">
 						<view v-if="message.recommend">
 							<words :words="message.recommend.words" @lookup="lookup"></words>
 						</view>
@@ -40,37 +37,24 @@
 			</view>
 			<view class="session user-session text-gray-600" v-if="message.role == 'user'">
 				<image class="avatar" :src="user.avatar ?? '/static/user-avatar.png'" mode=""></image>
-				<view class="message-box">
-					<view class="message-text">
+				<view class="message-box user-box">
+					<view class="message-text c-blue-1 fs-30">
 						<!-- <words :words="message.words" @lookup="lookup"></words> -->
 						{{message.content}}
 					</view>
 
-					<view class="message-dashboard">
-						<!--
-						<uni-icons @click="translate(message)" custom-prefix="iconfont" type="icon-fanyi" size="20"></uni-icons>
-						-->
-						<uni-icons @click="switchPlay(message)" :class="{playing: message.playing}"
-							custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons>
+					<view class="message-dashboard justify-between">
+						<image @tap="switchPlay(message)" class="w-40" src="/static/icon-replay-normal.svg" />
+						<image @tap="aiPlay(message)" class="w-40" src="/static/icon-play.svg" />
 					</view>
 				</view>
-				<view class="placeholder"></view>
+				<view class="placeholder"></view>	
 			</view>
 		</template>
-		<view class="session ai-session recording" v-if="status == 'thinking'">
-			<image class="avatar" :src="conv.avatar" mode=""></image>
+		<view class="session ai-session" v-if="status == 'thinking'">
+			<image class="avatar" :src="conv.avatar" />
 			<view class="message-box twinkling">
 				<view class="message-text">思考中...</view>
-			</view>
-			<view class="placeholder"></view>
-		</view>
-		<view class="session user-session recording" v-show="status == 'recording'">
-			<image class="avatar" :src="user.avatar ?? '/static/user-avatar.png'" mode=""></image>
-
-			<view class="message-box twinkling">
-				<view class="message-text">
-					{{current_content ? current_content : '收听中...'}}
-				</view>
 			</view>
 			<view class="placeholder"></view>
 		</view>
@@ -82,33 +66,40 @@
 			本次会话已结束
 		</view>
 	</view>
-	<view class="dashboard bg-gray-100 ">
-		<view class="text-center mb-2 text-sm text-gray-600" v-if="mode == 'phone'">
-			<view>
-				<!-- <uni-icons custom-prefix="iconfont" type="icon-maikefeng" size="20"></uni-icons> -->
-				<uni-icons custom-prefix="iconfont" type="icon-maikefeng" size="16"></uni-icons>
-				<text v-show="phone_status == 'listening'">收听中...</text>
-				<text v-show="phone_status == 'speaking'">AI说...</text>
+	<view class="dashboard">
+		<view class="mb-24 p-h-32 flex gap-16">
+			<navigator :url="'/pages/conversation/setting?conv_id=' + conv.id" class="extra-btn fs-26">
+				<image src="/static/emoji-setting.png" style="width: 26rpx; height: 26rpx" /> 设置
+			</navigator>
+			
+			<view class="extra-btn fs-26" @click="showSearch">
+				<image src="/static/emoji-search.png" style="width: 26rpx; height: 26rpx" /> 查词
 			</view>
 		</view>
-		<view class="flex items-center gap-2 px-2">
-			<uni-icons @click="switchMode" type="plusempty" size="16"></uni-icons>
-			<view class="button-wapper">
-				<button class="btn-speak text-gray-400" v-if="status == 'end'">已结束</button>
-				<button class="btn-speak btn-danger" v-else-if="mode == 'phone'" @click="hangUp">挂断</button>
-				<button class="btn-speak bg-white" v-else-if="mode == 'chat'" @longpress="handleRecordStart"
-					@touchend="handleRecordStop">按住
-					说话</button>
-				<input v-else-if="mode == 'keyboard'" @keyup.enter="sendText" type="text" v-model="text"
-					class="py-2 border-b border-x-0 border-t-0 text-left border-gray-200 border-solid bg-white" />
+		<view v-if="status === 'recording'" class="flex items-center input-bottom bg-white recording justify-center gap-24">
+			<image src="/static/voice-effect.svg" style="width: 80rpx; height: 80rpx" /> 松手发送
+		</view>
+			
+		<view v-else-if="mode === 'chat'" class="flex items-center input-bottom bg-white">
+			<image @tap="call" class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-phone.svg" />
+			<view class="button-wapper flex-auto">
+				<view class="btn-speak border-none c-blue-1 font-semibold fs-32" @longpress="handleRecordStart"
+					@touchend="handleRecordStop">按住说话</view>
 			</view>
-			<uni-icons v-if="mode == 'chat'" @click="call" :class="{}" custom-prefix="iconfont" type="icon-maikefeng"
-				size="40"></uni-icons>
-			<uni-icons v-else-if="mode == 'keyboard'" @click="sendText" type="paperplane-filled" size="16"></uni-icons>
+			<image @tap="switchMode" class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-keyboard.svg" />
+		</view>
+			
+		<view v-else class="flex items-center input-bottom bg-white">
+			<view class="button-wapper flex-auto">
+				<textarea auto-height @keyup.enter="sendText" type="text" v-model="text" placeholder="发消息..."
+						class="fs-28 keyboard-text"  />
+			</view>
+			<image v-if="!!text" @tap="sendText" class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-send.svg" />
+			<image v-else @tap="switchMode" class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-voice.svg" />
 		</view>
 	</view>
 	<dictionary ref="dictionary"></dictionary>
-	<image src="@/static/search-color.png" class="fixed bottom-32 right-4 z-10 w-6 h-6" @click="showSearch"></image>
+	<telephone-link v-if="mode === 'phone'" v-model="phone_status" :status="status" :avatar="conv.avatar" @hangUp="hangUp" />
 </template>
 
 <script>
@@ -116,11 +107,10 @@
 	import player from '@/common/player.js';
 	import base64 from '@/common/base64.js';
 	import dictionary from '../component/dictionary.vue';
+	import telephoneLink from '../component/telephoneLink.vue'
 	import words from '../component/words.vue';
 	import CryptoJS from 'crypto-js';
 
-	// const recorderManager = uni.getRecorderManager();
-	// const innerAudioContext = utils.createInnerAudioContext()
 	const APPID = "abb0f990";
 	const API_SECRET = "MzYzZjM2OGQ2NWU0ZTI4YjdmODNlYTNh";
 	const API_KEY = "ca3a1899fffbe04843f348fcdf77e12b";
@@ -143,13 +133,10 @@
 			data: {
 				status: status,
 				format: "audio/L16;rate=16000",
-				// encoding: "raw",
 				encoding: "lame",
 				audio: audio
 			}
 		}
-		// console.log('params')
-		// console.log(params)
 		return JSON.stringify(params)
 	}
 
@@ -179,13 +166,11 @@
 		return encodeURI(url)
 	}
 
-
-
-
 	export default {
 		components: {
 			dictionary,
 			words,
+			telephoneLink
 		},
 		data() {
 			return {
@@ -196,7 +181,9 @@
 				// mode: 'keyboard',
 				// speaking, listening
 				phone_status: 'none',
-				conv: {},
+				conv: {
+					avatar: ''
+				},
 				messages: [],
 				// recording: false,
 				recoManager: null,
@@ -214,15 +201,9 @@
 				audioCtx: null,
 				audioSource: null,
 				user: utils.getUser()
-				// playing_message: null,
 			}
 		},
 		onLoad(options) {
-			// console.log(options)
-			var that = this
-
-
-
 			uni.authorize({
 				scope: 'scope.record',
 				success() {
@@ -254,9 +235,7 @@
 
 			this.audioCtx = wx.createWebAudioContext()
 			this.audioSource = this.audioCtx.createBufferSource()
-
-
-
+			
 			var method = 'GET'
 			var url = '/api/conversation/' + options.conv_id
 			var data = {}
@@ -269,55 +248,55 @@
 			}
 
 			utils.request(method, url, data, (res) => {
-				// console.log(res)
-				// if (res.conversation.end) {
-				// 	that.status = 'end'
-				// } else if (res.halt) {
-				// 	that.status = 'halt'
-				// }
-				that.conv = res.conversation
+				this.conv = res.conversation
 				// that.messages = [res.message]
-				that.messages = res.messages
+				const timeline = res.timeline
+				if(timeline.length > 0) {
+					let nextId = timeline[0].start_message_id
+					let sectionIndex = -1
+					let i = 0
+					while(i < res.messages.length) {
+						const item = res.messages[i]
+						if(item.id === nextId) {
+							sectionIndex++
+							item.date = timeline[sectionIndex].date
+							nextId = sectionIndex + 1 < timeline.length ? timeline[sectionIndex + 1].start_message_id : 0
+						}
+						i++
+					}
+				}
+				
+				this.messages = res.messages
+				console.log(this.messages)
 				// console.log(that.messages[0])
 
 				uni.setNavigationBarTitle({
-					title: that.conv.name ?? '会话'
+					title: this.conv.name ?? '会话'
 				})
 				// console.log(that.messages[that.messages.length - 1])
-				that.scrollToBottom()
-				// if (that.messages[that.messages.length - 1]) {
-				// 	that.play(that.messages[that.messages.length - 1])
-				// }
+				this.scrollToBottom()
 
-				if (that.messages.length == 0) {
-					that.status = 'thinking'
-					that.generateMessage()
+				if (this.messages.length == 0) {
+					this.status = 'thinking'
+					this.generateMessage()
 				} else {
 					if (options.mode == 'phone') {
 						// that.call()
-						that.mode = 'phone'
-						that.phone_status = 'speaking'
+						this.mode = 'phone'
+						this.phone_status = 'speaking'
 						// that.status = 'recording'
-						that.play(that.messages[that.messages.length - 1], () => {
-							that.call()
+						this.play(this.messages[this.messages.length - 1], () => {
+							this.call()
 						})
 						// that.startRecord()
 					} else {
-						that.play(that.messages[that.messages.length - 1])
+						this.play(this.messages[this.messages.length - 1])
 
 					}
 				}
 
 
 			})
-
-
-
-
-
-		},
-		onShow() {
-			// this.createDialog()
 		},
 		onHide() {
 			this.cleanUp()
@@ -340,6 +319,9 @@
 				}
 			},
 			recommend(message) {
+				if(message.addition === 'recommend') {
+					return message.addition = null
+				}
 				if (!message.recommends) {
 					var that = this
 					utils.request('POST', '/api/recommend', {
@@ -360,6 +342,9 @@
 				message.addition = 'recommend'
 			},
 			translate(message) {
+				if(message.addition === 'translate') {
+					return message.addition = null
+				}
 				if (!message.translate) {
 					utils.request('POST', '/api/translate', {
 						source: message.content
@@ -369,6 +354,7 @@
 					})
 				}
 				message.addition = 'translate'
+				console.log(this.messages)
 			},
 			cleanUp() {
 				// this.handleRecordStop()
@@ -419,8 +405,6 @@
 			// 	player.switchPlay(message)
 			// },
 			switchPlay(message) {
-				// console.log('switchPlay')
-				// console.log(message)
 				if (message.playing) {
 					message.playing = false
 					this.stopPlay()
@@ -428,13 +412,24 @@
 					this.play(message)
 				}
 			},
+			aiPlay(message) {
+				if (message.playing) {
+					message.playing = false
+					return player.stop()
+				}
+				if(message.read) {
+					message.playing = true
+					return player.sound(message.read, () => message.playing = true)
+				}
+				
+				utils.request('GET', '/api/message/'+ message.id +'/read', null, (res) => {
+					message.playing = true
+					player.sound(res.read, () => message.playing = true)
+				})
+			},
 			stopPlay() {
 				this.audioSource.stop()
 			},
-			// play(cd) {
-			// 	// innerAudioContext.go(cd)
-			// 	player.play(cd)
-			// },
 			play(cd, callback) {
 				let that = this
 				cd.playing = true
@@ -538,38 +533,24 @@
 					return;
 				}
 
-
-
-				var that = this
 				// 先取得权限
 				uni.getSetting({
-					success(res) {
-						// console.log('getSetting', res.authSetting)
+					success: (res) => {
 						if (!res.authSetting['scope.record']) {
 							uni.showModal({
-								// title: '提示',
 								title: '请先授权麦克风',
-								// content: '这是一个模态弹窗',
 								success: function(res) {
 									if (res.confirm) {
-										// console.log('用户点击确定');
 										uni.openSetting()
 									} else if (res.cancel) {
-										// console.log('用户点击取消');
 									}
 								}
 							});
-							// uni.showToast({
-							// 	title: '请先授权麦克风',
-							// 	complete() {
-							// 		uni.openSetting()
-							// 	}
-							// })
 						} else {
 							console.log('record start')
-							that.startRecord()
 
-							that.status = 'recording'
+							this.status = 'recording'
+							this.startRecord()
 						}
 					}
 				})
@@ -1000,31 +981,37 @@
 
 <style lang="scss">
 	page {
-		background-color: $app-bg-gray;
+		background-color: #fff;
 	}
 
 	.content {
-		padding: 10px;
-		padding-bottom: 200px;
+		padding: 32rpx 32rpx 144rpx;
 	}
 
 	.session {
 		display: flex;
 		font-size: 14px;
-		margin-top: 40rpx;
-		gap: 20rpx;
+		margin-top: 24rpx;
+		gap: 24rpx;
 
 		.avatar {
 			flex: none;
 			border-radius: 50%;
-			width: 40px;
-			height: 40px;
+			width: 64rpx;
+			height: 64rpx;
 		}
 
 		.message-box {
-			background-color: white;
-			border-radius: $uni-border-radius-lg;
-			padding: 10px;
+			background-color: #FAFAFA;
+			padding: 32rpx;
+		}
+		
+		.assistant-box {
+			border-radius: 0rpx 24rpx 24rpx 24rpx;
+		}
+		
+		.user-box {
+			border-radius: 24rpx 0rpx 24rpx 24rpx;
 		}
 
 		.placeholder {
@@ -1034,29 +1021,15 @@
 
 		.message-dashboard {
 			display: flex;
-			margin-top: 6px;
-			gap: 8px;
-		}
-
-		.operator {
-			width: 20px;
-			height: 20px;
+			justify-content: space-between;
+			margin-top: 32rpx;
 		}
 	}
 
 	.user-session {
 		flex-direction: row-reverse;
-
-		.message-dashboard {
-			justify-content: flex-start;
-		}
-	}
-
-
-	.recording {
 		.message-box {
-			// flex: 1;
-			// min-width: 60px;
+			background-color: #E1FFEF;
 		}
 	}
 
@@ -1064,7 +1037,6 @@
 
 	.dashboard {
 		position: fixed;
-		padding-bottom: 20px;
 		bottom: 0;
 		right: 0;
 		left: 0;
@@ -1079,7 +1051,6 @@
 		}
 
 		.btn-speak {
-			border-radius: 50px;
 			text-align: center;
 		}
 	}
@@ -1096,5 +1067,47 @@
 
 	.twinkling {
 		animation: twinkle 1s infinite alternate;
+	}
+	.input-bottom {
+		// height: 112rpx;
+		padding: 28rpx 32rpx;
+		box-sizing: border-box;
+		box-shadow: 0rpx -2rpx 0rpx 0rpx #F1F3F5;
+	}
+	
+	.extra-btn {
+		display: flex;
+		align-items: center;
+		padding: 20rpx;
+		border-radius: 16rpx;
+		background: #FAFAFA;
+		gap: 8rpx;
+	}
+	
+	.addition {
+		margin-top: 16rpx;
+		border-top: 2rpx solid #F1F3F5;
+		padding-top: 16rpx;
+		font-size: 26rpx;
+		color: #8C8E9D;
+	}
+	
+	.keyboard-text {
+		padding: 8rpx 32rpx 8rpx 0;
+		overflow: hidden;
+		word-wrap: break-word;
+		width: 100%;
+		line-height: 33rpx;
+	}
+	
+	.recording {
+		background-color: #1CD1AD;
+		font-size: 32rpx;
+		color: #FFFFFF;
+		height: 112rpx;
+	}
+	
+	.filter > view {
+		filter: blur(10rpx)
 	}
 </style>

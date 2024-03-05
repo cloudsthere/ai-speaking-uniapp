@@ -33,8 +33,14 @@ view, text {
 .mr-24 {
 	margin-right: 24rpx;
 }
+.mr-32 {
+	margin-right: 32rpx;
+}
 .mb-16 {
 	margin-bottom: 16rpx;
+}
+.mb-24 {
+	margin-bottom: 24rpx;
 }
 
 .pl-8 {
@@ -130,7 +136,10 @@ view, text {
 	width: 32rpx;
 	height: 32rpx
 }
-
+.w-40 {
+	width: 40rpx;
+	height: 40rpx;
+}
 .w-48 {
 	width: 48rpx;
 	height: 48rpx;
@@ -193,6 +202,9 @@ view, text {
 .gap-24 {
 	gap: 24rpx;
 }
+.gap-32 {
+	gap: 32rpx;
+}
 .gap-40 {
 	gap: 40rpx;
 }
@@ -233,4 +245,8 @@ view, text {
 	transform: translateZ(0);
 	z-index: 99999;
 	box-sizing: border-box;
+}
+
+.float-right {
+	float: right
 }
