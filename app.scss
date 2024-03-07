@@ -250,3 +250,11 @@ view, text {
 .float-right {
 	float: right
 }
+
+.event-none {
+	pointer-events: none;
+}
+
+.event-auto {
+	pointer-events: auto;
+}

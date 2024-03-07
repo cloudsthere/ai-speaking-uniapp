@@ -45,7 +45,8 @@
 			"path": "pages/conversation/setting",
 			"style": {
 				"navigationBarTitleText": "设置",
-				"enablePullDownRefresh": false
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#fff"
 			}
 		
 		}, 

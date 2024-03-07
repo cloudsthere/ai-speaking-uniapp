@@ -58,16 +58,12 @@
 			</view>
 			<view class="placeholder"></view>
 		</view>
-		<view class="text-center text-gray-600 mt-4" v-if="status == 'halt'">
-			<text>课时不足，请</text>
-			<navigator url="/pages/home/price" class="text-primary inline">购买会员→</navigator>
-		</view>
 		<view class="text-center text-gray-600 mt-4" v-if="status == 'end'">
 			本次会话已结束
 		</view>
 	</view>
-	<view class="dashboard">
-		<view class="mb-24 p-h-32 flex gap-16">
+	<view class="dashboard event-none" >
+		<view class="mb-24 p-h-32 gap-16 event-auto" style="display: inline-flex;">
 			<navigator :url="'/pages/conversation/setting?conv_id=' + conv.id" class="extra-btn fs-26">
 				<image src="/static/emoji-setting.png" style="width: 26rpx; height: 26rpx" /> 设置
 			</navigator>
@@ -76,11 +72,11 @@
 				<image src="/static/emoji-search.png" style="width: 26rpx; height: 26rpx" /> 查词
 			</view>
 		</view>
-		<view v-if="status === 'recording'" class="flex items-center input-bottom bg-white recording justify-center gap-24">
+		<view v-if="status === 'recording'" class="event-auto flex items-center input-bottom bg-white recording justify-center gap-24">
 			<image src="/static/voice-effect.svg" style="width: 80rpx; height: 80rpx" /> 松手发送
 		</view>
 			
-		<view v-else-if="mode === 'chat'" class="flex items-center input-bottom bg-white">
+		<view v-else-if="mode === 'chat'" class="event-auto flex items-center input-bottom bg-white">
 			<image @tap="call" class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-phone.svg" />
 			<view class="button-wapper flex-auto">
 				<view class="btn-speak border-none c-blue-1 font-semibold fs-32" @longpress="handleRecordStart"
@@ -89,9 +85,9 @@
 			<image @tap="switchMode" class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-keyboard.svg" />
 		</view>
 			
-		<view v-else class="flex items-center input-bottom bg-white">
+		<view v-else class="event-auto flex items-center input-bottom bg-white">
 			<view class="button-wapper flex-auto">
-				<textarea auto-height @keyup.enter="sendText" type="text" v-model="text" placeholder="发消息..."
+				<textarea auto-height @keyup.enter="sendText" type="text" :value="text" @input="handleInput" placeholder="发消息..."
 						class="fs-28 keyboard-text"  />
 			</view>
 			<image v-if="!!text" @tap="sendText" class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-send.svg" />
@@ -100,6 +96,18 @@
 	</view>
 	<dictionary ref="dictionary"></dictionary>
 	<telephone-link v-if="mode === 'phone'" v-model="phone_status" :status="status" :avatar="conv.avatar" @hangUp="hangUp" />
+	<tui-modal v-if="status == 'halt'" :show="status == 'halt'" custom padding="64rpx 80rpx 32rpx" width="604rpx" radius="32rpx">
+		<view class="flex flex-col items-center lh-56">
+			<text class="c-blue-1 fs-32 font-semibold">课时已使用完啦</text>
+			<text class="c-blue-1 fs-32 font-semibold">升级Pro会员，畅享AI无限对话</text>
+			
+			<navigator url="/pages/home/price" class="upgrade flex items-center justify-center c-white">
+				立即升级
+			</navigator>
+			
+			<text class="fs-24 c-gray-1" @tap="goBack">暂时不用</text>
+		</view>
+	</tui-modal>
 </template>
 
 <script>
@@ -108,6 +116,7 @@
 	import base64 from '@/common/base64.js';
 	import dictionary from '../component/dictionary.vue';
 	import telephoneLink from '../component/telephoneLink.vue'
+	import tuiModal from "@/components/thorui/tui-modal/tui-modal.vue"
 	import words from '../component/words.vue';
 	import CryptoJS from 'crypto-js';
 
@@ -170,7 +179,8 @@
 		components: {
 			dictionary,
 			words,
-			telephoneLink
+			telephoneLink,
+			tuiModal
 		},
 		data() {
 			return {
@@ -975,6 +985,13 @@
 
 
 			},
+			handleInput: utils.debounce(function(e) {
+				console.log(e)
+				this.text = e.detail.value
+			}),
+			goBack() {
+				uni.navigateBack()
+			}
 		}
 	}
 </script>
@@ -1109,5 +1126,22 @@
 	
 	.filter > view {
 		filter: blur(10rpx)
+	}
+	
+	.lh-56 {
+		line-height: 56rpx;
+	}
+	
+	.upgrade {
+		width: 100%;
+		height: 104rpx;
+		color: white;
+		font-size: 32rpx;
+		background: #FA9422;
+		box-shadow: inset 0rpx 8rpx 16rpx 10rpx rgba(255,255,255,0.1);
+		border-radius: 104rpx 104rpx 104rpx 104rpx;
+		flex-grow: 0;
+		margin-top: 48rpx;
+		margin-bottom: 24rpx;
 	}
 </style>
