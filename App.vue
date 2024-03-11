@@ -6,6 +6,7 @@
 				success: (e) => {
 					let custom = uni.getMenuButtonBoundingClientRect();
 					this.globalData.height = custom.height + custom.top  * 2 - e.statusBarHeight
+					this.globalData.safeBottom = e.safeAreaInsets.bottom;
 				}
 			})
 		},
@@ -17,7 +18,8 @@
 		},
 		globalData: {
 			userInfo: {},
-			height: 0
+			height: 0,
+			safeBottom: 0,
 		}
 	}
 </script>

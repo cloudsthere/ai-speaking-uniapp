@@ -60,6 +60,13 @@
 				</view>
 			</navigator>
 			
+			<view @tap="showLogout" class="cell flex justify-between">
+				<text class="c-blue-1 fs-28 font-semibold">退出登录</text>
+				<view class="flex gap-16 items-center">
+					<image class="w-32" src="/static/icon-rightarrow.svg" />
+				</view>
+			</view>
+			
 			<!-- <navigator url="/pages/mine/promote" class="cell flex justify-between">
 				<text class="c-blue-1 fs-28 font-semibold">申请推广大使</text>
 				<view class="flex gap-16 items-center">
@@ -119,32 +126,32 @@
 				console.log(e.detail.userInfo)
 				//
 			},
-			// showLogout() {
-			// 	var that = this
-			// 	uni.showModal({
-			// 		content: '确认退出登录吗',
-			// 		success: function(res) {
-			// 			if (res.confirm) {
-			// 				that.logout()
-			// 			} else if (res.cancel) {
-			// 				// console.log('用户点击取消');
-			// 			}
-			// 		}
-			// 	});
-			// },
-			// logout() {
-			// 	if (this.user) {
-			// 		// console.log('request')
-			// 		utils.request('POST', '/api/logout', {}, (res) => {
-			// 			utils.deleteUser()
-			// 			utils.setToken(res.token)
-			// 			uni.reLaunch({
-			// 				url: '/pages/mine/mine',
-			// 			})
-			// 		})
-			// 	}
+			showLogout() {
+				var that = this
+				uni.showModal({
+					content: '确认退出登录吗',
+					success: function(res) {
+						if (res.confirm) {
+							that.logout()
+						} else if (res.cancel) {
+							// console.log('用户点击取消');
+						}
+					}
+				});
+			},
+			logout() {
+				if (this.user) {
+					// console.log('request')
+					utils.request('POST', '/api/logout', {}, (res) => {
+						utils.deleteUser()
+						utils.setToken(res.token)
+						uni.reLaunch({
+							url: '/pages/mine/mine',
+						})
+					})
+				}
 
-			// }
+			}
 		}
 	}
 </script>

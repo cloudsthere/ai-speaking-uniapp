@@ -1,33 +1,52 @@
 <template>
-	<view>
+	<view class="bg-page relative" :style="{paddingBottom: bottom + 'px'}">
 		<form @submit="formSubmit">
-			<button class="avatar-wrapper" open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
-				<image class="avatar" :src="avatarUrl"></image>
+			<view class="w-full text-center">
+				<image class="avatar-wrapper" :src="avatarUrl || '/static/default_avatar.jpg'" />
+			</view>
+			<button class="cell c-blue-1" plain open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
+				<text class="font-semibold">头像</text>
+				<image class="w-32" src="/static/icon-rightarrow.svg" />
 			</button>
-			<view class="">昵称</view>
-			<input type="nickname" :value="nickname" name="nickname" class="weui-input" placeholder="请输入昵称" />
-			<view class="">英文名</view>
-			<input type="text" :value="en_name" name="en_name" class="weui-input" placeholder="请输入英文名" />
-			<view class="flex gap-3">
-				<view class="" v-for="en_name in en_names">
-					<view class="" @click="selectEnName(en_name.name)">{{en_name.name}}</view>
-					<image @click="play(en_name)" class="w-32" src="/static/icon-voice-grey.svg" />
+			<view class="cell c-blue-1 gap-32">
+				<text class="font-semibold">昵称</text>
+				<input type="nickname" :value="nickname" name="nickname" class="weui-input flex-auto text-right" placeholder="请输入昵称" />
+			</view>
+			<view class="cell c-blue-1 gap-32">
+				<text class="font-semibold">英文名</text>
+				<input type="text" :value="en_name" name="en_name" class="weui-input flex-auto text-right" placeholder="请输入英文名" />
+			</view>
+			<view class="cell c-blue-1 gap-32">
+				<view class="flex items-center no-shrink">
+					<view class="tag" v-for="en_name in en_names">
+						<view class="" @click="selectEnName(en_name.name)">{{en_name.name}}</view>
+						<image @click="play(en_name)" class="w-32" src="/static/icon-voice-grey.svg" />
+					</view>
+				</view>
+				
+				<image @tap="getEnNames" class="refresh" src="/static/icon-refresh.svg" />
+			</view>
+			<view class="cell c-blue-1 gap-32">
+				<text class="font-semibold">性别</text>
+				<view class="flex items-center gap-24">
+					<label class="flex items-center gap-8" @click="selectGender(1)" >
+						<image v-if="gender === 1" class="w-32" src="/static/checkbox-selected.svg"/>
+						<image v-else class="w-32" src="/static/checkbox.svg"/>
+						<text>男</text>
+					</label>
+					<label class="flex items-center gap-8" @click="selectGender(0)" >
+						<image v-if="gender === 0" class="w-32" src="/static/checkbox-selected.svg"/>
+						<image v-else class="w-32" src="/static/checkbox.svg"/>
+						<text>女</text>
+					</label>
+					<label class="flex items-center gap-8" @click="selectGender(2)" >
+						<image v-if="gender === 2" class="w-32" src="/static/checkbox-selected.svg"/>
+						<image v-else class="w-32" src="/static/checkbox.svg"/>
+						<text>未知</text>
+					</label>
 				</view>
 			</view>
-			<button @click="getEnNames">换一批</button>
-			<view class="">性别</view>
-			<radio-group name="gender">
-				<label @click="selectGender(1)" >
-					<radio :value="1" :checked="gender == 1"  /><text>男</text>
-				</label>
-				<label @click="selectGender(0)" >
-					<radio :value="0" :checked="gender == 0"  /><text>女</text>
-				</label>
-				<label @click="selectGender(2)" >
-					<radio :value="2" :checked="gender == 2"  /><text>未知</text>
-				</label>
-			</radio-group>
-			<button form-type="submit">提交</button>
+			<button form-type="submit" class="absolute left-0 submit c-white" :style="{bottom: bottom + 'px'}">保存</button>
 		</form>
 	</view>
 </template>
@@ -43,19 +62,18 @@
 				nickname: '',
 				en_name: '',
 				gender: null,
-				en_names: []
+				en_names: [],
+				bottom: getApp().globalData.safeBottom,
 			}
 		},
 		onLoad() {
-			var that = this
 			utils.request('GET', '/api/user', {}, (res) => {
-				console.log(res)
-				that.avatarUrl = res.user.avatar
-				that.nickname = res.user.name
-				that.en_name = res.user.en_name
-				that.gender = res.user.gender
+				this.avatarUrl = res.user.avatar
+				this.nickname = res.user.name
+				this.en_name = res.user.en_name
+				this.gender = res.user.gender
 
-				that.getEnNames()
+				this.getEnNames()
 			})
 		},
 		methods: {
@@ -117,7 +135,7 @@
 				let gender = e.detail.value.gender
 
 				let avatar = this.avatarUrl;
-				if (avatar.indexOf('http://tmp') == 0) {
+				if (avatar && avatar.indexOf('http://tmp') == 0) {
 					avatar = uni.getFileSystemManager().readFileSync(this.avatarUrl, 'base64')
 				}
 				// console.log(avatar)
@@ -137,6 +155,51 @@
 	}
 </script>
 
-<style>
-
+<style scoped>
+.bg-page {
+	height: 100vh;
+	box-sizing: border-box;
+	background-color: #fff;
+	padding: 64rpx 48rpx 0;
+}
+.avatar-wrapper {
+	background-color: #fff;
+	line-height: 0;
+	padding: 0;
+	width: 208rpx;
+	height: 208rpx;
+	border-radius: 50%;
+	margin-bottom: 64rpx;
+}
+.cell {
+	width: 100%;
+	height: 100rpx;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 28rpx;
+	padding: 0;
+	border: none;
+}
+.tag {
+	background-color: #FAFAFA;
+	border-radius: 16rpx;
+	display: flex;
+	align-items: center;
+	gap: 8rpx;
+	padding: 12rpx 20rpx;
+	font-size: 26rpx;
+}
+.refresh {
+	width: 30rpx;
+	height: 30rpx;
+}
+.submit {
+	box-sizing: border-box;
+	padding: 0;
+	margin: 0 48rpx;
+	width: 654rpx;
+	background: #1CD1AD;
+	border-radius: 16rpx;
+}
 </style>

@@ -215,17 +215,10 @@
 				audioCtx: null,
 				audioSource: null,
 				user: utils.getUser(),
-				bottom: 0
+				bottom: getApp().globalData.safeBottom,
 			}
 		},
 		onLoad(options) {
-			uni.getSystemInfo({
-			  success: res => {
-				this.bottom = res.safeAreaInsets.bottom;
-				console.log(this.bottom)
-			  }
-			})
-			
 			uni.authorize({
 				scope: 'scope.record',
 				success() {
