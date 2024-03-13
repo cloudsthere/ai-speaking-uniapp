@@ -117,7 +117,8 @@
 			"path": "pages/home/price",
 			"style": {
 				"navigationBarTitleText": "升级会员",
-				"enablePullDownRefresh": false
+				"enablePullDownRefresh": false,
+				"navigationBarBackgroundColor": "#fff"
 			}
 
 		}, {

@@ -1,38 +1,49 @@
 <template>
-	<view class="content p-4">
-		<view class="flex flex-col gap-3">
-			<text class="text-slate-800 text-base">
-				“Anyone who has never made a mistake has never tried anything new.”– Albert Einstein
-			</text>
-			<text class="text-slate-600 text-sm">
-				一个从不犯错误的人，从来没有尝试过任何新鲜事物。—— 爱因斯坦
-			</text>
-		</view>
-		<view class="mt-4 grid grid-cols-2 gap-3">
-			<view v-for="(plan, index) in plans" :key="plan.plan" @tap="switchPlan(index)"
-				class="border text-center border-gray-300 flex flex-col gap-3 py-4 rounded-lg"
-				:class="{'border-primary' : plan_index == index}">
-				<view class="text-base text-gray-600">{{plan.name}}</view>
-				<view class="text-bold text-gray-800 text-3xl text-primary">
-					<text class="text-base">￥</text>{{plan.cost}}
+	<view class="content flex flex-col justify-between">
+		<view>
+			<view style="margin-bottom: 48rpx;">
+				<view class="flex justify-between">
+					<view class="c-blue-1 fs-28 mb-18">
+						Anyone who has never made a mistake <br/>
+						has never tried anything new. <br/>
+						–Albert Einstein
+					</view>
+					<image class="no-shrink" src="/static/bg-marks-yellow.png" style="width: 96rpx;height: 78rpx;" />
 				</view>
-				<view class="text-sm text-gray-400">{{plan.desc}}</view>
+				
+				<view class="c-gray-1 fs-24">
+					一个从不犯错误的人，从来没有尝试过任何新鲜事物。<br/>
+					— 爱因斯坦
+				</view>
+			</view>
+			
+			<image class="w-full" src="/static/banner-pro.png" style="height: 202rpx" />
+			
+			<view class="mt-32 grid grid-cols-3 gap-24">
+				<view v-for="(plan, index) in plans" :key="plan.plan" @tap="switchPlan(index)"
+					class="price-box flex flex-col items-center gap-16 br-16"
+					:class="{'border-primary' : plan_index == index}">
+					<view class="c-blue-1 fs-28">{{plan.name}}</view>
+					<view class="flex items-center" style="color: #FA931C">
+						<text class="fs-28">￥</text>
+						<text class="font-semibold" style="font-size: 56rpx;">{{plan.cost}}</text>
+					</view>
+					<view class="fs-24 c-gray-1">{{plan.dailyPay}} 元/天</view>
+				</view>
+			</view>
+			<view class="mt-4 text-primary text-center">
+				<text>{{plans[plan_index] ? plans[plan_index].quote : ''}}</text>
+			</view>
+			<view class="cell c-blue-1 gap-32">
+				<text class="font-semibold">邀请码</text>
+				<view v-if="has_invite_code">{{invite_code}}<text class="px-2">•</text><text class="">9折优惠</text></view>
+				<input class="text-right" name="invite_code" v-else v-model="invite_code" placeholder="选填，9折优惠" type="number" />
 			</view>
 		</view>
-		<view class="mt-4 text-primary text-center">
-			<text>{{plans[plan_index] ? plans[plan_index].quote : ''}}</text>
-		</view>
-		<view class="mt-4 flex gap-3 text-gray-600 items-center">
-			<label for="">邀请码</label>
-			<view class="" v-if="has_invite_code">{{invite_code}}<text class="px-2">•</text><text class="">9折优惠</text></view>
-			<input name="invite_code" v-else v-model="invite_code" placeholder="选填，9折优惠" type="number"
-				class="py-2 border-b border-gray-200 " />
-		</view>
-		<view class="flex flex-col gap-4 mt-4">
-			<button class="btn btn-primary" @tap="submit">立即升级</button>
+		<view class="w-full upgrade" @tap="submit">
+			立即升级
 		</view>
 	</view>
-
 </template>
 
 <script>
@@ -48,13 +59,19 @@
 			}
 		},
 		onLoad() {
-			var that = this
 			utils.request('GET', '/api/price', {}, (res) => {
 				// console.log(res)
-				that.plans = res.plans
-				that.invite_code = res.invite_code
+				this.plans = res.plans.map(val => {
+					const daily = {
+						month: 30,
+						season: 92,
+						year: 365
+					}
+					return Object.assign(val,{dailyPay: Math.round(val.cost / daily[val.plan]).toFixed(2)})
+				})
+				this.invite_code = res.invite_code
 				if (res.invite_code) {
-					that.has_invite_code = true
+					this.has_invite_code = true
 				}
 			})
 		},
@@ -132,6 +149,40 @@
 	}
 </script>
 
-<style>
+<style scoped>
+.content {
+	padding: 40rpx 48rpx 56rpx;
+	height: 100vh;
+	box-sizing: border-box;
+}
+.upgrade {
+	background-color: #FA931C;
+	font-size: 32rpx;
+	color: white;
+	border-radius: 16rpx;
+	height: 104rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.mb-18 {
+	margin-bottom: 18rpx;
+}
+.cell {
+	width: 100%;
+	height: 100rpx;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	font-size: 28rpx;
+	padding: 0;
+	border: none;
+}
 
+.price-box {
+	height: 244rpx;
+	padding: 40rpx 0;
+	background: #FAFAFA;
+	box-sizing: border-box;
+}
 </style>
