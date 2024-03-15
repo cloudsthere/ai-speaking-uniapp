@@ -1,5 +1,4 @@
 <template>
-	<page-meta page-style="height: 375rpx; background-image: url(/static/chat-bg.jpg);background-repeat: no-repeat"></page-meta>
 	<scroll-view class="content" scroll-y :style="{position: 'absolute', top: height + 'px', height: `calc(100% - ${height}px)`}" >
 		<view class="flex gap-24">
 			<image :src="user && user.avatar || '/static/default_avatar.jpg'" class="rounded-half avatar no-shrink"></image>
@@ -60,7 +59,7 @@
 				</view>
 			</navigator>
 			
-			<view @tap="showLogout" class="cell flex justify-between">
+			<view v-if="user" @tap="showLogout" class="cell flex justify-between">
 				<text class="c-blue-1 fs-28 font-semibold">退出登录</text>
 				<view class="flex gap-16 items-center">
 					<image class="w-32" src="/static/icon-rightarrow.svg" />
@@ -157,6 +156,11 @@
 </script>
 
 <style lang="scss">
+	page {
+		height: 375rpx; 
+		background-image: url(~@/static/chat-bg.jpg);
+		background-repeat: no-repeat
+	}
 	.content {
 		padding: 0 40rpx;
 		box-sizing: border-box;

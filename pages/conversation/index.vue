@@ -44,7 +44,7 @@
 						<tui-list-cell unlined :arrow="false" padding="24rpx 32rpx" :backgroundColor="(conv.is_primary || conv.sort > 0) ? '#FAFAFA' : '#fff'">
 							<view class="flex justify-between items-center">
 								<view class="flex">
-									<img class="avatar" :src="conv.avatar" />
+									<img class="avatar rounded-half" :src="conv.avatar" />
 									<view class="cell-title">
 										<view class="font-semibold fs-32">{{conv.name}}</view>	
 										<view class="cell-brief mt-8 c-gray-1">{{conv.brief}}</view>

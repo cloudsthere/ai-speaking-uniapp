@@ -1,17 +1,17 @@
 <template>
-	<navContainer title="单词本" backgroundColor="#f3f4f6">
+	<navContainer title="单词本" backgroundColor="#FAFAFA">
 		<view class="content relative" :style="{paddingBottom: isEdit?'104rpx': '0'}">
 			<view class="flex justify-between">
 				<view class="fs-26 pl-8">共{{ count }}词</view>
 				<view class="flex justify-between items-center text-sm relative">
 					<image v-if="isShowDefinition" class="p-h-32 sort-icon" src="/static/icon-eye.svg" @tap="toggleDefinition(false)" />
 					<image v-else class="p-h-32 sort-icon" src="/static/icon-eye-closed.svg" @tap="toggleDefinition(true)" />
-					<image class="sort-icon" src="/static/icon-first-order-time.svg" @tap="toggleSortPopup(true)" />
+					<image class="sort-icon" :src="sortData.find(val => val.isActive).icon" @tap="toggleSortPopup(true)" />
 					<view class="divide"></view>
 					<view style="height: 40rpx;width: 40rpx">
 						<image v-if="isEdit" @tap="changeMode" class="sort-icon" src="/static/icon-batchmanage-selected.svg" />
 						<image v-else @tap="changeMode" class="sort-icon" src="/static/icon-batchmanage-normal.svg" />
-						<tui-bubble-popup :show="isShowSortPopup" @close="toggleSortPopup(false)" backgroundColor="#fff" position="absolute" direction="null" radius="24rpx" width="220rpx"
+						<tui-bubble-popup :mask="false" :show="isShowSortPopup" @close="toggleSortPopup(false)" backgroundColor="#fff" position="absolute" direction="null" radius="24rpx" width="220rpx"
 						right="0" top="45rpx">
 							<view class="w-full c-blue-2 fs-24 br-24 popup-box">
 								<view v-for="(item, i) in sortData" :key="item.key" class="sort-item flex items-center" @tap="() => changeSort(item, i)">
@@ -50,9 +50,9 @@
 			</view>
 			
 			<view v-if="isEdit" class="fixed w-full bottom-0 left-0 bottom-action flex">
-				<view class="all-check bg-white flex items-center justify-center">
-					<image v-if="isAllChecked" @tap="checkAll(false)" class="w-32 no-shrink bg-white" src="/static/checkbox-selected.svg" />
-					<image v-else @tap="checkAll(true)" class="w-32 no-shrink bg-white" src="/static/checkbox.svg" />
+				<view class="all-check bg-white flex items-center justify-center" @tap="checkAll(!isAllChecked)">
+					<image v-if="isAllChecked" class="w-32 no-shrink bg-white" src="/static/checkbox-selected.svg" />
+					<image v-else class="w-32 no-shrink bg-white" src="/static/checkbox.svg" />
 					<text class="fs-32 c-blue-1 ml-16">全选</text>
 				</view>
 				<view @tap.stop="cancelCollect" class="c-white cancel-collect">取消收藏</view>
@@ -220,7 +220,7 @@
 			splitByLetter(isAscending) {
 				const arr = this.collections.slice(0)
 				arr.sort((a,b) => {
-					return (isAscending && a.query > b.query) ? 1 : -1
+					return (isAscending && a.query.toUpperCase() > b.query.toUpperCase()) ? 1 : -1
 				})
 				
 				return utils.chunk(arr, 'query', (query) => {
@@ -252,7 +252,7 @@
 
 <style lang="scss">
 	page {
-		background-color: $app-bg-gray;
+		background-color: #FAFAFA;
 	}
 	
 	.content {

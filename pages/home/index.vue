@@ -1,5 +1,5 @@
 <template>
-	<page-meta page-style="height: 375rpx; background-image: url(/static/chat-bg.jpg);background-repeat: no-repeat">
+	<page-meta>
 		<tui-navigation-bar transparent title="发现" color="#000"></tui-navigation-bar>
 	</page-meta>
 	<scroll-view scroll-y :style="{position: 'absolute', top: height + 'px', height: `calc(100% - ${height}px)`}" >
@@ -18,7 +18,7 @@
 					
 					<image class="absolute top-0 left-0 z-behind bg-text" src="/static/bg-marks.svg" />
 				</view>
-				<view class="relative pt-32 ml-24 rounded-half overflow-hidden" >
+				<view class="relative pt-32 ml-24 rounded-half overflow-hidden flex-none" >
 					<image class="teacher-avatar" :src="teacher.avatar_pic" mode=""></image>
 				</view>
 			</view>
@@ -41,7 +41,7 @@
 							<view>{{agent.brief}}</view>
 						</view>
 						<view class="flex justify-end">
-							<image class="scene-img" :src="agent.avatar" mode=""></image>
+							<image class="scene-img rounded-half" :src="agent.avatar" mode=""></image>
 						</view>
 					</view>
 				</navigator>
@@ -121,6 +121,11 @@
 </style>
 
 <style lang="scss">
+	page {
+		height: 375rpx; 
+		background-image: url(~@/static/chat-bg.jpg);
+		background-repeat: no-repeat
+	}
 	.bg {
 		position: absolute;
 		top: 0;
@@ -215,9 +220,9 @@
 		}
 
 		.name {
-			margin-top: 10px;
 			text-align: center;
 			font-size: 16px;
+			align-items: flex-end;
 		}
 
 		.brief {

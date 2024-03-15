@@ -17,7 +17,7 @@
 				<input type="text" :value="en_name" name="en_name" class="weui-input flex-auto text-right" placeholder="请输入英文名" />
 			</view>
 			<view class="cell c-blue-1 gap-32">
-				<view class="flex items-center no-shrink">
+				<view class="flex items-center no-shrink gap-16">
 					<view class="tag" v-for="en_name in en_names">
 						<view class="" @click="selectEnName(en_name.name)">{{en_name.name}}</view>
 						<image @click="play(en_name)" class="w-32" src="/static/icon-voice-grey.svg" />
@@ -46,7 +46,7 @@
 					</label>
 				</view>
 			</view>
-			<button form-type="submit" class="absolute left-0 submit c-white" :style="{bottom: bottom + 'px'}">保存</button>
+			<button form-type="submit" class="absolute left-0 submit c-white" style="bottom: 56rpx">保存</button>
 		</form>
 	</view>
 </template>
@@ -132,7 +132,7 @@
 					return
 				}
 
-				let gender = e.detail.value.gender
+				let gender = this.gender
 
 				let avatar = this.avatarUrl;
 				if (avatar && avatar.indexOf('http://tmp') == 0) {
@@ -147,8 +147,10 @@
 					en_name,
 					gender
 				}, (res) => {
-					console.log(res)
-
+					uni.showToast({
+						title: '保存成功！',
+						icon: 'success'
+					})
 				})
 			}
 		}
