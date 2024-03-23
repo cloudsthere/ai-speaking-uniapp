@@ -1,27 +1,18 @@
 <template>
-	<view class="content pt-10 px-4">
-		<view class="m-auto text-center">
-			<image src="@/static/invite-code.jpeg" mode=""></image>
-		</view>
-		<view class="flex flex-col gap-4 mt-4">
-			<view class="relative">
-				<view v-if="has_code" class="w-fll text-center text-xl">{{code}}</view>
+	<view class="content">
+		<image class="banner" src="@/static/bg-sharecode.jpg" mode=""></image>
+		<view class="p-50">
+			<view>
+				<view v-if="has_code" class="w-fll text-center text-xl box-border">{{code}}</view>
 				<input v-else name="code" v-model="code" placeholder="邀请码" type="text"
-					class="py-2 border-b text-center border-gray-200 m-auto" style="width: 50%;" />
+					class="box-border input" />
 			</view>
-		</view>
-		<view class="text-sm text-gray-600 mt-4 flex flex-col gap-2 text-center">
-			填写后可获得10分钟课时，购买会员9折优惠
-			<!-- <view class="text-gray-400">您可定制专属邀请码，也可以自动生成</view>
-			<view class="text-gray-400">邀请码是4-10个字符，可包含字母、数字和下划线</view>
-			<view class="text-gray-400">提交确认后不可修改</view> -->
-		</view>
-		<view class="flex flex-col gap-4 mt-4">
-			<!-- <button class="btn btn-default" @click="" >随机生成</button> -->
-			<button class="btn btn-primary" v-if="!has_code" @click="submit" >提交</button>
-		</view>
-		<view class="text-sm text-gray-600 mt-4 flex justify-center items-center">
-			<navigator url="/pages/mine/promote" class="text-primary">生成我的邀请码，赚取推广奖励→</navigator>
+			<view class="box-border mt-32">
+				<button class="box-border fs-32 c-white btn btn-primary" v-if="!has_code" @click="submit" >提交</button>
+			</view>
+			<view class="flex justify-center items-center c-blue-1 fs-24 mt-64">
+				<navigator url="/pages/mine/promote" class="text-primary">生成我的邀请码，赚取推广奖励→</navigator>
+			</view>
 		</view>
 	</view>
 </template>
@@ -84,6 +75,32 @@
 	}
 </script>
 
-<style>
-
+<style scoped>
+.banner {
+	width: 100%;
+	height: 348rpx;
+}
+.p-50 {
+	padding: 0 50rpx;
+}
+.input {
+	height: 112rpx;
+	padding: 0 40rpx;
+	line-height:　112rpx;
+	background-color: #F3F4F6;
+	font-size: 36rpx;
+	font-weight: 600;
+	border-radius: 16rpx;
+	width: 100%;
+}
+.btn-primary {
+	background-color: #1CD1AD;
+	text-align: center;
+	height: 104rpx;
+	line-height: 104rpx;
+	width: 100%;
+}
+.mt-64 {
+	margin-top: 64rpx;
+}
 </style>

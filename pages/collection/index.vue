@@ -142,6 +142,7 @@
 				})
 			},
 			changeMode() {
+				if(this.listData.length === 0) return
 				this.isEdit = !this.isEdit
 			},
 			play(item) {
@@ -171,10 +172,12 @@
 			},
 			
 			toggleDefinition(bool) {
+				if(this.listData.length === 0) return
 				this.isShowDefinition = bool
 			},
 			
 			toggleSortPopup(bool) {
+				if(this.listData.length === 0) return
 				this.isShowSortPopup = bool
 			},
 			

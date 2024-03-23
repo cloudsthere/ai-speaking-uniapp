@@ -52,8 +52,10 @@
     "mp-weixin" : {
         "appid" : "wxb78c1f6104c6ba2e",
         "setting" : {
-            "urlCheck" : false
+            "urlCheck" : false,
+            "minified" : true
         },
+		"lazyCodeLoading": "requiredComponents",
         "usingComponents" : true,
         "plugins" : {
             "WechatSI" : {
