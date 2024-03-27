@@ -12,7 +12,7 @@
 					<text class="c-blue-1 font-semibold fs-28">声音</text>
 				</view>
 				<view class="flex items-center gap-16">
-					<text class="c-blue-1 fs-28">{{conv.name}}</text>
+					<text class="c-blue-1 fs-28">{{conv.teacher.name}}</text>
 					<image class="w-32" src="/static/icon-rightarrow.svg" />
 				</view>
 			</navigator>
@@ -36,7 +36,7 @@
 		data() {
 			return {
 				conv: null,
-				conv_id: null
+				conv_id: null,
 			}
 		},
 		onLoad(options) {
