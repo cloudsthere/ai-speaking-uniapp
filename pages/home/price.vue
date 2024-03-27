@@ -21,7 +21,7 @@
 			
 			<view class="mt-32 grid grid-cols-3 gap-24">
 				<view v-for="(plan, index) in plans" :key="plan.plan" @tap="switchPlan(index)"
-					class="price-box flex flex-col items-center gap-16 br-16"
+					class="price-box flex flex-col items-center gap-16 br-16 box-border"
 					:class="{'border-primary' : plan_index == index}">
 					<view class="c-blue-1 fs-28">{{plan.name}}</view>
 					<view class="flex items-center" style="color: #FA931C">
@@ -37,7 +37,7 @@
 			<view class="cell c-blue-1 gap-32">
 				<text class="font-semibold">邀请码</text>
 				<view v-if="has_invite_code">{{invite_code}}<text class="px-2">•</text><text class="">9折优惠</text></view>
-				<input class="text-right" name="invite_code" v-else v-model="invite_code" placeholder="选填，9折优惠" type="number" />
+				<input class="text-right" name="invite_code" v-else v-model="invite_code" placeholder="选填，9折优惠" type="text" />
 			</view>
 		</view>
 		<view class="w-full upgrade" @tap="submit">
@@ -184,5 +184,8 @@
 	padding: 40rpx 0;
 	background: #FAFAFA;
 	box-sizing: border-box;
+}
+.border-primary {
+	border: 4rpx solid #FA9D35;
 }
 </style>

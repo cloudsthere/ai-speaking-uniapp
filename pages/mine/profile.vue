@@ -18,7 +18,7 @@
 			</view>
 			<view class="cell c-blue-1 gap-32">
 				<view class="flex items-center no-shrink gap-16">
-					<view class="tag" v-for="en_name in en_names">
+					<view class="tag" :key="en_name.name" v-for="en_name in en_names">
 						<view class="" @click="selectEnName(en_name.name)">{{en_name.name}}</view>
 						<image @click="play(en_name)" class="w-32" src="/static/icon-voice-grey.svg" />
 					</view>
@@ -135,7 +135,7 @@
 				let gender = this.gender
 
 				let avatar = this.avatarUrl;
-				if (avatar && avatar.indexOf('http://tmp') == 0) {
+				if (avatar && (avatar.indexOf('http://tmp') == 0 || avatar.indexOf('wxfile://') == 0)) {
 					avatar = uni.getFileSystemManager().readFileSync(this.avatarUrl, 'base64')
 				}
 				// console.log(avatar)
@@ -147,9 +147,12 @@
 					en_name,
 					gender
 				}, (res) => {
-					uni.showToast({
-						title: '保存成功！',
-						icon: 'success'
+					utils.request('get', '/api/user', null, (res) => {
+						utils.setUser(res.user)
+						uni.showToast({
+							title: '保存成功！',
+							icon: 'success'
+						})
 					})
 				})
 			}
