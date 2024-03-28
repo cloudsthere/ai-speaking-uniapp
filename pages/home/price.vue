@@ -21,14 +21,14 @@
 			
 			<view class="mt-32 grid grid-cols-3 gap-24">
 				<view v-for="(plan, index) in plans" :key="plan.plan" @tap="switchPlan(index)"
-					class="price-box flex flex-col items-center gap-16 br-16 box-border"
-					:class="{'border-primary' : plan_index == index}">
+					class="price-box flex flex-col items-center gap-16 br-16 relative">
 					<view class="c-blue-1 fs-28">{{plan.name}}</view>
 					<view class="flex items-center" style="color: #FA931C">
 						<text class="fs-28">￥</text>
 						<text class="font-semibold" style="font-size: 56rpx;">{{plan.cost}}</text>
 					</view>
 					<view class="fs-24 c-gray-1">{{plan.dailyPay}} 元/天</view>
+					<view class="absolute top-0 left-0 w-full hp100 br-16" :class="{'border-primary' : plan_index == index}"></view>
 				</view>
 			</view>
 			<view class="mt-4 text-primary text-center">

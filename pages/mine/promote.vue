@@ -15,7 +15,7 @@
 				<p class="c-blue-1 fs-24">定制邀请码：4~10字符，限字母、数字、下划线，避免重复或连续字符，如“1234”、“aaaa”，且提交确认后不可更改。</p>
 			</view>
 			<view v-if="!has_code" class="box-border mt-32">
-				<button class="box-border fs-32 c-white btn btn-primary" @click="submit" >提交</button>
+				<button plain class="box-border fs-32 c-white btn btn-primary" @click="submit" >提交</button>
 			</view>
 			<!-- <view class="flex flex-col gap-4 mt-4">
 				<button class="btn btn-primary" v-if="has_code" @click="share" open-type="share">转发小程序</button>
@@ -203,6 +203,7 @@
 	line-height: 104rpx;
 	width: 100%;
 	border: none;
+	color: white;
 }
 .mt-48 {
 	margin-top: 48rpx;

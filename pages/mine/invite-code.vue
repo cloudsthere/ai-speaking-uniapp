@@ -8,7 +8,7 @@
 					class="box-border input" />
 			</view>
 			<view class="box-border mt-32">
-				<button class="box-border fs-32 c-white btn btn-primary" v-if="!has_code" @click="submit" >提交</button>
+				<button plain class="box-border fs-32 c-white btn btn-primary" v-if="!has_code" @click="submit" >提交</button>
 			</view>
 			<view class="flex justify-center items-center c-blue-1 fs-24 mt-64">
 				<navigator url="/pages/mine/promote" class="text-primary">生成我的邀请码，赚取推广奖励→</navigator>
@@ -99,6 +99,8 @@
 	height: 104rpx;
 	line-height: 104rpx;
 	width: 100%;
+	border: none;
+	color: white;
 }
 .mt-64 {
 	margin-top: 64rpx;
