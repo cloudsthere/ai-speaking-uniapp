@@ -1,7 +1,7 @@
 <template>
 	<view class="content" :style="{paddingBottom: bottom + 'rpx'}">
 		<view class="banner relative">
-			<image class="w-full hp100" src="@/static/bg-share.jpg" mode=""></image>
+			<image class="w-full hp100" :src="domain + '/static/images/bg-share.png'" mode=""></image>
 			<text class="label absolute fs-32">邀请码</text>
 		</view>
 		<view class="p-50">
@@ -76,7 +76,8 @@
 				commissions: [],
 				history_commission: 0,
 				balance: 0,
-				bottom: getApp().globalData.bottom
+				bottom: getApp().globalData.bottom,
+				domain: utils.domain,
 			}
 		},
 		onLoad() {

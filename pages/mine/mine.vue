@@ -39,7 +39,7 @@
 			</view>
 		</view>
 		<navigator v-else url="/pages/home/price">
-			<image class="member_banner" src="/static/icon-banner.png" />
+			<image class="member_banner" :src="domain + '/static/images/icon-banner.png'" />
 		</navigator>
 		
 		<view>
@@ -93,6 +93,8 @@
 					total_minutes: '-',
 					available_minutes: '-',
 				},
+				
+				domain: utils.domain,
 			}
 		},
 		onShow() {

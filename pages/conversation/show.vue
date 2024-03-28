@@ -37,7 +37,7 @@
 					<view class="placeholder"></view>
 				</view>
 				<view class="session user-session" v-if="message.role == 'user'">
-					<image class="avatar" :src="user.avatar ?? '/static/user-avatar.png'" mode=""></image>
+					<image class="avatar" :src="user.avatar ?? '/static/default_avatar.jpg'" mode=""></image>
 					<view class="message-box user-box flex-auto">
 						<view class="message-text c-blue-1 fs-30">
 							<!-- <words :words="message.words" @lookup="lookup"></words> -->

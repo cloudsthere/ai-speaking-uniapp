@@ -1,6 +1,6 @@
 <template>
 	<view class="content">
-		<image class="banner" src="@/static/bg-sharecode.jpg" mode=""></image>
+		<image class="banner" :src="domain + '/static/images/bg-sharecode.png'" mode=""></image>
 		<view class="p-50">
 			<view>
 				<view v-if="has_code" class="w-fll text-center text-xl box-border">{{code}}</view>
@@ -25,6 +25,7 @@
 			return {
 				code: null,
 				has_code: false,
+				domain: utils.domain
 			}
 		},
 		onLoad() {

@@ -17,7 +17,7 @@
 				</view>
 			</view>
 			
-			<image class="w-full" src="/static/banner-pro.png" style="height: 202rpx" />
+			<image class="w-full" :src="domain + '/static/images/banner-pro.png'" style="height: 202rpx" />
 			
 			<view class="mt-32 grid grid-cols-3 gap-24">
 				<view v-for="(plan, index) in plans" :key="plan.plan" @tap="switchPlan(index)"
@@ -56,6 +56,7 @@
 				invite_code: '',
 				has_invite_code: false,
 				plans: [],
+				domain: utils.domain
 			}
 		},
 		onLoad() {

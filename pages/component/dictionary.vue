@@ -41,7 +41,7 @@
 	
 					<template v-if="dict">
 						<view class="flex flex-col gap-2 justify-center items-center mt-32" v-if="dict.no_data">
-							<image mode="widthFix" src="@/static/search-no-data.png" style="width: 50%;"></image>
+							<image mode="widthFix" :src="domain + '/static/images/search-no-data.png'" style="width: 50%;"></image>
 							<view class="text-gray-400">搜索无结果</view>
 						</view>
 	
@@ -148,7 +148,8 @@
 				dict: null,
 				query_stack: [],
 				
-				doNotSuggest: Object.freeze(false)
+				doNotSuggest: Object.freeze(false),
+				domain: utils.domain
 			}
 		},
 		onLoad() {
