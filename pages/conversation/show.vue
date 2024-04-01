@@ -8,7 +8,7 @@
 					<view class="message-box assistant-box">
 						<view class="message-text c-blue-1 fs-30">
 
-							<words :class="message.playing ? 'filter' : ''" :words="message.words" @lookup="lookup"></words>
+							<words :class="message.filter ? 'filter' : ''" :words="message.words" @lookup="(w) => lookup(w, message)"></words>
 
 						</view>
 						<view class="message-dashboard">
@@ -402,10 +402,15 @@
 				// console.log('this.conv', this.conv)
 
 			},
-			lookup(word) {
+			lookup(word, m) {
 				// console.log(word)
 				// var that = this
 				// this.$refs.dictionary.showSearch()
+				if(m) {
+					if(m.filter) {
+						return m.filter = false
+					}
+				}
 				this.$refs.dictionary.search(word)
 
 			},
@@ -422,6 +427,7 @@
 			switchPlay(message) {
 				if (message.playing) {
 					message.playing = false
+					message.filter = false
 					this.stopPlay()
 				} else {
 					this.play(message)
@@ -430,16 +436,22 @@
 			aiPlay(message) {
 				if (message.playing) {
 					message.playing = false
+					message.filter = false
 					return player.stop()
 				}
 				if(message.read) {
 					message.playing = true
+					message.filter = true
 					return player.sound(message.read, () => message.playing = true)
 				}
 				
 				utils.request('GET', '/api/message/'+ message.id +'/read', null, (res) => {
 					message.playing = true
-					player.sound(res.read, () => message.playing = true)
+					message.filter = true
+					player.sound(res.read, () => {
+						message.playing = true
+						message.filter = true
+					})
 				})
 			},
 			stopPlay() {
@@ -448,6 +460,7 @@
 			play(cd, callback) {
 				let that = this
 				cd.playing = true
+				cd.filter = true
 				console.log('cd', cd)
 				if (cd.audio_file) {
 					let context = uni.createInnerAudioContext({
@@ -457,6 +470,7 @@
 					context.onEnded(() => {
 						context.offEnded()
 						cd.playing = false
+						cd.filter = false
 					})
 					context.play()
 					
@@ -539,6 +553,7 @@
 			},
 			handleRecordStart() {
 				player.stop()
+				this.stopPlay()
 
 				if (this.status == 'halt') {
 					uni.showToast({

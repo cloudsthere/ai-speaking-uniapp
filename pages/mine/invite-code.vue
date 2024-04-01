@@ -1,11 +1,11 @@
-<template>
+d<template>
 	<view class="content">
 		<image class="banner" :src="domain + '/static/images/bg-sharecode.png'" mode=""></image>
 		<view class="p-50">
 			<view>
 				<view v-if="has_code" class="w-fll text-center text-xl box-border">{{code}}</view>
 				<input v-else name="code" v-model="code" placeholder="邀请码" type="text"
-					class="box-border input" />
+					class="box-border input" @input="replaceInput" />
 			</view>
 			<view class="box-border mt-32">
 				<button plain class="box-border fs-32 c-white btn btn-primary" v-if="!has_code" @click="submit" >提交</button>
@@ -48,6 +48,10 @@
 			return utils.share()
 		},
 		methods: {
+			replaceInput(e) {
+				const value = e.detail.value.replaceAll(/[^A-Za-z0-9_]/g, '')
+				setTimeout(() => { this.code = value }, 0)
+			},
 			submit() {
 				if (!utils.validateInviteCode(this.code)) {
 					uni.showToast({

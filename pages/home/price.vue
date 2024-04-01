@@ -37,7 +37,7 @@
 			<view class="cell c-blue-1 gap-32">
 				<text class="font-semibold">邀请码</text>
 				<view v-if="has_invite_code">{{invite_code}}<text class="px-2">•</text><text class="">9折优惠</text></view>
-				<input class="text-right" name="invite_code" v-else v-model="invite_code" placeholder="选填，9折优惠" type="text" />
+				<input class="text-right" name="invite_code" v-else v-model="invite_code" @input="replaceInput" placeholder="选填，9折优惠" type="text" />
 			</view>
 		</view>
 		<view class="w-full upgrade" @tap="submit">
@@ -83,6 +83,10 @@
 			return utils.share()
 		},
 		methods: {
+			replaceInput(e) {
+				const value = e.detail.value.replaceAll(/[^A-Za-z0-9_]/g, '')
+				setTimeout(() => { this.invite_code = value }, 0)
+			},
 			switchPlan(index) {
 				// console.log('switch')
 				this.plan_index = index
