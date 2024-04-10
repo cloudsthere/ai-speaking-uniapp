@@ -6,9 +6,9 @@
 				<view class="session ai-session" v-if="message.role == 'assistant'">
 					<image class="avatar" :src="conv.avatar" />
 					<view class="message-box assistant-box">
-						<view class="message-text c-blue-1 fs-30">
+						<view class="message-text c-blue-1 fs-30" :class="message.filter ? 'filter' : ''" @tap="cancelFilter(message)">
 
-							<words :class="message.filter ? 'filter' : ''" :words="message.words" @lookup="(w) => lookup(w, message)"></words>
+							<words :words="message.words" @lookup="(w) => lookup(w, message)"></words>
 
 						</view>
 						<view class="message-dashboard">
@@ -402,6 +402,11 @@
 				// console.log('this.conv', this.conv)
 
 			},
+			cancelFilter(m) {
+				if(m.filter) {
+					return m.filter = false
+				}
+			},
 			lookup(word, m) {
 				// console.log(word)
 				// var that = this
@@ -483,6 +488,7 @@
 
 						that.audioSource.onended = () => {
 							cd.playing = false
+							cd.filter = false
 							if (callback) {
 								console.log('play callback')
 								callback()
@@ -1023,7 +1029,9 @@
 	}
 
 	.content {
-		padding: 32rpx 32rpx 144rpx;
+		padding: 32rpx;
+		height: calc(100vh - 272rpx);
+		overflow-y: auto;
 	}
 
 	.session {
@@ -1053,7 +1061,7 @@
 		}
 
 		.placeholder {
-			width: 40px;
+			width: 64rpx;
 			flex: none;
 		}
 
@@ -1145,8 +1153,11 @@
 		height: 112rpx;
 	}
 	
-	.filter > view {
+	.filter {
 		filter: blur(10rpx)
+	}
+	.filter view {
+		pointer-events: none;
 	}
 	
 	.lh-56 {

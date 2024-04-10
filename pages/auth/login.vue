@@ -1,10 +1,10 @@
 <template>
 	<view class="bg-page flex flex-col items-center box-border w-full">
-		<image src="/static/default_avatar.jpg" class="rounded-half logo"></image>
+		<image src="/static/logo.svg" class="rounded-half logo"></image>
 		<image src="/static/slogan.png" class="logo-text"></image>
-		<button class="btn btn-primary w-full br-16 c-white fs-32" @click="checkLogin" :open-type="checked ? 'getPhoneNumber' : ''"
+		<button plain class="btn btn-primary w-full br-16 c-white fs-32" @click="checkLogin" :open-type="checked ? 'getPhoneNumber' : ''"
 			@getphonenumber="decryptPhoneNumber">微信一键登录</button>
-		<button @click="toMobile" class="btn-default btn w-full c-blue-1 br-16 fs-32">手机号登录/注册</button>
+		<button @click="toMobile" plain class="btn-default btn w-full c-blue-1 br-16 fs-32">手机号登录/注册</button>
 		<view class="flex justify-center items-center" @click="switchChecked">
 			<radio :checked="checked" style="transform:scale(0.7);" color="#38b5b3" />
 			<view class="c-gray-4 fs-26">
@@ -100,12 +100,13 @@
 	}
 </script>
 
-<style>
+<style scoped>
 	page-meta {
 		background-color: #fff;
 	}
 	.bg-page {
 		background-image: url(/static/chat-bg.jpg);
+		background-size: 100% auto;
 		background-repeat: no-repeat;
 		padding: 70rpx 80rpx 0;
 	}
@@ -125,7 +126,8 @@
 		padding: 30rpx 0;
 		line-height: 1;
 		margin-bottom: 24rpx;
-		border: none
+		border: none;
+		color: white;
 	}
 	
 	.btn-default {
@@ -133,6 +135,6 @@
 		padding: 30rpx 0;
 		line-height: 1;
 		margin-bottom: 46rpx;
-		border: none
+		border: none;
 	}
 </style>

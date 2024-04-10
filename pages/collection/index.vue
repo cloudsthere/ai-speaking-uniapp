@@ -11,7 +11,7 @@
 					<view style="height: 40rpx;width: 40rpx">
 						<image v-if="isEdit" @tap="changeMode" class="sort-icon" src="/static/icon-batchmanage-selected.svg" />
 						<image v-else @tap="changeMode" class="sort-icon" src="/static/icon-batchmanage-normal.svg" />
-						<tui-bubble-popup :mask="false" :show="isShowSortPopup" @close="toggleSortPopup(false)" backgroundColor="#fff" position="absolute" direction="null" radius="24rpx" width="220rpx"
+						<tui-bubble-popup maskBgColor="rgba(0, 0, 0, 0)" :show="isShowSortPopup" @close="toggleSortPopup(false)" backgroundColor="#fff" position="absolute" direction="null" radius="24rpx" width="220rpx"
 						right="0" top="45rpx">
 							<view class="w-full c-blue-2 fs-24 br-24 popup-box">
 								<view v-for="(item, i) in sortData" :key="item.key" class="sort-item flex items-center" @tap="() => changeSort(item, i)">
@@ -31,7 +31,7 @@
 					<view @click="lookup(c.query)" v-for="c in chunk.items" :key="c.id" class="bg-white flex br-24 items-center word-card mb-16">
 						<image v-if="isEdit && c.selected" @tap.stop="selectItem(c, false)" class="w-32 no-shrink" src="/static/checkbox-selected.svg" />
 						<image v-else-if="isEdit && !c.selected" @tap.stop="selectItem(c, true)" class="w-32 no-shrink" src="/static/checkbox.svg" />
-						<image v-else-if="c.isPlaying" @tap.stop="stop(c)" class="w-32 no-shrink" src="/static/icon-voice-selected.svg" />
+						<image v-else-if="c.isPlaying" @tap.stop="stop(c)" class="w-32 no-shrink" src="/static/ezgif-3-42efb85031.png"/>
 						<image v-else @tap.stop="play(c)" class="w-32 no-shrink" src="/static/icon-voice-grey.svg" />
 						<view class="flex flex-col gap-1 p-h-32" style="min-width:0;flex-shrink:1;">
 							<text class="c-blue-1 fs-36 font-semibold">{{c.query}}</text>
@@ -281,6 +281,7 @@
 	.popup-box {
 		box-sizing: border-box;
 		padding: 40rpx 32rpx 0;
+		box-shadow: 0rpx 0rpx 56rpx 0rpx rgba(241,241,241,0.6), 0rpx 8rpx 8rpx 0rpx rgba(241,241,241,0.2);
 	}
 	
 	.unlogin {

@@ -1,6 +1,6 @@
 <template>
 	<view class="bg-page flex flex-col items-center box-border w-full">
-		<image src="/static/default_avatar.jpg" class="rounded-half logo"></image>
+		<image src="/static/logo.svg" class="rounded-half logo"></image>
 		<view class="flex flex-col gap-24 w-full">
 			<view class="relative br-16 input-box c-blue-1 flex items-center fs-28">
 				<view class="flex items-center justify-center"><text>+86</text></view>

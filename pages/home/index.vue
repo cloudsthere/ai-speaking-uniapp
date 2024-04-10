@@ -6,10 +6,10 @@
 		<view class="main p-h-32">
 			<view class="flex">
 				<view class="mt-8 relative">
-					<view class="mt-32 c-blue-1 font-semibold lh-30 fs-26 greeting">{{teacher.greeting}}</view>
+					<view class="mt-32 c-blue-1 font-semibold lh-30 fs-26 greeting ml-24">{{teacher.greeting}}</view>
 					<view class="flex gap-3">
 						<navigator url="/pages/home/teacher"
-							class="mt-32 fs-24 br-16 c-gray-2 bg-gray changeRole">更换角色
+							class="mt-32 ml-24 fs-24 br-16 c-gray-2 bg-gray changeRole">更换角色
 						</navigator>
 						<view class="mt-32 p-12 br-16 voice-box" @click="greeting">
 							<img class="voice" src="/static/icon-voice-white.svg" />
@@ -19,7 +19,7 @@
 					<image class="absolute top-0 left-0 z-behind bg-text" src="/static/bg-marks.svg" />
 				</view>
 				<view class="relative pt-32 ml-24 rounded-half overflow-hidden flex-none" >
-					<image class="teacher-avatar" :src="teacher.avatar_pic" mode=""></image>
+					<image class="teacher-avatar rounded-half" :src="teacher.avatar_pic" mode=""></image>
 				</view>
 			</view>
 			<view class="c-blue-1 section-title font-semibold">
@@ -41,7 +41,7 @@
 							<view>{{agent.brief}}</view>
 						</view>
 						<view class="flex justify-end">
-							<image class="scene-img rounded-half" :src="agent.avatar" mode=""></image>
+							<image class="scene-img br-24" :src="agent.avatar" mode=""></image>
 						</view>
 					</view>
 				</navigator>
@@ -124,6 +124,7 @@
 	page {
 		height: 375rpx; 
 		background-image: url(~@/static/chat-bg.jpg);
+		background-size: 100% auto;
 		background-repeat: no-repeat
 	}
 	.bg {

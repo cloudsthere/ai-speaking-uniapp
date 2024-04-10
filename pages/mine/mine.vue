@@ -1,49 +1,51 @@
 <template>
-	<scroll-view class="content" scroll-y :style="{position: 'absolute', top: height + 'px', height: `calc(100% - ${height}px)`}" >
-		<view class="flex gap-24">
-			<image :src="user && user.avatar || '/static/default_avatar.jpg'" class="rounded-half avatar no-shrink"></image>
-			<view  v-if="user" class="flex justify-between flex-auto"  @click="routeTo({url: '/pages/mine/profile'})">
-				<view class="flex flex-col justify-center gap-16">
-					<view class="font-semibold fs-32 c-blue-1">
-						{{user.name}}
+	<scroll-view scroll-y :style="{position: 'absolute', top: height + 'px', height: `calc(100% - ${height}px)`}" >
+		<view class="content">
+			<view class="flex gap-24">
+				<image :src="user && user.avatar || '/static/default_avatar.jpg'" class="rounded-half avatar no-shrink"></image>
+				<view  v-if="user" class="flex justify-between flex-auto"  @click="routeTo({url: '/pages/mine/profile'})">
+					<view class="flex flex-col justify-center gap-16">
+						<view class="font-semibold fs-32 c-blue-1">
+							{{user.name}}
+						</view>
+						<image v-if="member.is_member" class="no-stretch" src="/static/label-pro.svg" style="width: 82rpx;height: 34rpx" mode="aspectFit" />
+						<view v-else class="br-16 flex items-center fs-20 c-white no-stretch normal_user">
+							{{member.plan_name}}
+						</view>
 					</view>
-					<image v-if="member.is_member" class="no-stretch" src="/static/label-pro.svg" style="width: 82rpx;height: 34rpx" mode="aspectFit" />
-					<view v-else class="br-16 flex items-center fs-20 c-white no-stretch normal_user">
-						{{member.plan_name}}
+					<view class="flex items-center">
+						<image class="w-32" src="/static/icon-rightarrow.svg" />
 					</view>
 				</view>
-				<view class="flex items-center">
-					<image class="w-32" src="/static/icon-rightarrow.svg" />
+				<view v-else class="flex flex-auto items-center"  @click="routeTo({url: '/pages/auth/login'})">
+					<view class="font-semibold c-blue-1 fs-32">请登录/注册</view>
 				</view>
 			</view>
-			<view v-else class="flex flex-auto items-center"  @click="routeTo({url: '/pages/auth/login'})">
-				<view class="font-semibold c-blue-1 fs-32">请登录/注册</view>
-			</view>
-		</view>
-		<view class="sub-section">
-			<view class="flex justify-between items-center" style="margin-bottom: 10rpx;">
-				<text class="fs-24 c-gray-4">剩余课时</text>
-				<text class="fs-32 c-blue-1">{{ `${member.available_minutes}/${member.total_minutes} min` }}</text>
+			<view class="sub-section">
+				<view class="flex justify-between items-center" style="margin-bottom: 10rpx;">
+					<text class="fs-24 c-gray-4">剩余课时</text>
+					<text class="font-semibold fs-34 c-blue-1">{{ `${member.available_minutes}/${member.total_minutes} min` }}</text>
+				</view>
+				
+				<Progress :percent="member.available_minutes/member.total_minutes * 100" />
 			</view>
 			
-			<Progress :percent="member.available_minutes/member.total_minutes * 100" />
-		</view>
-		
-		<view v-if="member.is_member" class="member_banner relative">
-			<image class="member_banner w-full hp100" src="/static/icon-pro-banner.svg" />
-			<view class="front w-full hp100 flex items-center" style="padding-left: 36rpx;">
-				<view class="flex flex-col">
-					<image class="banner-text" src="/static/icon-banner-text.svg" />
-					<view class="fs-20" style="color: #FA931C;">有效期至{{ member.expires_at }}</view>
+			<view v-if="member.is_member" class="member_banner relative">
+				<image class="member_banner w-full hp100" src="/static/icon-pro-banner.svg" />
+				<view class="front w-full hp100 flex items-center" style="padding-left: 36rpx;">
+					<view class="flex flex-col">
+						<image class="banner-text" src="/static/icon-banner-text.svg" />
+						<view class="fs-20" style="color: #FA931C;">有效期至{{ member.expires_at }}</view>
+					</view>
 				</view>
 			</view>
+			<navigator v-else url="/pages/home/price">
+				<image class="member_banner" :src="domain + '/static/images/icon-banner.png'" />
+			</navigator>
 		</view>
-		<navigator v-else url="/pages/home/price">
-			<image class="member_banner" :src="domain + '/static/images/icon-banner.png'" />
-		</navigator>
 		
 		<view>
-			<navigator url="/pages/mine/promote" class="cell flex justify-between">
+			<navigator url="/pages/mine/promote" class="cell flex justify-between" style="margin-top: 32rpx;">
 				<text class="c-blue-1 fs-28 font-semibold">分享有奖</text>
 				<view class="flex gap-16 items-center">
 					<view class="tag c-white fs-24 flex items-center justify-center br-22" style="background-color: #FA9422;">赠送课时</view>
@@ -161,6 +163,7 @@
 	page {
 		height: 375rpx; 
 		background-image: url(~@/static/chat-bg.jpg);
+		background-size: 100% auto;
 		background-repeat: no-repeat
 	}
 	.content {
@@ -204,7 +207,7 @@
 	}
 	
 	.cell {
-		margin-top: 64rpx;
+		padding: 32rpx 40rpx;
 	}
 
 	.bg-gradient {
