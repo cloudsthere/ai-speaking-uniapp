@@ -12,7 +12,8 @@
 							class="mt-32 ml-24 fs-24 br-16 c-gray-2 bg-gray changeRole">更换角色
 						</navigator>
 						<view class="mt-32 p-12 br-16 voice-box" @click="greeting">
-							<img class="voice" src="/static/icon-voice-white.svg" />
+							<img v-if="is_greeting" class="voice" src="/static/icon-voice-white.webp" />
+							<img v-else class="voice" src="/static/icon-voice-white.svg" />
 						</view>
 					</view>
 					
@@ -91,8 +92,10 @@
 		},
 		methods: {
 			greeting() {
-				player.sound(this.teacher.audio)
-				// this.is_greeting = true
+				player.sound(this.teacher.audio, () => {
+					this.is_greeting = false
+				})
+				this.is_greeting = true
 				// console.log(this.is_greeting)
 				// let context = uni.createVideoContext('greeting-video')
 				// context.play()

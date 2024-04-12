@@ -4,13 +4,13 @@
 			<view class="avatar relative">
 				<image class="w-full hp100 rounded-half" :src="avatar" />
 				<view v-if="status === 'thinking' || modelValue === 'speaking'" class="absolute mind">
-					<image v-if="status === 'thinking'" src="/static/thinking.svg" />
-					<image v-if="status !== 'thinking' && modelValue === 'speaking'" src="/static/listening.svg" />
+					<image v-if="status === 'thinking'" src="/static/thinking.webp" />
+					<image v-if="status !== 'thinking' && modelValue === 'speaking'" src="/static/listening.webp" />
 				</view>
 			</view>
 			<view class="flex flex-col justify-end items-center flex-auto status-box">
 				<view class="flex flex-col justify-between items-center gap-24">
-					<image v-if="modelValue === 'listening'" class="w-128" src="/static/listening.svg" />
+					<image v-if="modelValue === 'listening'" class="w-128" src="/static/listening.webp" />
 					<text class="fs-28 c-blue-1 ">{{getStatusText(status, modelValue)}}</text>
 				</view>
 				<image @tap="hangUp" class="w-128" src="/static/icon-hangup.svg" />

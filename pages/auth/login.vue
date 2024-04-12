@@ -1,6 +1,6 @@
 <template>
 	<view class="bg-page flex flex-col items-center box-border w-full">
-		<image src="/static/logo.svg" class="rounded-half logo"></image>
+		<image src="/static/logo.png" class="rounded-half logo"></image>
 		<image src="/static/slogan.png" class="logo-text"></image>
 		<button plain class="btn btn-primary w-full br-16 c-white fs-32" @click="checkLogin" :open-type="checked ? 'getPhoneNumber' : ''"
 			@getphonenumber="decryptPhoneNumber">微信一键登录</button>
@@ -112,7 +112,7 @@
 	}
 	.logo {
 		width: 208rpx;
-		height: 208rpx;
+		height: 108rpx;
 		margin-bottom: 32rpx;
 	}
 	.logo-text {
@@ -128,6 +128,7 @@
 		margin-bottom: 24rpx;
 		border: none;
 		color: white;
+		border: none;
 	}
 	
 	.btn-default {

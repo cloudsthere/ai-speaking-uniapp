@@ -1,6 +1,6 @@
 <template>
 	<view class="bg-page flex flex-col items-center box-border w-full">
-		<image src="/static/logo.svg" class="rounded-half logo"></image>
+		<image src="/static/logo.png" class="rounded-half logo"></image>
 		<view class="flex flex-col gap-24 w-full">
 			<view class="relative br-16 input-box c-blue-1 flex items-center fs-28">
 				<view class="flex items-center justify-center"><text>+86</text></view>
@@ -14,7 +14,7 @@
 				</view>
 			</view>
 		</view>
-		<button class="btn btn-primary w-full br-16 c-white fs-32" @click="login">登录/注册</button>
+		<button plain class="btn btn-primary w-full br-16 c-white fs-32" @click="login">登录/注册</button>
 		<view class="flex justify-center items-center" @click="switchChecked">
 			<radio :checked="checked" style="transform:scale(0.7);" color="#38b5b3" />
 			<view class="c-gray-4 fs-26">
@@ -136,7 +136,7 @@
 	}
 </script>
 
-<style>
+<style scoped>
 	.bg-page {
 		background-image: url(/static/chat-bg.jpg);
 		background-repeat: no-repeat;
@@ -144,7 +144,7 @@
 	}
 	.logo {
 		width: 208rpx;
-		height: 208rpx;
+		height: 108rpx;
 		margin-bottom: 70rpx;
 	}
 	.input-box {
@@ -157,9 +157,9 @@
 		background-color: #1CD1AD;
 		padding: 30rpx 0;
 		line-height: 1;
-		margin-bottom: 24rpx;
 		border: none;
 		margin-top: 56rpx;
 		margin-bottom: 32rpx;
+		color: white;
 	}
 </style>

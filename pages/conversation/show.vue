@@ -1,6 +1,6 @@
 <template>
 	<view class="w-full hp100" :style="{paddingBottom: bottom + 'px'}">
-		<view class="content">
+		<view class="content" :style="{ height: `calc(100vh - ${bottom}rpx - 304rpx)` }">
 			<template v-for="message in messages" :key="message.id">
 				<view class="c-gray-1 text-center fs-22">{{message.date}}</view>
 				<view class="session ai-session" v-if="message.role == 'assistant'">
@@ -18,13 +18,14 @@
 								<image v-if="message.addition === 'recommend'" @tap="recommend(message)" class="w-40" src="/static/icon-aireply-selected.svg" />
 								<image v-else class="w-40" @tap="recommend(message)" src="/static/icon-aireply-normal.svg" />
 							</view>
-							<image @tap="switchPlay(message)" class="w-40" src="/static/icon-play.svg" />
+							<image v-if="message.playing" @tap="switchPlay(message)" class="w-40" src="/static/icon-play.webp" />
+							<image v-else @tap="switchPlay(message)" class="w-40" src="/static/icon-play.svg" />
 						</view>
 						<view class="addition" v-show="message.addition == 'translate'">
 							{{message.translate}}
 						</view>
 						<view class="addition" v-show="message.addition == 'recommend'">
-							<view v-if="message.recommend">
+							<view v-if="message.recommend" :class="message.filter ? 'filter' : ''" @tap="cancelFilter(message)">
 								<words :words="message.recommend.words" @lookup="lookup"></words>
 							</view>
 							<view class="text-center" v-show="!message.recommends">
@@ -39,14 +40,16 @@
 				<view class="session user-session" v-if="message.role == 'user'">
 					<image class="avatar" :src="user.avatar ?? '/static/default_avatar.jpg'" mode=""></image>
 					<view class="message-box user-box flex-auto">
-						<view class="message-text c-blue-1 fs-30">
+						<view class="message-text c-blue-1 fs-30" :class="message.filter ? 'filter' : ''" @tap="cancelFilter(message)">
 							<!-- <words :words="message.words" @lookup="lookup"></words> -->
 							{{message.content}}
 						</view>
 
 						<view class="message-dashboard justify-between">
-							<image @tap="switchPlay(message)" class="w-40" src="/static/icon-replay-normal.svg" />
-							<image @tap="aiPlay(message)" class="w-40" src="/static/icon-play.svg" />
+							<image v-if="message.playing" @tap="switchPlay(message)" class="w-40" src="/static/icon-replay-playing.svg" />
+							<image v-else @tap="switchPlay(message)" class="w-40" src="/static/icon-replay-normal.svg" />
+							<image v-show="message.aiPlaying" @tap="aiPlay(message)" class="w-40" src="/static/icon-play.webp" />
+							<image v-show="!message.aiPlaying" @tap="aiPlay(message)" class="w-40" src="/static/icon-play.svg" />
 						</view>
 					</view>
 					<view class="placeholder"></view>	
@@ -74,7 +77,7 @@
 				</view>
 			</view>
 			<view v-if="status === 'recording'" class="event-auto flex items-center input-bottom bg-white recording justify-center gap-24">
-				<image src="/static/voice-effect.svg" style="width: 80rpx; height: 80rpx" /> 松手发送
+				<image src="/static/voice-effect.webp" style="width: 80rpx; height: 80rpx" /> 松手发送
 			</view>
 				
 			<view v-else-if="mode === 'chat'" class="event-auto flex items-center input-bottom bg-white">
@@ -439,23 +442,26 @@
 				}
 			},
 			aiPlay(message) {
-				if (message.playing) {
-					message.playing = false
+				if (message.aiPlaying) {
+					message.aiPlaying = false
 					message.filter = false
 					return player.stop()
 				}
 				if(message.read) {
-					message.playing = true
+					message.aiPlaying = true
 					message.filter = true
-					return player.sound(message.read, () => message.playing = true)
+					return player.sound(message.read, () => {
+						message.aiPlaying = false
+						message.filter = false
+					})
 				}
 				
 				utils.request('GET', '/api/message/'+ message.id +'/read', null, (res) => {
-					message.playing = true
+					message.aiPlaying = true
 					message.filter = true
 					player.sound(res.read, () => {
-						message.playing = true
-						message.filter = true
+						message.aiPlaying = false
+						message.filter = false
 					})
 				})
 			},
@@ -547,6 +553,8 @@
 				this.hangingUp = true;
 			},
 			call() {
+				player.stop()
+				this.stopPlay()
 				if (this.mode == 'phone' && this.phone_status == 'listening') {
 					return;
 				}
@@ -1029,8 +1037,7 @@
 	}
 
 	.content {
-		padding: 32rpx;
-		height: calc(100vh - 272rpx);
+		padding: 32rpx 32rpx 0;
 		overflow-y: auto;
 	}
 

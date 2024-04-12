@@ -281,6 +281,10 @@
 	.popup-box {
 		box-sizing: border-box;
 		padding: 40rpx 32rpx 0;
+		
+	}
+	
+	.tui-popup-show {
 		box-shadow: 0rpx 0rpx 56rpx 0rpx rgba(241,241,241,0.6), 0rpx 8rpx 8rpx 0rpx rgba(241,241,241,0.2);
 	}
 	
