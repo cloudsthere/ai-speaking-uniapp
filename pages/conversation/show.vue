@@ -1,6 +1,6 @@
 <template>
 	<view class="w-full hp100" :style="{paddingBottom: bottom + 'px'}">
-		<view class="content" :style="{ height: `calc(100vh - ${bottom}rpx - 304rpx)` }">
+		<view class="content" :style="{paddingBottom: (bottom + 204) + 'rpx'}">
 			<template v-for="message in messages" :key="message.id">
 				<view class="c-gray-1 text-center fs-22">{{message.date}}</view>
 				<view class="session ai-session" v-if="message.role == 'assistant'">
@@ -18,7 +18,7 @@
 								<image v-if="message.addition === 'recommend'" @tap="recommend(message)" class="w-40" src="/static/icon-aireply-selected.svg" />
 								<image v-else class="w-40" @tap="recommend(message)" src="/static/icon-aireply-normal.svg" />
 							</view>
-							<image v-if="message.playing" @tap="switchPlay(message)" class="w-40" src="/static/icon-play.webp" />
+							<image v-if="message.playing" @tap="switchPlay(message)" class="w-40" src="/static/icon-play.png" />
 							<image v-else @tap="switchPlay(message)" class="w-40" src="/static/icon-play.svg" />
 						</view>
 						<view class="addition" v-show="message.addition == 'translate'">
@@ -48,7 +48,7 @@
 						<view class="message-dashboard justify-between">
 							<image v-if="message.playing" @tap="switchPlay(message)" class="w-40" src="/static/icon-replay-playing.svg" />
 							<image v-else @tap="switchPlay(message)" class="w-40" src="/static/icon-replay-normal.svg" />
-							<image v-show="message.aiPlaying" @tap="aiPlay(message)" class="w-40" src="/static/icon-play.webp" />
+							<image v-show="message.aiPlaying" @tap="aiPlay(message)" class="w-40" src="/static/icon-play.png" />
 							<image v-show="!message.aiPlaying" @tap="aiPlay(message)" class="w-40" src="/static/icon-play.svg" />
 						</view>
 					</view>
@@ -77,7 +77,7 @@
 				</view>
 			</view>
 			<view v-if="status === 'recording'" class="event-auto flex items-center input-bottom bg-white recording justify-center gap-24">
-				<image src="/static/voice-effect.webp" style="width: 80rpx; height: 80rpx" /> 松手发送
+				<image src="/static/voice-effect.png" style="width: 80rpx; height: 80rpx" /> 松手发送
 			</view>
 				
 			<view v-else-if="mode === 'chat'" class="event-auto flex items-center input-bottom bg-white">
@@ -219,6 +219,8 @@
 				audioSource: null,
 				user: utils.getUser(),
 				bottom: getApp().globalData.safeBottom,
+				
+				cd: {}
 			}
 		},
 		onLoad(options) {
@@ -436,20 +438,21 @@
 				if (message.playing) {
 					message.playing = false
 					message.filter = false
-					this.stopPlay()
 				} else {
 					this.play(message)
 				}
 			},
 			aiPlay(message) {
+				this.stopPlay()
 				if (message.aiPlaying) {
 					message.aiPlaying = false
 					message.filter = false
-					return player.stop()
+					return
 				}
 				if(message.read) {
 					message.aiPlaying = true
 					message.filter = true
+					this.cd = message
 					return player.sound(message.read, () => {
 						message.aiPlaying = false
 						message.filter = false
@@ -459,6 +462,7 @@
 				utils.request('GET', '/api/message/'+ message.id +'/read', null, (res) => {
 					message.aiPlaying = true
 					message.filter = true
+					this.cd = message
 					player.sound(res.read, () => {
 						message.aiPlaying = false
 						message.filter = false
@@ -466,10 +470,20 @@
 				})
 			},
 			stopPlay() {
+				this.cd.playing = false
+				this.cd.filter = false
+				if(this.cd.aiPlaying) {
+					this.cd.aiPlaying = false
+				}
+				player.stop()
 				this.audioSource.stop()
 			},
 			play(cd, callback) {
+				if(this.cd.playing || this.cd.aiPlaying) {
+					this.stopPlay()
+				}
 				let that = this
+				this.cd = cd
 				cd.playing = true
 				cd.filter = true
 				console.log('cd', cd)
@@ -503,6 +517,7 @@
 						}
 
 					}).catch((e) => {
+						this.stopPlay()
 						console.log('play fail', e)
 					})
 
@@ -553,8 +568,6 @@
 				this.hangingUp = true;
 			},
 			call() {
-				player.stop()
-				this.stopPlay()
 				if (this.mode == 'phone' && this.phone_status == 'listening') {
 					return;
 				}
@@ -566,7 +579,6 @@
 				this.startRecord()
 			},
 			handleRecordStart() {
-				player.stop()
 				this.stopPlay()
 
 				if (this.status == 'halt') {
@@ -1038,7 +1050,6 @@
 
 	.content {
 		padding: 32rpx 32rpx 0;
-		overflow-y: auto;
 	}
 
 	.session {

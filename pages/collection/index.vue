@@ -31,7 +31,7 @@
 					<view @click="lookup(c.query)" v-for="c in chunk.items" :key="c.id" class="bg-white flex br-24 items-center word-card mb-16">
 						<image v-if="isEdit && c.selected" @tap.stop="selectItem(c, false)" class="w-32 no-shrink" src="/static/checkbox-selected.svg" />
 						<image v-else-if="isEdit && !c.selected" @tap.stop="selectItem(c, true)" class="w-32 no-shrink" src="/static/checkbox.svg" />
-						<image v-else-if="c.isPlaying" @tap.stop="stop(c)" class="w-32 no-shrink" src="/static/ezgif-3-42efb85031.png"/>
+						<image v-else-if="c.isPlaying" @tap.stop="stop(c)" class="w-32 no-shrink" src="/static/icon-voice-selected.png"/>
 						<image v-else @tap.stop="play(c)" class="w-32 no-shrink" src="/static/icon-voice-grey.svg" />
 						<view class="flex flex-col gap-1 p-h-32" style="min-width:0;flex-shrink:1;">
 							<text class="c-blue-1 fs-36 font-semibold">{{c.query}}</text>

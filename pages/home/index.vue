@@ -12,7 +12,7 @@
 							class="mt-32 ml-24 fs-24 br-16 c-gray-2 bg-gray changeRole">更换角色
 						</navigator>
 						<view class="mt-32 p-12 br-16 voice-box" @click="greeting">
-							<img v-if="is_greeting" class="voice" src="/static/icon-voice-white.webp" />
+							<img v-if="is_greeting" class="voice" src="/static/icon-voice-white.png" />
 							<img v-else class="voice" src="/static/icon-voice-white.svg" />
 						</view>
 					</view>
@@ -35,7 +35,7 @@
 					<view class="p-24 scene-card">
 						<view class="name flex justify-between">
 							<view class="c-blue-1 fs-30 font-semibold">{{agent.name}}</view>
-							<image v-if="agent.isPlaying" class="voice" src="/static/icon-voice-selected.svg" />
+							<image v-if="agent.isPlaying" class="voice-icon" src="/static/icon-voice-selected.png" />
 							<image v-else class="voice-icon" src="/static/icon-voice-grey.svg" @tap.stop="playSceneVoice(agent)" />
 						</view>
 						<view class="brief c-gray-1 fs-24">
