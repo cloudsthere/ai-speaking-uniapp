@@ -1,6 +1,6 @@
 <template>
-	<view class="w-full hp100" :style="{paddingBottom: bottom + 'px'}">
-		<view class="content" :style="{paddingBottom: (bottom + 204) + 'rpx'}">
+	<view class="w-full hp100" :style="{paddingBottom: bottom + 'rpx'}">
+		<view class="content" :style="{paddingBottom: (bottom + 224) + 'rpx'}">
 			<template v-for="message in messages" :key="message.id">
 				<view class="c-gray-1 text-center fs-22">{{message.date}}</view>
 				<view class="session ai-session" v-if="message.role == 'assistant'">
@@ -25,7 +25,7 @@
 							{{message.translate}}
 						</view>
 						<view class="addition" v-show="message.addition == 'recommend'">
-							<view v-if="message.recommend" :class="message.filter ? 'filter' : ''" @tap="cancelFilter(message)">
+							<view v-if="message.recommend">
 								<words :words="message.recommend.words" @lookup="lookup"></words>
 							</view>
 							<view class="text-center" v-show="!message.recommends">
@@ -98,7 +98,7 @@
 				<image v-else @tap="switchMode" class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-voice.svg" />
 			</view>
 			
-			<view class="bg-white"  :style="{paddingBottom: bottom + 'px'}"></view>
+			<view class="bg-white"  :style="{paddingBottom: bottom + 'rpx'}"></view>
 		</view>
 	</view>
 	<dictionary ref="dictionary"></dictionary>
@@ -220,7 +220,8 @@
 				user: utils.getUser(),
 				bottom: getApp().globalData.safeBottom,
 				
-				cd: {}
+				cd: {},
+				conv_id: "",
 			}
 		},
 		onLoad(options) {
@@ -255,68 +256,12 @@
 
 			this.audioCtx = wx.createWebAudioContext()
 			this.audioSource = this.audioCtx.createBufferSource()
+			this.options = options
 			
-			var method = 'GET'
-			var url = '/api/conversation/' + options.conv_id
-			var data = {}
-			if (options.agent_id) {
-				method = 'POST'
-				url = '/api/conversation/'
-				data = {
-					agent_id: options.agent_id,
-				}
-			}
-
-			utils.request(method, url, data, (res) => {
-				this.conv = res.conversation
-				// that.messages = [res.message]
-				const timeline = res.timeline
-				if(timeline.length > 0) {
-					let nextId = timeline[0].start_message_id
-					let sectionIndex = -1
-					let i = 0
-					while(i < res.messages.length) {
-						const item = res.messages[i]
-						if(item.id === nextId) {
-							sectionIndex++
-							item.date = timeline[sectionIndex].date
-							nextId = sectionIndex + 1 < timeline.length ? timeline[sectionIndex + 1].start_message_id : 0
-						}
-						i++
-					}
-				}
-				
-				this.messages = res.messages
-				console.log(this.messages)
-				// console.log(that.messages[0])
-
-				uni.setNavigationBarTitle({
-					title: this.conv.name ?? '会话'
-				})
-				// console.log(that.messages[that.messages.length - 1])
-				this.scrollToBottom()
-
-				if (this.messages.length == 0) {
-					this.status = 'thinking'
-					this.generateMessage()
-				} else {
-					if (options.mode == 'phone') {
-						// that.call()
-						this.mode = 'phone'
-						this.phone_status = 'speaking'
-						// that.status = 'recording'
-						this.play(this.messages[this.messages.length - 1], () => {
-							this.call()
-						})
-						// that.startRecord()
-					} else {
-						this.play(this.messages[this.messages.length - 1])
-
-					}
-				}
-
-
-			})
+			
+		},
+		onShow() {
+			this.init()
 		},
 		onHide() {
 			this.cleanUp()
@@ -331,6 +276,69 @@
 			return utils.share()
 		},
 		methods: {
+			init() {
+				var method = 'GET'
+				var url = '/api/conversation/' + this.options.conv_id
+				var data = {}
+				if (this.options.agent_id) {
+					method = 'POST'
+					url = '/api/conversation/'
+					data = {
+						agent_id: this.options.agent_id,
+					}
+				}
+				
+				utils.request(method, url, data, (res) => {
+					this.conv = res.conversation
+					// that.messages = [res.message]
+					const timeline = res.timeline
+					if(timeline.length > 0) {
+						let nextId = timeline[0].start_message_id
+						let sectionIndex = -1
+						let i = 0
+						while(i < res.messages.length) {
+							const item = res.messages[i]
+							if(item.id === nextId) {
+								sectionIndex++
+								item.date = timeline[sectionIndex].date
+								nextId = sectionIndex + 1 < timeline.length ? timeline[sectionIndex + 1].start_message_id : 0
+							}
+							i++
+						}
+					}
+					
+					this.messages = res.messages
+					console.log(this.messages)
+					// console.log(that.messages[0])
+				
+					uni.setNavigationBarTitle({
+						title: this.conv.name ?? '会话'
+					})
+					// console.log(that.messages[that.messages.length - 1])
+					this.scrollToBottom()
+				
+					if (this.messages.length == 0) {
+						this.status = 'thinking'
+						this.generateMessage()
+					} else {
+						if (this.options.mode == 'phone') {
+							// that.call()
+							this.mode = 'phone'
+							this.phone_status = 'speaking'
+							// that.status = 'recording'
+							this.play(this.messages[this.messages.length - 1], () => {
+								this.call()
+							})
+							// that.startRecord()
+						} else {
+							this.play(this.messages[this.messages.length - 1])
+				
+						}
+					}
+				
+				
+				})
+			},
 			switchMode() {
 				if (this.mode == 'chat') {
 					this.mode = 'keyboard'
@@ -568,6 +576,7 @@
 				this.hangingUp = true;
 			},
 			call() {
+				this.stopPlay()
 				if (this.mode == 'phone' && this.phone_status == 'listening') {
 					return;
 				}
@@ -789,6 +798,7 @@
 						// that.sendMessage(res.tempFilePath)
 						// console.log('assign audio file')
 						that.current_audio_file = res.tempFilePath
+						this.status = 'none'
 					})
 
 					this.RecorderManager.onFrameRecorded(function(res) {
@@ -833,6 +843,7 @@
 			},
 			handleRecordStop() {
 				console.log('handle record stop')
+				this.status = 'none'
 				// this.recording = false
 				// for (let i in this.recoManager) {
 				// 	console.log(i)
@@ -1070,7 +1081,7 @@
 			padding: 32rpx;
 		}
 		
-		.assistant-box {
+		.assistant-box, .twinkling {
 			border-radius: 0rpx 24rpx 24rpx 24rpx;
 		}
 		

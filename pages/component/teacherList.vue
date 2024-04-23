@@ -28,7 +28,7 @@
 
 	export default {
 		name: "teacherList",
-		props: ['words'],
+		props: ['words', 'defaultId'],
 		data() {
 			return {
 				teachers: [],
@@ -39,6 +39,14 @@
 			utils.request('GET', '/api/teacher', {}, (res) => {
 				// console.log(res)
 				this.teachers = res.teachers
+				if(this.defaultId) {
+					this.teachers.forEach(val => {
+						if(val.id == this.defaultId) {
+							val.checked = true
+							this.lastTeacher = val
+						}
+					})
+				}
 			})
 		},
 		methods: {

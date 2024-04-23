@@ -1,11 +1,11 @@
 <template>
-	<teacherList ref="teacherList" @choose="choose"></teacherList>
+	<teacherList :defaultId="id" ref="teacherList" @choose="choose"></teacherList>
 </template>
 
 <script>
 	import utils from '@/common/utils.js';
 	import teacherList from '../component/teacherList.vue';
-	
+	import player from '@/common/player.js';
 
 	export default {
 		components: {
@@ -13,9 +13,17 @@
 		},
 		data() {
 			return {
+				id: ''
 			}
 		},
-
+		onLoad(option) {
+			if(option.id) {
+				this.id = option.id
+			}
+		},
+		onUnload() {
+			player.stop()
+		},
 		methods: {
 			choose(teacher_id) {
 				utils.request('POST', '/api/teacher', {

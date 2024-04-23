@@ -8,7 +8,7 @@
 				<view class="mt-8 relative">
 					<view class="mt-32 c-blue-1 font-semibold lh-30 fs-26 greeting ml-24">{{teacher.greeting}}</view>
 					<view class="flex gap-3">
-						<navigator url="/pages/home/teacher"
+						<navigator :url="'/pages/home/teacher?id=' + teacher.id"
 							class="mt-32 ml-24 fs-24 br-16 c-gray-2 bg-gray changeRole">更换角色
 						</navigator>
 						<view class="mt-32 p-12 br-16 voice-box" @click="greeting">

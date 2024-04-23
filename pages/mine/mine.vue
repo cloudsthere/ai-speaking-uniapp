@@ -30,15 +30,15 @@
 				<Progress :percent="member.available_minutes/member.total_minutes * 100" />
 			</view>
 			
-			<view v-if="member.is_member" class="member_banner relative">
-				<image class="member_banner w-full hp100" src="/static/icon-pro-banner.svg" />
+			<navigator v-if="member.is_member" url="/pages/home/price" class="member_banner relative">
+				<image class="member_banner w-full hp100" src="/static/icon-pro-banner.png" />
 				<view class="front w-full hp100 flex items-center" style="padding-left: 36rpx;">
 					<view class="flex flex-col">
-						<image class="banner-text" src="/static/icon-banner-text.svg" />
+						<image class="banner-text" src="/static/icon-banner-text.png" />
 						<view class="fs-20" style="color: #FA931C;">有效期至{{ member.expires_at }}</view>
 					</view>
 				</view>
-			</view>
+			</navigator>
 			<navigator v-else url="/pages/home/price">
 				<image class="member_banner" :src="domain + '/static/images/icon-banner.png'" />
 			</navigator>
@@ -105,6 +105,8 @@
 			utils.request('GET', '/api/member', {}, (res) => {
 				// console.log(res)
 				this.member = res.member
+				// dev
+				// this.member.is_member = true
 			})
 		},
 		onShareAppMessage(res) {

@@ -10,7 +10,7 @@
 			</view>
 			<view class="flex flex-col justify-end items-center flex-auto status-box">
 				<view class="flex flex-col justify-between items-center gap-24">
-					<image v-if="modelValue === 'listening'" class="w-128" src="/static/listening.png" />
+					<image v-if="modelValue === 'listening' && status !== 'thinking'" class="w-128" src="/static/listening.png" />
 					<text class="fs-28 c-blue-1 ">{{getStatusText(status, modelValue)}}</text>
 				</view>
 				<image @tap="hangUp" class="w-128" src="/static/icon-hangup.svg" />
@@ -71,6 +71,7 @@ export default {
 	width: 192rpx;
 	height: 128rpx;
 	justify-content: center;
+	border-radius: 24rpx 24rpx 24rpx 0;
 	box-shadow: 0rpx 0rpx 60rpx 0rpx rgba(241,241,241,0.6), 0rpx 4rpx 8rpx 0rpx rgba(241,241,241,0.3);
 }
 .mind image {

@@ -20,7 +20,8 @@
 				<view class="flex items-center no-shrink gap-16">
 					<view class="tag" :key="en_name.name" v-for="en_name in en_names">
 						<view class="" @click="selectEnName(en_name.name)">{{en_name.name}}</view>
-						<image @click="play(en_name)" class="w-32" src="/static/icon-voice-grey.svg" />
+						<image v-if="en_name.playing" class="w-32" src="/static/icon-voice-selected.png" />
+						<image v-else @click="play(en_name)" class="w-32" src="/static/icon-voice-grey.svg" />
 					</view>
 				</view>
 				
