@@ -1,10 +1,11 @@
 <template>
-	<teacherList ref="teacherList" @choose="choose"></teacherList>
+	<teacherList :defaultId="teacherId" ref="teacherList" @choose="choose"></teacherList>
 </template>
 
 <script>
 	import teacherList from '../component/teacherList.vue';
 	import utils from '@/common/utils.js';
+	import player from '@/common/player.js';
 
 	export default {
 		components: {
@@ -12,12 +13,17 @@
 		},
 		data() {
 			return {
-				conv_id: null
+				conv_id: null,
+				teacherId: null
 			}
 		},
 		onLoad(options) {
 			console.log(options)
 			this.conv_id = options.conv_id
+			this.teacherId = options.teacherId
+		},
+		onUnload() {
+			player.stop()
 		},
 		methods: {
 			choose(teacher_id) {

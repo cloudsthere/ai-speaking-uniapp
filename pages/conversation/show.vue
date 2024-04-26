@@ -267,6 +267,7 @@
 			this.cleanUp()
 		},
 		onUnload() {
+			this.stopPlay()
 			this.cleanUp()
 		},
 		onShareAppMessage(res) {

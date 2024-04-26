@@ -6,7 +6,7 @@
 		</view>
 		<view class="fs-24 c-gray-1">{{conv.brief}}</view>
 		<view class="mt-64 w-full">
-			<navigator :url="'/pages/conversation/teacher?conv_id=' + conv.id" class="cell flex items-center justify-between w-full box-border">
+			<navigator :url="'/pages/conversation/teacher?conv_id=' + conv.id + '&teacherId=' + conv.teacher.id" class="cell flex items-center justify-between w-full box-border">
 				<view class="flex items-center gap-16">
 					<image class="w-32" src="/static/icon-sound.svg" />
 					<text class="c-blue-1 font-semibold fs-28">声音</text>

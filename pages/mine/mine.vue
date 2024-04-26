@@ -106,7 +106,7 @@
 				// console.log(res)
 				this.member = res.member
 				// dev
-				// this.member.is_member = true
+				this.member.is_member = true
 			})
 		},
 		onShareAppMessage(res) {
@@ -198,9 +198,10 @@
 	}
 	
 	.banner-text {
-		width: 174rpx;
-		height: 40rpx;
-		margin-bottom: 12rpx;
+		width: 168rpx;
+		height: 33rpx;
+		margin-bottom: 18rpx;
+		flex-shrink: 0;
 	}
 	
 	.tag {
