@@ -42,15 +42,15 @@
 				<template v-slot:content>
 					<navigator :url="'/pages/conversation/show?conv_id=' + conv.id">
 						<tui-list-cell unlined :arrow="false" padding="24rpx 32rpx" :backgroundColor="(conv.is_primary || conv.sort > 0) ? '#FAFAFA' : '#fff'">
-							<view class="flex justify-between items-center">
-								<view class="flex">
-									<img class="avatar br-24" :src="conv.avatar" />
-									<view class="cell-title">
-										<view class="font-semibold fs-32">{{conv.name}}</view>	
-										<view class="cell-brief mt-8 c-gray-1">{{conv.brief}}</view>
+							<view class="flex justify-between items-center w-full gap-3">
+								<view class="flex overflow-hidden">
+									<img class="avatar br-24 flex-fixed" :src="conv.agent.avatar" />
+									<view class="cell-title overflow-hidden">
+										<view class="font-semibold fs-32">{{conv.agent.name}}</view>	
+										<view class="cell-brief mt-8 c-gray-1 text-ellipsis  overflow-hidden">{{conv.agent.subtitle}}</view>
 									</view>
 								</view>
-								<image class="btn-icon" src="/static/icon-phone.svg" @click.stop.prevent="call(conv.id)"/>
+								<image class="btn-icon flex-fixed" src="/static/icon-phone.svg" @click.stop.prevent="call(conv.id)"/>
 							</view>
 						</tui-list-cell>
 					</navigator>

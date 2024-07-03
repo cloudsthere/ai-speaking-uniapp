@@ -4,7 +4,7 @@
 			<template v-for="message in messages" :key="message.id">
 				<view class="c-gray-1 text-center fs-22">{{message.date}}</view>
 				<view class="session ai-session" v-if="message.role == 'assistant'">
-					<image class="avatar" :src="conv.avatar" />
+					<image class="avatar" :src="agent.avatar" />
 					<view class="message-box assistant-box">
 						<view class="message-text c-blue-1 fs-30" :class="message.filter ? 'filter' : ''" @tap="cancelFilter(message)">
 
@@ -58,7 +58,7 @@
 			<view class="session ai-session" v-if="status == 'thinking'">
 				<image class="avatar" :src="conv.avatar" />
 				<view class="message-box twinkling">
-					<view class="message-text">思考中...</view>
+					<view class="message-text">...</view>
 				</view>
 				<view class="placeholder"></view>
 			</view>
@@ -202,6 +202,7 @@
 					avatar: ''
 				},
 				messages: [],
+				agent: {},
 				// recording: false,
 				recoManager: null,
 				voice_file: null,
@@ -309,7 +310,8 @@
 					}
 					
 					this.messages = res.messages
-					console.log(this.messages)
+					this.agent = res.agent
+					// console.log(this.messages)
 					// console.log(that.messages[0])
 				
 					uni.setNavigationBarTitle({
