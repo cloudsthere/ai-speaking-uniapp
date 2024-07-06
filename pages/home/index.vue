@@ -1,9 +1,20 @@
 <template>
+	<!--
 	<page-meta>
 		<tui-navigation-bar transparent title="发现" color="#000"></tui-navigation-bar>
 	</page-meta>
-	<scroll-view scroll-y :style="{position: 'absolute', top: height + 'px', height: `calc(100% - ${height}px)`}" >
-		<view class="main p-h-32">
+	-->
+	<view class="px-4 mb-2 mt-2">
+		<uni-easyinput v-model="q" @confirm="search" @clear="clear" prefixIcon="search" placeholder="搜索" confirmType="搜索" primaryColor="#7098e8" :trim="true" ></uni-easyinput>
+
+	</view>
+	<navigator url="/pages/home/create" class="flex gap-1 justify-center items-center fs-30 font-medium  rounded-xl mx-4 my-2 py-2 bg-primary ">
+		<uni-icons type="plus"></uni-icons>
+		<text>创建角色</text>
+	</navigator>
+	<scroll-view scroll-y>
+		<view class="main px-4">
+			<!--
 			<view class="flex">
 				<view class="mt-8 relative">
 					<view class="mt-32 c-blue-1 font-semibold lh-30 fs-26 greeting ml-24">{{teacher.greeting}}</view>
@@ -23,29 +34,71 @@
 					<image class="teacher-avatar rounded-half" :src="teacher.avatar_pic" mode=""></image>
 				</view>
 			</view>
-			<view class="c-blue-1 section-title font-semibold">
-				场景
-			</view>
-			<view class="content">
-				<navigator
-					:url="'/pages/conversation/show?agent_id=' + agent.id"
-					v-for="(agent, agent_index) in agents"
-					:key="agent_index"
-				>
-					<view class="p-24 scene-card">
-						<view class="name flex justify-between">
-							<view class="c-blue-1 fs-30 font-semibold">{{agent.name}}</view>
-							<image v-if="agent.isPlaying" class="voice-icon" src="/static/icon-voice-selected.png" />
-							<image v-else class="voice-icon" src="/static/icon-voice-grey.svg" @tap.stop="playSceneVoice(agent)" />
-						</view>
-						<view class="brief c-gray-1 fs-24">
-							<view>{{agent.brief}}</view>
-						</view>
-						<view class="flex justify-end">
-							<image class="scene-img br-24" :src="agent.avatar" mode=""></image>
-						</view>
+			-->
+			<view class="content justify-center">
+				<view v-if="loading" class="m-auto mt-4 animate-spin" >
+					<uni-icons type="loop" class=""></uni-icons>
+				</view>
+				<template v-else>
+					<view v-if="agents.length == 0" class="flex gap-1 justify-center items-center mt-4">
+						<uni-icons type="info-filled"></uni-icons>
+						<text>没有找到...</text>
 					</view>
-				</navigator>
+					<tui-list-view v-else unlined="all" backgroundColor="#fff" style="width: 100%;">
+						<tui-swipe-action v-for="agent in agents" :key="agent.id" :actions="[
+								{
+									color: '#fff',
+									fontsize: 32,
+									width: 56,
+									imgWidth: 48,
+									imgHeight: 48,
+									icon: agent.sort > 0 ? '/static/icon-pin-cancel.svg' : '/static/icon-pin.svg',
+									background: '#FF8741',
+								},{
+									color: '#fff',
+									fontsize: 32,
+									width: 56,
+									imgWidth: 48,
+									imgHeight: 48,
+									icon: '/static/icon-delete.svg',
+									background: '#FF5661'
+							 }]" @click="(param) => handleSwiperBtn(agent, param)">
+							<template v-slot:content>
+								<navigator :url="'/pages/conversation/show?agent_id=' + agent.id" class="bg-primary">
+									<tui-list-cell unlined :arrow="false" padding="24rpx 32rpx"
+										:backgroundColor="(agent.is_primary || agent.sort > 0) ? '#FAFAFA' : '#fff'">
+										<view
+											class="flex justify-between items-center w-full gap-3 py-2 px-2 box-border mb-2">
+											<view class="flex overflow-hidden w-full items-center">
+												<img class="avatar br-24 flex-fixed" :src="agent.avatar" />
+												<view class="cell-title overflow-hidden flex gap-1 flex-col">
+													<view class="font-semibold fs-32">{{agent.name}}</view>
+													<view
+														class="cell-brief c-gray-1 text-ellipsis fs-26 overflow-hidden whitespace-nowrap">
+														{{agent.subtitle}}
+													</view>
+													<view class="flex gap-3 fs-20 c-gray-3">
+														<view>@{{agent.creator.name}}</view>
+														<view class="flex gap-1 items-center" v-if="agent.chat">
+															<uni-icons type="chatboxes-filled" size="12"></uni-icons>
+															<text>{{agent.chat}}</text>
+														</view>
+														<view class="flex gap-1 items-center" v-if="agent.like">
+															<uni-icons type="hand-up-filled" size="12"></uni-icons>
+															<text>{{agent.like}}</text>
+														</view>
+													</view>
+												</view>
+											</view>
+											<!-- <image class="btn-icon flex-fixed" src="/static/icon-phone.svg" @click.stop.prevent="call(agent.id)"/> -->
+										</view>
+									</tui-list-cell>
+								</navigator>
+							</template>
+						</tui-swipe-action>
+					</tui-list-view>
+				</template>
+				
 			</view>
 		</view>
 	</scroll-view>
@@ -66,23 +119,13 @@
 				// scenes: [],
 				agents: [],
 				teacher: {},
-				is_greeting: false
+				is_greeting: false,
+				q: '',
+				loading: false
 			}
 		},
 		onShow() {
-			var that = this
-			utils.request('GET', '/api/agent', {}, (res) => {
-				that.agents = res.agents
-				that.teacher = res.teacher
-			})
-		},
-		onReady() {
-			uni.getSystemInfo({
-				success: (e) => {
-					let custom = uni.getMenuButtonBoundingClientRect();
-					this.height = custom.height + custom.top  * 2 - e.statusBarHeight + 4;
-				}
-			})
+			this.query()
 		},
 		onShareAppMessage(res) {
 			return utils.share()
@@ -107,16 +150,38 @@
 						scene.isPlaying = false
 					})
 				})
+			},
+			search() {
+				// console.log('search')
+				if (!this.q) {
+					return
+				}
+				this.query()
+			},
+			clear() {
+				console.log('clear')
+				this.q = ''
+				this.query()
+			},
+			query() {
+					var that = this
+					this.loading = true
+					utils.request('GET', `/api/agent`, {q: this.q}, (res) => {
+						console.log(res)
+						this.loading = false
+						that.agents = res.agents
+					})
 			}
 		}
 	}
 </script>
 
 <style scoped>
->>> .tui-navigation-bar {
+	>>>.tui-navigation-bar {
 		overflow: hidden;
 	}
->>>	.tui-navigation-bar .tui-navigation_bar-title {
+
+	>>>.tui-navigation-bar .tui-navigation_bar-title {
 		font-size: 32rpx;
 		font-family: PingFang SC, PingFang SC;
 		font-weight: 600;
@@ -125,11 +190,10 @@
 
 <style lang="scss">
 	page {
-		height: 375rpx; 
-		background-image: url(~@/static/chat-bg.jpg);
-		background-size: 100% auto;
-		background-repeat: no-repeat
+		height: 100%;
+
 	}
+
 	.bg {
 		position: absolute;
 		top: 0;
@@ -137,65 +201,63 @@
 		width: 100%;
 		z-index: -1;
 	}
-	
+
 	.bg-text {
 		width: 96rpx;
 		height: 78rpx;
 	}
-	
+
 	.greeting {
 		font-family: PingFang SC, PingFang SC;
 		width: 398rpx;
 		line-height: 36rpx;
 	}
-	
+
 	.voice-box {
 		display: flex;
 		background: linear-gradient(40deg, #1CD1AD 0%, #39E9C6 100%);
 	}
+
 	.voice {
 		width: 28rpx;
 		height: 28rpx;
 	}
-	
+
 	.changeRole {
 		padding: 8rpx 24rpx;
 	}
-	
+
 	.teacher-avatar {
 		width: 208rpx;
 		height: 208rpx;
 	}
-	
+
 	.section-title {
 		margin-top: 48rpx;
 		margin-bottom: 46rpx;
 		margin-left: 24rpx;
 	}
-	
+
 	.voice-icon {
 		width: 32rpx;
 		height: 32rpx;
 	}
-	
+
 	.scene-img {
 		width: 80rpx;
 		height: 80rpx;
 	}
-	
+
 	.content {
 		display: flex;
 		align-items: stretch;
 		flex-wrap: wrap;
 
 		navigator {
-			flex-basis: calc(50% - 10px);
 			/* 50%宽度减去间距 */
-			margin: 5px;
-			background-color: #fff;
 			border-radius: 24rpx;
 			/* 间距 */
-			box-shadow: 0rpx 0rpx 60rpx 0rpx rgba(241,241,241,0.6), 0rpx 4rpx 8rpx 0rpx rgba(241,241,241,0.3);
+			box-shadow: 0rpx 0rpx 60rpx 0rpx rgba(241, 241, 241, 0.6), 0rpx 4rpx 8rpx 0rpx rgba(241, 241, 241, 0.3);
 		}
 	}
 
@@ -234,4 +296,19 @@
 			margin-bottom: 26rpx;
 		}
 	}
+
+	.avatar {
+		width: 96rpx;
+		height: 96rpx;
+		margin-right: 24rpx
+	}
+
+	.tui-list-item {
+		padding: 40rpx 30rpx;
+		display: flex;
+		align-items: center;
+		box-sizing: border-box;
+	}
+
+
 </style>

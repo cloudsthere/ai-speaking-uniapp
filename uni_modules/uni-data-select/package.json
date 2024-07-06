@@ -1,17 +1,18 @@
 {
-  "id": "uni-icons",
-  "displayName": "uni-icons 图标",
-  "version": "2.0.10",
-  "description": "图标组件，用于展示移动端常见的图标，可自定义颜色、大小。",
+  "id": "uni-data-select",
+  "displayName": "uni-data-select 下拉框选择器",
+  "version": "1.0.8",
+  "description": "通过数据驱动的下拉框选择器",
   "keywords": [
     "uni-ui",
-    "uniui",
-    "icon",
-    "图标"
+    "select",
+    "uni-data-select",
+    "下拉框",
+    "下拉选"
 ],
   "repository": "https://github.com/dcloudio/uni-ui",
   "engines": {
-    "HBuilderX": "^3.2.14"
+    "HBuilderX": "^3.1.1"
   },
   "directories": {
     "example": "../../temps/example_temps"
@@ -37,7 +38,7 @@
     "type": "component-vue"
   },
   "uni_modules": {
-    "dependencies": ["uni-scss"],
+    "dependencies": ["uni-load-more"],
     "encrypt": [],
     "platforms": {
       "cloud": {
@@ -47,9 +48,8 @@
       },
       "client": {
         "App": {
-          "app-vue": "y",
-          "app-nvue": "y",
-          "app-uvue": "y"
+          "app-vue": "u",
+          "app-nvue": "n"
         },
         "H5-mobile": {
           "Safari": "y",
@@ -66,18 +66,15 @@
         },
         "小程序": {
           "微信": "y",
-          "阿里": "y",
-          "百度": "y",
-          "字节跳动": "y",
-          "QQ": "y",
-					"钉钉": "y",
-					"快手": "y",
-					"飞书": "y",
-					"京东": "y"
+          "阿里": "u",
+          "百度": "u",
+          "字节跳动": "u",
+        "QQ": "u",
+        "京东": "u"
         },
         "快应用": {
-          "华为": "y",
-          "联盟": "y"
+          "华为": "u",
+          "联盟": "u"
         },
         "Vue": {
             "vue2": "y",

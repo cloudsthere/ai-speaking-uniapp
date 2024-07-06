@@ -280,7 +280,7 @@
 		methods: {
 			init() {
 				var method = 'GET'
-				var url = '/api/conversation/' + this.options.conv_id
+				var url = '/api/conversation/' + this.options.agent_id
 				var data = {}
 				if (this.options.agent_id) {
 					method = 'POST'

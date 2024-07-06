@@ -1,17 +1,18 @@
 {
-  "id": "uni-icons",
-  "displayName": "uni-icons 图标",
-  "version": "2.0.10",
-  "description": "图标组件，用于展示移动端常见的图标，可自定义颜色、大小。",
+  "id": "uni-easyinput",
+  "displayName": "uni-easyinput 增强输入框",
+  "version": "1.1.18",
+  "description": "Easyinput 组件是对原生input组件的增强",
   "keywords": [
     "uni-ui",
     "uniui",
-    "icon",
-    "图标"
+    "input",
+    "uni-easyinput",
+    "输入框"
 ],
   "repository": "https://github.com/dcloudio/uni-ui",
   "engines": {
-    "HBuilderX": "^3.2.14"
+    "HBuilderX": ""
   },
   "directories": {
     "example": "../../temps/example_temps"
@@ -37,7 +38,10 @@
     "type": "component-vue"
   },
   "uni_modules": {
-    "dependencies": ["uni-scss"],
+    "dependencies": [
+			"uni-scss",
+      "uni-icons"
+    ],
     "encrypt": [],
     "platforms": {
       "cloud": {
@@ -48,8 +52,7 @@
       "client": {
         "App": {
           "app-vue": "y",
-          "app-nvue": "y",
-          "app-uvue": "y"
+          "app-nvue": "y"
         },
         "H5-mobile": {
           "Safari": "y",
@@ -69,15 +72,11 @@
           "阿里": "y",
           "百度": "y",
           "字节跳动": "y",
-          "QQ": "y",
-					"钉钉": "y",
-					"快手": "y",
-					"飞书": "y",
-					"京东": "y"
+          "QQ": "y"
         },
         "快应用": {
-          "华为": "y",
-          "联盟": "y"
+          "华为": "u",
+          "联盟": "u"
         },
         "Vue": {
             "vue2": "y",
