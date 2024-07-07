@@ -152,6 +152,13 @@
 			{
 				"navigationBarTitleText" : "AI头像"
 			}
+		},
+		{
+			"path" : "pages/voice/create",
+			"style" : 
+			{
+				"navigationBarTitleText" : "创建声音"
+			}
 		}
 
 	],

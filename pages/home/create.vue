@@ -107,7 +107,7 @@
 							name: 'avatar',
 							success: (uploadFileRes) => {
 								let avatar = JSON.parse(uploadFileRes.data);
-								console.log(avatar)
+								// console.log(avatar)
 								that.avatar_url = avatar.url
 								that.avatar_path = avatar.path
 								that.$refs.avatar.close()
