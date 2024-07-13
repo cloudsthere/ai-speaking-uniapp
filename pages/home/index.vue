@@ -8,7 +8,7 @@
 		<uni-easyinput v-model="q" @confirm="search" @clear="clear" prefixIcon="search" placeholder="搜索" confirmType="搜索" primaryColor="#7098e8" :trim="true" ></uni-easyinput>
 
 	</view>
-	<navigator url="/pages/home/create" class="flex gap-1 justify-center items-center fs-30 font-medium  rounded-xl mx-4 my-2 py-2 bg-primary ">
+	<navigator url="/pages/agent/create" class="flex gap-1 justify-center items-center fs-30 font-medium  rounded-xl mx-4 my-2 py-2 bg-primary ">
 		<uni-icons type="plus"></uni-icons>
 		<text>创建角色</text>
 	</navigator>
@@ -78,7 +78,8 @@
 														{{agent.subtitle}}
 													</view>
 													<view class="flex gap-3 fs-20 c-gray-3">
-														<view>@{{agent.creator.name}}</view>
+														<view v-if="agent.created_by == 'user'">@{{agent.creator.name}}</view>
+														<view v-else>@MateAI</view>
 														<view class="flex gap-1 items-center" v-if="agent.chat">
 															<uni-icons type="chatboxes-filled" size="12"></uni-icons>
 															<text>{{agent.chat}}</text>

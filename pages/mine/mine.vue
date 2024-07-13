@@ -61,6 +61,20 @@
 				</view>
 			</navigator>
 			
+			<navigator url="/pages/agent/index" class="cell flex justify-between">
+				<text class="c-blue-1 fs-28 font-semibold">我的角色</text>
+				<view class="flex gap-16 items-center">
+					<image class="w-32" src="/static/icon-rightarrow.svg" />
+				</view>
+			</navigator>
+			
+			<navigator url="/pages/voice/index" class="cell flex justify-between">
+				<text class="c-blue-1 fs-28 font-semibold">我的声音</text>
+				<view class="flex gap-16 items-center">
+					<image class="w-32" src="/static/icon-rightarrow.svg" />
+				</view>
+			</navigator>
+			
 			<view v-if="user" @tap="showLogout" class="cell flex justify-between">
 				<text class="c-blue-1 fs-28 font-semibold">退出登录</text>
 				<view class="flex gap-16 items-center">

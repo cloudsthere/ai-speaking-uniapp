@@ -50,12 +50,12 @@
     "quickapp" : {},
     /* 小程序特有相关 */
     "mp-weixin" : {
-        "appid" : "wxb78c1f6104c6ba2e",
+        "appid" : "wx1567fea61862b54c",
         "setting" : {
             "urlCheck" : false,
             "minified" : true
         },
-		"lazyCodeLoading": "requiredComponents",
+        "lazyCodeLoading" : "requiredComponents",
         "usingComponents" : true,
         "plugins" : {
             "WechatSI" : {

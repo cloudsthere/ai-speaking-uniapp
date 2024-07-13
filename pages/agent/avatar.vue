@@ -42,7 +42,7 @@
 			confirm() {
 				let avatar = this.avatars[this.selected]
 				uni.navigateTo({
-					url: `/pages/home/create?avatar_path=${avatar.path}&avatar_url=${avatar.url}`,
+					url: `/pages/agent/create?avatar_path=${avatar.path}&avatar_url=${avatar.url}`,
 				})
 			},
 			generate() {
