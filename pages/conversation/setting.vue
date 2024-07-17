@@ -1,22 +1,27 @@
 <template>
 	<view class="bg-white flex flex-col items-center setting" v-if="conv">
-		<image class="rounded-half avatar" :src="conv.avatar"></image>
+		<image class="rounded-lg avatar" :src="conv.agent.avatar"></image>
 		<view class="c-blue-1 name">
-			{{conv.name}}
+			{{conv.agent.name}}
 		</view>
-		<view class="fs-24 c-gray-1">{{conv.brief}}</view>
+		<view class="text-xs text-sky-500">
+			由 {{conv.agent.created_by == 'system' ? 'MateAI' : conv.agent.creator.name}} 创建
+		</view>
+		<view class="fs-24 c-gray-1">{{conv.agent.subtitle}}</view>
 		<view class="mt-64 w-full">
-			<navigator :url="'/pages/conversation/teacher?conv_id=' + conv.id + '&teacherId=' + conv.teacher.id" class="cell flex items-center justify-between w-full box-border">
+			<!--
+			<navigator :url="'/pages/conversation/teacher?conv_id=' + conv.id + '&teacherId=' + conv.agent.id" class="cell flex items-center justify-between w-full box-border">
 				<view class="flex items-center gap-16">
 					<image class="w-32" src="/static/icon-sound.svg" />
 					<text class="c-blue-1 font-semibold fs-28">声音</text>
 				</view>
 				<view class="flex items-center gap-16">
-					<text class="c-blue-1 fs-28">{{conv.teacher.name}}</text>
+					<text class="c-blue-1 fs-28">{{conv.agent.name}}</text>
 					<image class="w-32" src="/static/icon-rightarrow.svg" />
 				</view>
 			</navigator>
-			<navigator @tap="clear" class="cell flex items-center justify-between w-full box-border">
+			-->
+			<view @tap="clear" class="cell flex items-center justify-between w-full box-border">
 				<view class="flex items-center gap-16">
 					<image class="w-32" src="/static/icon-clean.svg" />
 					<text class="c-blue-1 font-semibold fs-28">清除上下文</text>
@@ -24,7 +29,7 @@
 				<view class="flex items-center gap-16">
 					<image class="w-32" src="/static/icon-rightarrow.svg" />
 				</view>
-			</navigator>
+			</view>
 		</view>
 	</view>
 </template>

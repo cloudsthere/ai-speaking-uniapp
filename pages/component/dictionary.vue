@@ -2,7 +2,7 @@
 	<uni-popup ref="popup" type="bottom" @change="change">
 		<view class="bg-white" style="border-radius: 20rpx 20rpx 0 0;">
 			<view class="w-full flex items-center justify-between header-box" style="gap: 28rpx">
-				<uni-search-bar ref="search" class="flex-grow br-16" :class="!!query ? 'input' : 'placeholder'" bgColor="#FAFAFA" :focus="false" cancelButton="none" placeholder="查询中文或英文" @confirm="search(query.trim())" @input="suggest">
+				<uni-search-bar ref="search" v-model="query" class="flex-grow br-16" :class="!!query ? 'input' : 'placeholder'" bgColor="#FAFAFA" :focus="false" cancelButton="none" placeholder="查询中文或英文" @confirm="search(query.trim())" @input="suggest">
 					<template v-slot:searchIcon>
 						<uni-icons v-if="query_stack.length > 1" @click="back" color="#353E50" class="w-32" type="arrow-left" />
 						<uni-icons v-else class="w-32" type="search" />
@@ -173,6 +173,7 @@
 				this.suggestions = []
 				this.query_stack = []
 				this.$refs.popup.open()
+				// console.log('showSearch', this.query)
 			},
 			back() {
 				let query = this.query_stack.pop()

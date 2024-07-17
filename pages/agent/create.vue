@@ -37,8 +37,8 @@
 
 	<uni-popup ref="avatar" type="bottom" safeArea backgroundColor="#fff">
 		<tui-list-view title="">
-			<tui-list-cell>
-				<navigator url="/pages/agent/avatar" class="text-center">AI生成</navigator>
+			<tui-list-cell @click="generateAvatar">
+				<view  class="text-center">AI生成</view>
 			</tui-list-cell>
 			<tui-list-cell @click="selectFromLocal">
 				<view class="text-center">相册上传</view>
@@ -113,7 +113,18 @@
 					that.form.voice_name = res.agent.voice.name
 				})
 			} else {
-				this.form = uni.getStorageSync('create_form') || default_form
+				// console.log(uni.getStorageSync('create_form_time'))
+				let create_form_time = uni.getStorageSync('create_form_time')
+				// console.log(create_form_time instanceof Date)
+				// console.log((new Date).getTime() - create_form_time.getTime())
+				if (create_form_time instanceof Date && (new Date).getTime() - create_form_time.getTime() < 600 * 1000) {
+					this.form = uni.getStorageSync('create_form') || default_form
+					
+				} else {
+					this.form = default_form
+					uni.removeStorageSync('create_form')
+					uni.removeStorageSync('create_form_time')
+				}
 			}
 
 
@@ -130,9 +141,15 @@
 		},
 		onHide() {
 			uni.setStorageSync('create_form', this.form)
+			uni.setStorageSync('create_form_time', new Date)
 		},
 		onShow() {},
 		methods: {
+			generateAvatar() {
+				uni.navigateTo({
+					url: '/pages/agent/avatar'
+				})
+			},
 			openAvatar() {
 				this.$refs.avatar.open('bottom')
 			},
@@ -195,7 +212,8 @@
 				}, (res) => {
 					// console.log(res)
 					that.is_submitting = false
-					uni.clearStorageSync('create_form')
+					uni.removeStorageSync('create_form')
+					uni.removeStorageSync('create_form_time')
 					uni.showToast({
 						title: '保存成功'
 					})

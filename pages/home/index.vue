@@ -8,10 +8,10 @@
 		<uni-easyinput v-model="q" @confirm="search" @clear="clear" prefixIcon="search" placeholder="搜索" confirmType="搜索" primaryColor="#7098e8" :trim="true" ></uni-easyinput>
 
 	</view>
-	<navigator url="/pages/agent/create" class="flex gap-1 justify-center items-center fs-30 font-medium  rounded-xl mx-4 my-2 py-2 bg-primary ">
+	<view @click="createAgent"  class="flex gap-1 justify-center items-center fs-30 font-medium  rounded-xl mx-4 my-2 py-2 bg-primary ">
 		<uni-icons type="plus"></uni-icons>
 		<text>创建角色</text>
-	</navigator>
+	</view>
 	<scroll-view scroll-y>
 		<view class="main px-4">
 			<!--
@@ -125,7 +125,7 @@
 				loading: false
 			}
 		},
-		onShow() {
+		onLoad() {
 			this.query()
 		},
 		onShareAppMessage(res) {
@@ -135,6 +135,15 @@
 			return utils.share()
 		},
 		methods: {
+			createAgent() {
+				if (!utils.getUser()) {
+					utils.loginFirst()
+					return;
+				}
+				uni.navigateTo({
+					url: '/pages/agent/create'
+				})
+			},
 			greeting() {
 				player.sound(this.teacher.audio, () => {
 					this.is_greeting = false

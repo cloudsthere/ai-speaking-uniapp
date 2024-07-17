@@ -4,21 +4,27 @@
 			<template v-for="message in messages" :key="message.id">
 				<view class="c-gray-1 text-center fs-22">{{message.date}}</view>
 				<view class="session ai-session" v-if="message.role == 'assistant'">
-					<image class="avatar" :src="agent.avatar" />
-					<view class="message-box assistant-box">
-						<view class="message-text c-blue-1 fs-30" :class="message.filter ? 'filter' : ''" @tap="cancelFilter(message)">
+					<image @click="toSetting" class="avatar rounded-lg" :src="agent.avatar" />
 
-							<words :words="message.words" @lookup="(w) => lookup(w, message)"></words>
+					<view class="message-box assistant-box">
+						<view class="message-text c-blue-1 fs-30">
+
+							<words :text="message.content" @lookup="(w) => lookup(w, message)"></words>
 
 						</view>
 						<view class="message-dashboard">
 							<view>
-								<image v-if="message.addition === 'translate'" @tap="translate(message)" class="w-40 mr-32" src="/static/icon-translate-selected.svg" />
-								<image v-else @tap="translate(message)" class="w-40 mr-32" src="/static/icon-translate-normal.svg" />
-								<image v-if="message.addition === 'recommend'" @tap="recommend(message)" class="w-40" src="/static/icon-aireply-selected.svg" />
-								<image v-else class="w-40" @tap="recommend(message)" src="/static/icon-aireply-normal.svg" />
+								<image v-if="message.addition === 'translate'" @tap="translate(message)"
+									class="w-40 mr-32" src="/static/icon-translate-selected.svg" />
+								<image v-else @tap="translate(message)" class="w-40 mr-32"
+									src="/static/icon-translate-normal.svg" />
+								<image v-if="message.addition === 'recommend'" @tap="recommend(message)" class="w-40"
+									src="/static/icon-aireply-selected.svg" />
+								<image v-else class="w-40" @tap="recommend(message)"
+									src="/static/icon-aireply-normal.svg" />
 							</view>
-							<image v-if="message.playing" @tap="switchPlay(message)" class="w-40" src="/static/icon-play.png" />
+							<image v-if="message.playing" @tap="switchPlay(message)" class="w-40"
+								src="/static/icon-play.png" />
 							<image v-else @tap="switchPlay(message)" class="w-40" src="/static/icon-play.svg" />
 						</view>
 						<view class="addition" v-show="message.addition == 'translate'">
@@ -26,7 +32,7 @@
 						</view>
 						<view class="addition" v-show="message.addition == 'recommend'">
 							<view v-if="message.recommend">
-								<words :words="message.recommend.words" @lookup="lookup"></words>
+								<words :text="message.recommend.content" @lookup="lookup"></words>
 							</view>
 							<view class="text-center" v-show="!message.recommends">
 								<view class="animate-spin">
@@ -38,25 +44,32 @@
 					<view class="placeholder"></view>
 				</view>
 				<view class="session user-session" v-if="message.role == 'user'">
-					<image class="avatar" :src="user.avatar ?? '/static/default_avatar.jpg'" mode=""></image>
+					<image class="avatar rounded-lg" :src="user.avatar ?? '/static/default_avatar.jpg'" mode=""></image>
 					<view class="message-box user-box flex-auto">
-						<view class="message-text c-blue-1 fs-30" :class="message.filter ? 'filter' : ''" @tap="cancelFilter(message)">
+						<view class="message-text c-blue-1 fs-30">
 							<!-- <words :words="message.words" @lookup="lookup"></words> -->
 							{{message.content}}
 						</view>
 
 						<view class="message-dashboard justify-between">
-							<image v-if="message.playing" @tap="switchPlay(message)" class="w-40" src="/static/icon-replay-playing.svg" />
-							<image v-else @tap="switchPlay(message)" class="w-40" src="/static/icon-replay-normal.svg" />
-							<image v-show="message.aiPlaying" @tap="aiPlay(message)" class="w-40" src="/static/icon-play.png" />
-							<image v-show="!message.aiPlaying" @tap="aiPlay(message)" class="w-40" src="/static/icon-play.svg" />
+							<template v-if="message.audio">
+								<image v-if="message.playing" @tap="switchPlay(message)" class="w-40"
+									src="/static/icon-replay-playing.svg" />
+								<image v-else @tap="switchPlay(message)" class="w-40"
+									src="/static/icon-replay-normal.svg" />
+							</template>
+							<view v-else class="placeholder"></view>
+							<image v-show="message.reading" @tap="switchPlay(message, 'reading')" class="w-40"
+								src="/static/icon-play.png" />
+							<image v-show="!message.reading" @tap="switchPlay(message, 'reading')" class="w-40"
+								src="/static/icon-play.svg" />
 						</view>
 					</view>
-					<view class="placeholder"></view>	
+					<view class="placeholder"></view>
 				</view>
 			</template>
 			<view class="session ai-session" v-if="status == 'thinking'">
-				<image class="avatar" :src="conv.avatar" />
+				<image class="avatar rounded-lg" :src="agent.avatar" />
 				<view class="message-box twinkling">
 					<view class="message-text">...</view>
 				</view>
@@ -68,50 +81,58 @@
 		</view>
 		<view class="dashboard event-none">
 			<view class="mb-24 p-h-32 gap-16 event-auto" style="display: inline-flex;">
+				<!--
 				<navigator :url="'/pages/conversation/setting?conv_id=' + conv.id" class="extra-btn fs-26">
 					<image src="/static/emoji-setting.png" style="width: 26rpx; height: 26rpx" /> 设置
 				</navigator>
-				
+				-->
+
 				<view class="extra-btn fs-26" @click="showSearch">
 					<image src="/static/emoji-search.png" style="width: 26rpx; height: 26rpx" /> 查词
 				</view>
 			</view>
-			<view v-if="status === 'recording'" class="event-auto flex items-center input-bottom bg-white recording justify-center gap-24">
+			<view v-if="status === 'recording'"
+				class="event-auto flex items-center input-bottom bg-white recording justify-center gap-24">
 				<image src="/static/voice-effect.png" style="width: 80rpx; height: 80rpx" /> 松手发送
 			</view>
-				
+
 			<view v-else-if="mode === 'chat'" class="event-auto flex items-center input-bottom bg-white">
 				<image @tap="call" class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-phone.svg" />
 				<view class="button-wapper flex-auto">
 					<view class="btn-speak border-none c-blue-1 font-semibold fs-32" @longpress="handleRecordStart"
 						@touchend="handleRecordStop">按住说话</view>
 				</view>
-				<image @tap="switchMode" class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-keyboard.svg" />
+				<image @tap="switchMode" class="no-shrink" style="width: 56rpx; height: 56rpx"
+					src="/static/icon-keyboard.svg" />
 			</view>
-				
+
 			<view v-else class="event-auto flex items-center input-bottom bg-white">
 				<view class="button-wapper flex-auto">
-					<textarea auto-height @keyup.enter="sendText" type="text" :value="text" @input="handleInput" placeholder="发消息..."
-							class="fs-28 keyboard-text"  />
+					<textarea auto-height @keyup.enter="sendText" type="text" :value="text" @input="handleInput"
+						placeholder="发消息..." class="fs-28 keyboard-text" />
 				</view>
-				<image v-if="!!text" @tap="sendText" class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-send.svg" />
-				<image v-else @tap="switchMode" class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-voice.svg" />
+				<image v-if="!!text" @tap="sendText" class="no-shrink" style="width: 56rpx; height: 56rpx"
+					src="/static/icon-send.svg" />
+				<image v-else @tap="switchMode" class="no-shrink" style="width: 56rpx; height: 56rpx"
+					src="/static/icon-voice.svg" />
 			</view>
-			
-			<view class="bg-white"  :style="{paddingBottom: bottom + 'rpx'}"></view>
+
+			<view class="bg-white" :style="{paddingBottom: bottom + 'rpx'}"></view>
 		</view>
 	</view>
 	<dictionary ref="dictionary"></dictionary>
-	<telephone-link v-if="mode === 'phone'" v-model="phone_status" :status="status" :avatar="conv.avatar" @hangUp="hangUp" />
-	<tui-modal v-if="status == 'halt'" :show="status == 'halt'" custom padding="64rpx 80rpx 32rpx" width="604rpx" radius="32rpx">
+	<telephone-link v-if="mode === 'phone'" v-model="phone_status" :status="status" :avatar="agent.avatar"
+		@hangUp="hangUp" />
+	<tui-modal v-if="status == 'halt'" :show="status == 'halt'" custom padding="64rpx 80rpx 32rpx" width="604rpx"
+		radius="32rpx">
 		<view class="flex flex-col items-center lh-56">
 			<text class="c-blue-1 fs-32 font-semibold">课时已使用完啦</text>
 			<text class="c-blue-1 fs-32 font-semibold">升级Pro会员，畅享AI无限对话</text>
-			
+
 			<navigator url="/pages/home/price" class="upgrade flex items-center justify-center c-white">
 				立即升级
 			</navigator>
-			
+
 			<text class="fs-24 c-gray-1" @tap="goBack">暂时不用</text>
 		</view>
 	</tui-modal>
@@ -131,6 +152,9 @@
 	const API_SECRET = "MzYzZjM2OGQ2NWU0ZTI4YjdmODNlYTNh";
 	const API_KEY = "ca3a1899fffbe04843f348fcdf77e12b";
 	const recorder_duration = 60000
+	const innerAudioContext = uni.createInnerAudioContext({
+		obeyMuteSwitch: false,
+	});
 
 	var iatParams = function(status, audio) {
 		var params = {
@@ -220,12 +244,13 @@
 				audioSource: null,
 				user: utils.getUser(),
 				bottom: getApp().globalData.safeBottom,
-				
+
 				cd: {},
 				conv_id: "",
 			}
 		},
 		onLoad(options) {
+			// console.log(options)
 			uni.authorize({
 				scope: 'scope.record',
 				success() {
@@ -258,8 +283,8 @@
 			this.audioCtx = wx.createWebAudioContext()
 			this.audioSource = this.audioCtx.createBufferSource()
 			this.options = options
-			
-			
+
+
 		},
 		onShow() {
 			this.init()
@@ -279,47 +304,48 @@
 		},
 		methods: {
 			init() {
-				var method = 'GET'
-				var url = '/api/conversation/' + this.options.agent_id
-				var data = {}
-				if (this.options.agent_id) {
-					method = 'POST'
-					url = '/api/conversation/'
-					data = {
-						agent_id: this.options.agent_id,
-					}
+				var method = 'POST'
+				var url = '/api/conversation/'
+
+				let data = {
+					agent_id: this.options.agent_id,
+					conv_id: this.options.conv_id,
 				}
-				
+				// console.log(data)
+
+
 				utils.request(method, url, data, (res) => {
+					// console.log(res)
 					this.conv = res.conversation
 					// that.messages = [res.message]
 					const timeline = res.timeline
-					if(timeline.length > 0) {
+					if (timeline.length > 0) {
 						let nextId = timeline[0].start_message_id
 						let sectionIndex = -1
 						let i = 0
-						while(i < res.messages.length) {
+						while (i < res.messages.length) {
 							const item = res.messages[i]
-							if(item.id === nextId) {
+							if (item.id === nextId) {
 								sectionIndex++
 								item.date = timeline[sectionIndex].date
-								nextId = sectionIndex + 1 < timeline.length ? timeline[sectionIndex + 1].start_message_id : 0
+								nextId = sectionIndex + 1 < timeline.length ? timeline[sectionIndex + 1]
+									.start_message_id : 0
 							}
 							i++
 						}
 					}
-					
+
 					this.messages = res.messages
 					this.agent = res.agent
 					// console.log(this.messages)
 					// console.log(that.messages[0])
-				
+
 					uni.setNavigationBarTitle({
-						title: this.conv.name ?? '会话'
+						title: this.agent.name ?? '会话'
 					})
 					// console.log(that.messages[that.messages.length - 1])
 					this.scrollToBottom()
-				
+
 					if (this.messages.length == 0) {
 						this.status = 'thinking'
 						this.generateMessage()
@@ -334,12 +360,12 @@
 							})
 							// that.startRecord()
 						} else {
-							this.play(this.messages[this.messages.length - 1])
-				
+							// this.play(this.messages[this.messages.length - 1])
+
 						}
 					}
-				
-				
+
+
 				})
 			},
 			switchMode() {
@@ -349,8 +375,13 @@
 					this.mode = 'chat'
 				}
 			},
+			toSetting() {
+				uni.navigateTo({
+					url: '/pages/conversation/setting?conv_id=' + this.conv.id
+				})
+			},
 			recommend(message) {
-				if(message.addition === 'recommend') {
+				if (message.addition === 'recommend') {
 					return message.addition = null
 				}
 				if (!message.recommends) {
@@ -362,7 +393,7 @@
 					}, (res) => {
 						// console.log(res)
 						message.recommend = res.recommend
-						// console.log(message)
+						console.log(message)
 						// 最后一个message
 						if (message.id == that.messages[that.messages.length - 1].id) {
 							// console.log('last message')
@@ -373,7 +404,7 @@
 				message.addition = 'recommend'
 			},
 			translate(message) {
-				if(message.addition === 'translate') {
+				if (message.addition === 'translate') {
 					return message.addition = null
 				}
 				if (!message.translate) {
@@ -419,7 +450,7 @@
 
 			},
 			cancelFilter(m) {
-				if(m.filter) {
+				if (m.filter) {
 					return m.filter = false
 				}
 			},
@@ -427,8 +458,8 @@
 				// console.log(word)
 				// var that = this
 				// this.$refs.dictionary.showSearch()
-				if(m) {
-					if(m.filter) {
+				if (m) {
+					if (m.filter) {
 						return m.filter = false
 					}
 				}
@@ -445,7 +476,45 @@
 			// switchPlay(message) {
 			// 	player.switchPlay(message)
 			// },
-			switchPlay(message) {
+			switchPlay(message, key = 'playing') {
+				if (message[key]) {
+					innerAudioContext.stop()
+					message[key] = false
+				} else {
+					this.stopPlay()
+					message[key] = true
+					let src;
+					if (key == 'playing') {
+						// 本地文件优先，mp3文件url次之，动态生成再次
+						src = message.audio_file || message.audio || (utils.domain + `/api/message/${message.id}/audio`)
+					} else if (key == 'reading') {
+						src = message.read || (utils.domain + `/api/message/${message.id}/audio?field=read`)
+					}
+					console.log('src', src)
+					innerAudioContext.src = src
+					innerAudioContext.onPlay(() => {
+						console.log('开始播放');
+					});
+					innerAudioContext.onEnded(() => {
+						console.log('播放完成')
+						message[key] = false
+					})
+					innerAudioContext.onError((res) => {
+						console.log(res.errMsg);
+						console.log(res.errCode);
+					});
+					innerAudioContext.play()
+
+				}
+			},
+			stopPlay() {
+				for (let m of this.messages) {
+					m.playing = false
+					m.reading = false
+				}
+				innerAudioContext.stop()
+			},
+			switchPlay1(message) {
 				if (message.playing) {
 					message.playing = false
 					message.filter = false
@@ -453,14 +522,14 @@
 					this.play(message)
 				}
 			},
-			aiPlay(message) {
+			aiPlay1(message) {
 				this.stopPlay()
 				if (message.aiPlaying) {
 					message.aiPlaying = false
 					message.filter = false
 					return
 				}
-				if(message.read) {
+				if (message.read) {
 					message.aiPlaying = true
 					message.filter = true
 					this.cd = message
@@ -469,8 +538,8 @@
 						message.filter = false
 					})
 				}
-				
-				utils.request('GET', '/api/message/'+ message.id +'/read', null, (res) => {
+
+				utils.request('GET', '/api/message/' + message.id + '/read', null, (res) => {
 					message.aiPlaying = true
 					message.filter = true
 					this.cd = message
@@ -480,17 +549,19 @@
 					})
 				})
 			},
-			stopPlay() {
+			stopPlay1() {
 				this.cd.playing = false
-				this.cd.filter = false
-				if(this.cd.aiPlaying) {
+				// this.cd.filter = false
+				if (this.cd.aiPlaying) {
 					this.cd.aiPlaying = false
 				}
 				player.stop()
 				this.audioSource.stop()
 			},
-			play(cd, callback) {
-				if(this.cd.playing || this.cd.aiPlaying) {
+			play1(cd, callback) {
+				// console.log(cd)
+				if (this.cd.playing || this.cd.aiPlaying) {
+					// console.log('stop')
 					this.stopPlay()
 				}
 				let that = this
@@ -506,12 +577,14 @@
 					context.onEnded(() => {
 						context.offEnded()
 						cd.playing = false
-						cd.filter = false
+						// cd.filter = false
 					})
 					context.play()
-					
+
 				} else {
-					this.loadAudio(cd.audio).then(buffer => {
+					let url = utils.domain + `/api/message/${cd.id}/audio`
+					// console.log('play url', url)
+					this.loadAudio(url).then(buffer => {
 						this.audioSource = this.audioCtx.createBufferSource()
 						that.audioSource.buffer = buffer
 						that.audioSource.connect(that.audioCtx.destination)
@@ -519,7 +592,8 @@
 
 						that.audioSource.onended = () => {
 							cd.playing = false
-							cd.filter = false
+							// cd.filter = false
+							console.log('play ended', cd)
 							if (callback) {
 								console.log('play callback')
 								callback()
@@ -528,8 +602,8 @@
 						}
 
 					}).catch((e) => {
-						this.stopPlay()
 						console.log('play fail', e)
+						this.stopPlay()
 					})
 
 				}
@@ -610,8 +684,7 @@
 								success: function(res) {
 									if (res.confirm) {
 										uni.openSetting()
-									} else if (res.cancel) {
-									}
+									} else if (res.cancel) {}
 								}
 							});
 						} else {
@@ -779,18 +852,18 @@
 					this.RecorderManager.onStart((res) => {
 						console.log('recorder onstart')
 						// that.recorder_status = 'recording'
-						
+
 						// #ifdef MP-WEIXIN
 						wx.vibrateShort({
 							type: 'light'
 						})
 						// #endif
-						
+
 						that.status = 'recording'
 					})
 
 					this.RecorderManager.onStop((res) => {
-						console.log('recorder onstop')
+						// console.log('recorder onstop')
 						// console.log(res.duration)
 						if (res.duration >= recorder_duration - 1000) {
 							that.recorder_status = '超时结束'
@@ -798,10 +871,10 @@
 							that.recorder_status = 'stop'
 						}
 						// console.log('close recorder')
-						// that.sendMessage(res.tempFilePath)
-						// console.log('assign audio file')
+						console.log('assign audio file', res.tempFilePath)
 						that.current_audio_file = res.tempFilePath
 						this.status = 'none'
+						that.sendMessage()
 					})
 
 					this.RecorderManager.onFrameRecorded(function(res) {
@@ -883,18 +956,58 @@
 				if (audio_str) {
 					data.audio = audio_str
 				}
-				let task = uni.request({
-					url: utils.domain + '/api/message',
-					method: 'POST',
-					data,
-					header: {
-						Authorization: 'Bearer ' + utils.getToken(),
-						Accept: 'application/json',
-						Platform: utils.platform
-					},
-					enableChunked: true,
-					success(res) {
-						// console.log('suceess', res)
+				// let task = uni.request({
+				// 	url: utils.domain + '/api/message',
+				// 	method: 'POST',
+				// 	data,
+				// 	header: {
+				// 		Authorization: 'Bearer ' + utils.getToken(),
+				// 		Accept: 'application/json',
+				// 		Platform: utils.platform
+				// 	},
+				// 	// enableChunked: true,
+				// 	success(res) {
+				// 		console.log('suceess', res)
+				// 		that.messages.push(res.data.message)
+				// 	}
+				// })
+				utils.request('post', '/api/message', data, (res) => {
+					console.log(res)
+					if (res.error == 0) {
+						that.messages.push(res.message)
+						that.scrollToBottom()
+						if (that.mode == 'phone') {
+							that.phone_status = 'speaking'
+							that.status = 'none'
+							// console.log('status phoning & speaking')
+							that.switchPlay(that.messages[that.messages.length - 1], () => {
+								console.log('player ended')
+								// context.offEnded()
+								that.turnNotice()
+								that.call()
+							})
+						} else {
+							that.status = 'none'
+							that.switchPlay(that.messages[that.messages.length - 1])
+
+						}
+					} else if (res.error == 116) {
+						uni.showToast({
+							title: '敏感信息，不便展示',
+							icon: 'none',
+						})
+						that.status = 'none'
+					} else if (res.error == 102) {
+						// that.status = 'halt'
+						uni.showToast({
+							title: '试用结束，请购买会员',
+							icon: 'none',
+						})
+					} else {
+						uni.showToast({
+							title: '网络错误，请稍后再试',
+							icon: 'none',
+						})
 					}
 				})
 				// console.log(task)
@@ -903,71 +1016,71 @@
 				that.text = null
 				that.current_audio_file = null
 
-				task.onChunkReceived((response) => {
-					// console.log(response)
+				// task.onChunkReceived((response) => {
+				// 	// console.log(response)
 
-					let arrayBuffer = new Uint8Array(response.data).buffer;
-					let text = utils.arrayBufferToText(arrayBuffer);
-					// console.log('receive')
-					// console.log(text); // 输出 "Hello"
-					let lines = text.split("\n")
-					lines.forEach((line) => {
-						if (line) {
-							let data = JSON.parse(line)
-							console.log('receive data', data)
-							if (data.error == 0) {
-								if (data.status == 'init') {
-									that.messages.push(data.message)
-								}
-								if (data.status == 'ready') {
-									// console.log('status ready')
+				// 	let arrayBuffer = new Uint8Array(response.data).buffer;
+				// 	let text = utils.arrayBufferToText(arrayBuffer);
+				// 	// console.log('receive')
+				// 	// console.log(text); // 输出 "Hello"
+				// 	let lines = text.split("\n")
+				// 	lines.forEach((line) => {
+				// 		if (line) {
+				// 			let data = JSON.parse(line)
+				// 			console.log('receive data', data)
+				// 			if (data.error == 0) {
+				// 				if (data.status == 'init') {
+				// 					that.messages.push(data.message)
+				// 				}
+				// 				if (data.status == 'ready') {
+				// 					// console.log('status ready')
 
-									if (that.mode == 'phone') {
-										that.phone_status = 'speaking'
-										that.status = 'none'
-										// console.log('status phoning & speaking')
-										that.play(that.messages[that.messages.length - 1], () => {
-											console.log('player ended')
-											// context.offEnded()
-											that.turnNotice()
-											that.call()
-										})
-									} else {
-										// if (res.end) {
-										// 	that.status = 'end'
-										// } else {
-										// }
-										that.play(that.messages[that.messages.length - 1])
-										that.status = 'none'
-									}
+				// 					if (that.mode == 'phone') {
+				// 						that.phone_status = 'speaking'
+				// 						that.status = 'none'
+				// 						// console.log('status phoning & speaking')
+				// 						that.play(that.messages[that.messages.length - 1], () => {
+				// 							console.log('player ended')
+				// 							// context.offEnded()
+				// 							that.turnNotice()
+				// 							that.call()
+				// 						})
+				// 					} else {
+				// 						// if (res.end) {
+				// 						// 	that.status = 'end'
+				// 						// } else {
+				// 						// }
+				// 						that.play(that.messages[that.messages.length - 1])
+				// 						that.status = 'none'
+				// 					}
 
-									that.scrollToBottom()
-								}
-							} else {
-								if (data.error == 116) {
-									uni.showToast({
-										title: '敏感信息，不便展示',
-										icon: 'none',
-									})
-									that.status = 'none'
-								} else if (data.error == 102) {
-									// that.status = 'halt'
-									uni.showToast({
-										title: '试用结束，请购买会员',
-										icon: 'none',
-									})
-								} else {
-									uni.showToast({
-										title: '网络错误，请稍后再试',
-										icon: 'none',
-									})
-								}
+				// 					that.scrollToBottom()
+				// 				}
+				// 			} else {
+				// 				if (data.error == 116) {
+				// 					uni.showToast({
+				// 						title: '敏感信息，不便展示',
+				// 						icon: 'none',
+				// 					})
+				// 					that.status = 'none'
+				// 				} else if (data.error == 102) {
+				// 					// that.status = 'halt'
+				// 					uni.showToast({
+				// 						title: '试用结束，请购买会员',
+				// 						icon: 'none',
+				// 					})
+				// 				} else {
+				// 					uni.showToast({
+				// 						title: '网络错误，请稍后再试',
+				// 						icon: 'none',
+				// 					})
+				// 				}
 
-							}
-						}
-					})
+				// 			}
+				// 		}
+				// 	})
 
-				})
+				// })
 			},
 			sendText() {
 				// console.log(this.text)
@@ -1047,7 +1160,7 @@
 
 			},
 			handleInput: utils.debounce(function(e) {
-				console.log(e)
+				// console.log(e)
 				this.text = e.detail.value
 			}),
 			goBack() {
@@ -1074,7 +1187,7 @@
 
 		.avatar {
 			flex: none;
-			border-radius: 50%;
+			// border-radius: 50%;
 			width: 64rpx;
 			height: 64rpx;
 		}
@@ -1083,11 +1196,12 @@
 			background-color: #FAFAFA;
 			padding: 32rpx;
 		}
-		
-		.assistant-box, .twinkling {
+
+		.assistant-box,
+		.twinkling {
 			border-radius: 0rpx 24rpx 24rpx 24rpx;
 		}
-		
+
 		.user-box {
 			border-radius: 24rpx 0rpx 24rpx 24rpx;
 		}
@@ -1106,6 +1220,7 @@
 
 	.user-session {
 		flex-direction: row-reverse;
+
 		.message-box {
 			background-color: #E1FFEF;
 		}
@@ -1146,13 +1261,14 @@
 	.twinkling {
 		animation: twinkle 1s infinite alternate;
 	}
+
 	.input-bottom {
 		// height: 112rpx;
 		padding: 28rpx 32rpx;
 		box-sizing: border-box;
 		box-shadow: 0rpx -2rpx 0rpx 0rpx #F1F3F5;
 	}
-	
+
 	.extra-btn {
 		display: flex;
 		align-items: center;
@@ -1161,7 +1277,7 @@
 		background: #FAFAFA;
 		gap: 8rpx;
 	}
-	
+
 	.addition {
 		margin-top: 16rpx;
 		border-top: 2rpx solid #F1F3F5;
@@ -1169,40 +1285,41 @@
 		font-size: 26rpx;
 		color: #8C8E9D;
 	}
-	
+
 	.keyboard-text {
-		padding: 8rpx 32rpx 8rpx 0;
+		padding: 8rpx 0 8rpx 0;
 		overflow: hidden;
 		word-wrap: break-word;
 		width: 100%;
 		line-height: 33rpx;
 	}
-	
+
 	.recording {
 		background-color: #1CD1AD;
 		font-size: 32rpx;
 		color: #FFFFFF;
 		height: 112rpx;
 	}
-	
+
 	.filter {
 		filter: blur(10rpx)
 	}
+
 	.filter view {
 		pointer-events: none;
 	}
-	
+
 	.lh-56 {
 		line-height: 56rpx;
 	}
-	
+
 	.upgrade {
 		width: 100%;
 		height: 104rpx;
 		color: white;
 		font-size: 32rpx;
 		background: #FA9422;
-		box-shadow: inset 0rpx 8rpx 16rpx 10rpx rgba(255,255,255,0.1);
+		box-shadow: inset 0rpx 8rpx 16rpx 10rpx rgba(255, 255, 255, 0.1);
 		border-radius: 104rpx 104rpx 104rpx 104rpx;
 		flex-grow: 0;
 		margin-top: 48rpx;

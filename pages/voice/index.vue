@@ -89,7 +89,7 @@
 			},
 			select(voice) {
 				this.selected_voice = voice
-				for (let v of this.voices) {
+				for (let v of this.voice_list) {
 					if (v.id != voice.id) {
 						v.playing = false
 					}

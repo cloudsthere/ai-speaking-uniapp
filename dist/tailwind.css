@@ -75,11 +75,6 @@
   margin-bottom: 0.5rem
 }
 
-.my-4 {
-  margin-top: 1rem;
-  margin-bottom: 1rem
-}
-
 .mb-1 {
   margin-bottom: 0.25rem
 }
@@ -394,10 +389,6 @@
   border-radius: 0.75rem
 }
 
-.rounded-sm {
-  border-radius: 0.125rem
-}
-
 .border {
   border-width: 1px
 }
@@ -527,10 +518,6 @@
   padding-top: 8rem
 }
 
-.pt-4 {
-  padding-top: 1rem
-}
-
 .text-left {
   text-align: left
 }
@@ -599,6 +586,11 @@
 .text-red-500 {
   --tw-text-opacity: 1;
   color: rgb(239 68 68 / var(--tw-text-opacity))
+}
+
+.text-sky-500 {
+  --tw-text-opacity: 1;
+  color: rgb(14 165 233 / var(--tw-text-opacity))
 }
 
 .underline {
