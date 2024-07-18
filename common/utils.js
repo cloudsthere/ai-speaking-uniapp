@@ -1,7 +1,7 @@
 
 export default {
-	// domain: 'https://dev.soda-ai.com',
-	domain: 'http://ai-speaking.local',
+	domain: 'https://dev.soda-ai.com',
+	// domain: 'http://ai-speaking.local',
 	// #ifdef MP-WEIXIN
 	version: 'wx-0.0.8',
 	// #endif

@@ -37,17 +37,20 @@
 					<navigator :url="'/pages/conversation/show?conv_id=' + conv.id">
 						<tui-list-cell unlined :arrow="false" padding="24rpx 32rpx"
 							:backgroundColor="(conv.is_primary || conv.sort > 0) ? '#FAFAFA' : '#fff'">
-							<view class="flex justify-between items-center w-full gap-3">
+							<view class="flex justify-between items-stretch w-full gap-3">
 								<view class="flex overflow-hidden">
 									<img class="avatar br-24 flex-fixed" :src="conv.agent.avatar" />
 									<view class="cell-title overflow-hidden">
 										<view class="font-semibold fs-32">{{conv.agent.name}}</view>
 										<view class="cell-brief mt-8 c-gray-1 text-ellipsis  overflow-hidden">
-											{{conv.agent.subtitle}}</view>
+											{{conv.agent.subtitle}}
+										</view>
 									</view>
 								</view>
-								<image class="btn-icon flex-fixed" src="/static/icon-phone.svg"
-									@click.stop.prevent="call(conv.id)" />
+								<view class="flex justify-center items-center" @click.stop.prevent="call(conv.id)" >
+									<image class="btn-icon flex-fixed" src="/static/icon-phone.svg"/>
+
+								</view>
 							</view>
 						</tui-list-cell>
 					</navigator>
@@ -197,6 +200,4 @@
 		width: 100%;
 		height: 348rpx;
 	}
-
-
 </style>

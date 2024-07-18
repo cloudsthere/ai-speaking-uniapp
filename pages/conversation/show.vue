@@ -52,7 +52,7 @@
 						</view>
 
 						<view class="message-dashboard justify-between">
-							<template v-if="message.audio">
+							<template v-if="message.audio || message.audio_file">
 								<image v-if="message.playing" @tap="switchPlay(message)" class="w-40"
 									src="/static/icon-replay-playing.svg" />
 								<image v-else @tap="switchPlay(message)" class="w-40"
@@ -99,7 +99,7 @@
 			<view v-else-if="mode === 'chat'" class="event-auto flex items-center input-bottom bg-white">
 				<image @tap="call" class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-phone.svg" />
 				<view class="button-wapper flex-auto">
-					<view class="btn-speak border-none c-blue-1 font-semibold fs-32" @longpress="handleRecordStart"
+					<view class="btn-speak border-none c-blue-1 font-semibold fs-32" @touchstart="handleRecordStart"
 						@touchend="handleRecordStop">按住说话</view>
 				</view>
 				<image @tap="switchMode" class="no-shrink" style="width: 56rpx; height: 56rpx"
@@ -313,7 +313,7 @@
 				}
 				// console.log(data)
 
-
+				var that = this
 				utils.request(method, url, data, (res) => {
 					// console.log(res)
 					this.conv = res.conversation
@@ -353,12 +353,12 @@
 						if (this.options.mode == 'phone') {
 							// that.call()
 							this.mode = 'phone'
-							this.phone_status = 'speaking'
-							// that.status = 'recording'
-							this.play(this.messages[this.messages.length - 1], () => {
-								this.call()
-							})
-							// that.startRecord()
+							this.phone_status = 'listening'
+							that.status = 'recording'
+							// this.play(this.messages[this.messages.length - 1], () => {
+							// 	this.call()
+							// })
+							that.startRecord()
 						} else {
 							// this.play(this.messages[this.messages.length - 1])
 
@@ -469,14 +469,24 @@
 			showSearch() {
 				this.$refs.dictionary.showSearch()
 			},
-			turnNotice() {
-				// console.log(utils.domain + '/static/turn-notice.mp3')
-				player.sound(utils.domain + '/static/turn-notice.mp3')
+			turnNotice(callback) {
+				console.log(utils.domain + '/static/turn-notice.mp3')
+				console.log('turn notice')
+				innerAudioContext.src = utils.domain + '/static/turn-notice.mp3'
+				innerAudioContext.onEnded(() => {
+					console.log('播放完成')
+					if (callback) {
+						callback()
+						innerAudioContext.offEnded()
+					}
+				})
+				innerAudioContext.play()
 			},
 			// switchPlay(message) {
 			// 	player.switchPlay(message)
 			// },
-			switchPlay(message, key = 'playing') {
+			switchPlay(message, key = 'playing', callback) {
+				console.log('switch play', message, key)
 				if (message[key]) {
 					innerAudioContext.stop()
 					message[key] = false
@@ -485,6 +495,8 @@
 					message[key] = true
 					let src;
 					if (key == 'playing') {
+						console.log('audio_file', message.audio_file)
+						console.log('audio_file', message.audio)
 						// 本地文件优先，mp3文件url次之，动态生成再次
 						src = message.audio_file || message.audio || (utils.domain + `/api/message/${message.id}/audio`)
 					} else if (key == 'reading') {
@@ -498,6 +510,10 @@
 					innerAudioContext.onEnded(() => {
 						console.log('播放完成')
 						message[key] = false
+						if (callback) {
+							callback()
+							innerAudioContext.offEnded()
+						}
 					})
 					innerAudioContext.onError((res) => {
 						console.log(res.errMsg);
@@ -568,7 +584,7 @@
 				this.cd = cd
 				cd.playing = true
 				cd.filter = true
-				console.log('cd', cd)
+				// console.log('cd', cd)
 				if (cd.audio_file) {
 					let context = uni.createInnerAudioContext({
 						obeyMuteSwitch: false,
@@ -759,7 +775,7 @@
 							resultText = resultText + str;
 						}
 						let text = resultTextTemp || resultText || "";
-						// console.log('result', text)
+						console.log('result', text)
 						that.current_content = text
 					}
 					if (jsonData.code === 0 && jsonData.data.status === 2) {
@@ -767,15 +783,16 @@
 						// iatWS.close();
 						that.RecorderManager.stop();
 						uni.closeSocket()
+						// that.sendMessage()
 
 						if (!that.hangingUp) {
+							// 等待recorderManager结束
 							let sil = setInterval(() => {
 								if (that.current_audio_file) {
+									console.log('send message at sockect end')
 									clearInterval(sil)
 									that.sendMessage()
-									// if (that.mode == 'phone' && that.phone_status == 'listening') {
-									// 	that.phone_status = 'speaking'
-									// }
+									
 								}
 							}, 100)
 						} else {
@@ -874,7 +891,6 @@
 						console.log('assign audio file', res.tempFilePath)
 						that.current_audio_file = res.tempFilePath
 						this.status = 'none'
-						that.sendMessage()
 					})
 
 					this.RecorderManager.onFrameRecorded(function(res) {
@@ -972,19 +988,26 @@
 				// 	}
 				// })
 				utils.request('post', '/api/message', data, (res) => {
+					that.current_content = null
+					that.text = null
+					that.current_audio_file = null
 					console.log(res)
 					if (res.error == 0) {
+						let user_message = that.messages[that.messages.length - 1]
+						if (user_message && user_message.role == 'user') {
+							that.messages[that.messages.length - 1].id = res.last_message_id
+						}
 						that.messages.push(res.message)
 						that.scrollToBottom()
 						if (that.mode == 'phone') {
 							that.phone_status = 'speaking'
 							that.status = 'none'
 							// console.log('status phoning & speaking')
-							that.switchPlay(that.messages[that.messages.length - 1], () => {
+							that.switchPlay(that.messages[that.messages.length - 1], 'playing', () => {
 								console.log('player ended')
 								// context.offEnded()
-								that.turnNotice()
-								that.call()
+								that.turnNotice(that.call)
+
 							})
 						} else {
 							that.status = 'none'
@@ -1012,9 +1035,7 @@
 				})
 				// console.log(task)
 
-				that.current_content = null
-				that.text = null
-				that.current_audio_file = null
+
 
 				// task.onChunkReceived((response) => {
 				// 	// console.log(response)
@@ -1105,13 +1126,22 @@
 				// this.current_content = 'Hi, my name is Allen';
 
 				if (!this.current_content) {
-					uni.showToast({
-						title: '未识别内容，请重试',
-						icon: 'none'
-					})
-					this.status = 'none'
+					// console.log('status', this.status)
+					// console.log('status', this.phone_status)
+					// 用户产生杂音，触发了sendMessage
+					if (this.status == 'recording' && this.phone_status == 'listening') {
+						this.handleRecordStart()
+					} else {
+						uni.showToast({
+							title: '未识别内容，请重试',
+							icon: 'none'
+						})
+						this.status = 'none'
+
+					}
 					return;
 				}
+
 
 				// if (this.mode == 'phone') {
 				// 	this.turnNotice()
