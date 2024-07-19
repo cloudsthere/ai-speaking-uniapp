@@ -31,9 +31,9 @@
 					<view class="absolute top-0 left-0 w-full hp100 br-16" :class="{'border-primary' : plan_index == index}"></view>
 				</view>
 			</view>
-			<view class="mt-4 text-primary text-center">
+			<!-- <view class="mt-4 text-primary text-center">
 				<text>{{plans[plan_index] ? plans[plan_index].quote : ''}}</text>
-			</view>
+			</view> -->
 			<view class="cell c-blue-1 gap-32">
 				<text class="font-semibold">邀请码</text>
 				<view v-if="has_invite_code">{{invite_code}}<text class="px-2">•</text><text class="">9折优惠</text></view>
@@ -64,11 +64,14 @@
 				// console.log(res)
 				this.plans = res.plans.map(val => {
 					const daily = {
+						day: 1,
+						week: 7,
 						month: 30,
 						season: 92,
 						year: 365
 					}
-					return Object.assign(val,{dailyPay: Math.round(val.cost / daily[val.plan]).toFixed(2)})
+					// console.log(val, Math.round(val.cost / daily[val.plan]).toFixed(2))
+					return Object.assign(val,{dailyPay: (val.cost / daily[val.plan]).toFixed(2)})
 				})
 				this.invite_code = res.invite_code
 				if (res.invite_code) {

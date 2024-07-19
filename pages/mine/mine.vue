@@ -2,7 +2,7 @@
 	<scroll-view scroll-y :style="{position: 'absolute', top: height + 'px', height: `calc(100% - ${height}px)`}" >
 		<view class="content">
 			<view class="flex gap-24">
-				<image :src="user && user.avatar || '/static/default_avatar.jpg'" class="rounded-half avatar no-shrink"></image>
+				<image :src="user && user.avatar || '/static/default_avatar.jpg'" class="rounded-lg avatar no-shrink"></image>
 				<view  v-if="user" class="flex justify-between flex-auto"  @click="routeTo({url: '/pages/mine/profile'})">
 					<view class="flex flex-col justify-center gap-16">
 						<view class="font-semibold fs-32 c-blue-1">
@@ -120,7 +120,7 @@
 				// console.log(res)
 				this.member = res.member
 				// dev
-				this.member.is_member = true
+				// this.member.is_member = true
 			})
 		},
 		onShareAppMessage(res) {

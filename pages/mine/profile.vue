@@ -2,19 +2,18 @@
 	<view class="bg-page relative" :style="{paddingBottom: bottom + 'px'}">
 		<form @submit="formSubmit">
 			<view class="w-full text-center">
-				<image class="avatar-wrapper" :src="avatarUrl || '/static/default_avatar.jpg'" />
+				<image class="avatar-wrapper rounded-lg" :src="avatarUrl || '/static/default_avatar.jpg'" />
 			</view>
 			<button class="cell c-blue-1" plain open-type="chooseAvatar" @chooseavatar="onChooseAvatar">
 				<text class="font-semibold">头像</text>
 				<image class="w-32" src="/static/icon-rightarrow.svg" />
 			</button>
-			<view class="cell c-blue-1 gap-32">
-				<text class="font-semibold">昵称</text>
-				<input type="nickname" :value="nickname" name="nickname" class="weui-input flex-auto text-right" placeholder="请输入昵称" />
-			</view>
-			<view class="cell c-blue-1 gap-32">
-				<text class="font-semibold">英文名</text>
-				<input type="text" :value="en_name" name="en_name" class="weui-input flex-auto text-right" placeholder="请输入英文名" />
+			<view class="flex flex-col gap-1">
+				<view class="cell c-blue-1 gap-32">
+					<text class="font-semibold">用户名</text>
+					<input type="text" :value="name" name="name" class="weui-input flex-auto text-right" />
+				</view>
+				<text class="text-xs c-gray-3">3-20个字符，由字母、数字和-_符号组成</text>
 			</view>
 			<view class="cell c-blue-1 gap-32">
 				<view class="flex items-center no-shrink gap-16">
@@ -24,25 +23,25 @@
 						<image v-else @click="play(en_name)" class="w-32" src="/static/icon-voice-grey.svg" />
 					</view>
 				</view>
-				
+
 				<image @tap="getEnNames" class="refresh" src="/static/icon-refresh.svg" />
 			</view>
 			<view class="cell c-blue-1 gap-32">
 				<text class="font-semibold">性别</text>
 				<view class="flex items-center gap-24">
-					<label class="flex items-center gap-8" @click="selectGender(1)" >
-						<image v-if="gender === 1" class="w-32" src="/static/checkbox-selected.svg"/>
-						<image v-else class="w-32" src="/static/checkbox.svg"/>
+					<label class="flex items-center gap-8" @click="selectGender(1)">
+						<image v-if="gender === 1" class="w-32" src="/static/checkbox-selected.svg" />
+						<image v-else class="w-32" src="/static/checkbox.svg" />
 						<text>男</text>
 					</label>
-					<label class="flex items-center gap-8" @click="selectGender(0)" >
-						<image v-if="gender === 0" class="w-32" src="/static/checkbox-selected.svg"/>
-						<image v-else class="w-32" src="/static/checkbox.svg"/>
+					<label class="flex items-center gap-8" @click="selectGender(0)">
+						<image v-if="gender === 0" class="w-32" src="/static/checkbox-selected.svg" />
+						<image v-else class="w-32" src="/static/checkbox.svg" />
 						<text>女</text>
 					</label>
-					<label class="flex items-center gap-8" @click="selectGender(2)" >
-						<image v-if="gender === 2" class="w-32" src="/static/checkbox-selected.svg"/>
-						<image v-else class="w-32" src="/static/checkbox.svg"/>
+					<label class="flex items-center gap-8" @click="selectGender(2)">
+						<image v-if="gender === 2" class="w-32" src="/static/checkbox-selected.svg" />
+						<image v-else class="w-32" src="/static/checkbox.svg" />
 						<text>未知</text>
 					</label>
 				</view>
@@ -61,7 +60,7 @@
 			return {
 				avatarUrl: '',
 				nickname: '',
-				en_name: '',
+				name: '',
 				gender: null,
 				en_names: [],
 				bottom: getApp().globalData.safeBottom,
@@ -70,8 +69,8 @@
 		onLoad() {
 			utils.request('GET', '/api/user', {}, (res) => {
 				this.avatarUrl = res.user.avatar
-				this.nickname = res.user.name
-				this.en_name = res.user.en_name
+				// this.nickname = res.user.name
+				this.name = res.user.name
 				this.gender = res.user.gender
 
 				this.getEnNames()
@@ -79,8 +78,8 @@
 		},
 		methods: {
 			selectEnName(en_name) {
-				console.log(en_name)
-				this.en_name = en_name
+				// console.log(en_name)
+				this.name = en_name
 			},
 			selectGender(gender) {
 				console.log('select', gender)
@@ -108,26 +107,26 @@
 				// console.log(e.detail.value)
 				// console.log(this.avatarUrl)
 				// console.log(this.nickname)
-				let name = e.detail.value.nickname
+				// let name = e.detail.value.nickname
+				// if (!name) {
+				// 	uni.showToast({
+				// 		title: '昵称不能为空'
+				// 	})
+				// 	return
+				// }
+
+				let name = e.detail.value.name
 				if (!name) {
 					uni.showToast({
-						title: '昵称不能为空'
-					})
-					return
-				}
-
-				let en_name = e.detail.value.en_name
-				if (!en_name) {
-					uni.showToast({
-						title: '英文名不能为空',
+						title: '用户名不能为空',
 						icon: 'error'
 					})
 					return
 				}
-				
-				if (!/^[0-9a-zA-Z\_]+$/.test(en_name)) {
+
+				if (!/^[0-9a-zA-Z\_/-]{3,20}$/.test(name)) {
 					uni.showToast({
-						title: '英文名不规范',
+						title: '用户名不符合规范',
 						icon: 'error'
 					})
 					return
@@ -145,9 +144,10 @@
 				utils.request('POST', '/api/user', {
 					avatar,
 					name,
-					en_name,
+					// en_name,
 					gender
 				}, (res) => {
+					if (res.error == 0) {
 					utils.request('get', '/api/user', null, (res) => {
 						utils.setUser(res.user)
 						uni.showToast({
@@ -155,6 +155,13 @@
 							icon: 'success'
 						})
 					})
+						
+					} else {
+						uni.showToast({
+							title: res.msg,
+							icon: 'error'
+						})
+					}
 				})
 			}
 		}
@@ -162,50 +169,54 @@
 </script>
 
 <style scoped>
-.bg-page {
-	height: 100vh;
-	box-sizing: border-box;
-	background-color: #fff;
-	padding: 64rpx 48rpx 0;
-}
-.avatar-wrapper {
-	background-color: #fff;
-	line-height: 0;
-	padding: 0;
-	width: 208rpx;
-	height: 208rpx;
-	border-radius: 50%;
-	margin-bottom: 64rpx;
-}
-.cell {
-	width: 100%;
-	height: 100rpx;
-	display: flex;
-	justify-content: space-between;
-	align-items: center;
-	font-size: 28rpx;
-	padding: 0;
-	border: none;
-}
-.tag {
-	background-color: #FAFAFA;
-	border-radius: 16rpx;
-	display: flex;
-	align-items: center;
-	gap: 8rpx;
-	padding: 12rpx 20rpx;
-	font-size: 26rpx;
-}
-.refresh {
-	width: 30rpx;
-	height: 30rpx;
-}
-.submit {
-	box-sizing: border-box;
-	padding: 0;
-	margin: 0 48rpx;
-	width: 654rpx;
-	background: #1CD1AD;
-	border-radius: 16rpx;
-}
+	.bg-page {
+		height: 100vh;
+		box-sizing: border-box;
+		background-color: #fff;
+		padding: 64rpx 48rpx 0;
+	}
+
+	.avatar-wrapper {
+		background-color: #fff;
+		line-height: 0;
+		padding: 0;
+		width: 208rpx;
+		height: 208rpx;
+		margin-bottom: 64rpx;
+	}
+
+	.cell {
+		width: 100%;
+		height: 100rpx;
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
+		font-size: 28rpx;
+		padding: 0;
+		border: none;
+	}
+
+	.tag {
+		background-color: #FAFAFA;
+		border-radius: 16rpx;
+		display: flex;
+		align-items: center;
+		gap: 8rpx;
+		padding: 12rpx 20rpx;
+		font-size: 26rpx;
+	}
+
+	.refresh {
+		width: 30rpx;
+		height: 30rpx;
+	}
+
+	.submit {
+		box-sizing: border-box;
+		padding: 0;
+		margin: 0 48rpx;
+		width: 654rpx;
+		background: #1CD1AD;
+		border-radius: 16rpx;
+	}
 </style>

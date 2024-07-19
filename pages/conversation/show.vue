@@ -123,8 +123,7 @@
 	<dictionary ref="dictionary"></dictionary>
 	<telephone-link v-if="mode === 'phone'" v-model="phone_status" :status="status" :avatar="agent.avatar"
 		@hangUp="hangUp" />
-	<tui-modal v-if="status == 'halt'" :show="status == 'halt'" custom padding="64rpx 80rpx 32rpx" width="604rpx"
-		radius="32rpx">
+	<tui-modal v-if="show_money" :show="show_money" custom padding="64rpx 80rpx 32rpx" width="604rpx" radius="32rpx">
 		<view class="flex flex-col items-center lh-56">
 			<text class="c-blue-1 fs-32 font-semibold">课时已使用完啦</text>
 			<text class="c-blue-1 fs-32 font-semibold">升级Pro会员，畅享AI无限对话</text>
@@ -133,7 +132,7 @@
 				立即升级
 			</navigator>
 
-			<text class="fs-24 c-gray-1" @tap="goBack">暂时不用</text>
+			<text class="fs-24 c-gray-1" @tap="show_money = false">暂时不用</text>
 		</view>
 	</tui-modal>
 </template>
@@ -222,6 +221,7 @@
 				// mode: 'keyboard',
 				// speaking, listening
 				phone_status: 'none',
+				show_money: false,
 				conv: {
 					avatar: ''
 				},
@@ -674,6 +674,10 @@
 					return;
 				}
 
+				if (!this.checkUseful()) {
+					return
+				}
+
 				// console.log('call')
 				this.mode = 'phone'
 				this.phone_status = 'listening'
@@ -683,12 +687,8 @@
 			handleRecordStart() {
 				this.stopPlay()
 
-				if (this.status == 'halt') {
-					uni.showToast({
-						title: '课时不足，请先购买会员',
-						icon: 'none'
-					})
-					return;
+				if (!this.checkUseful()) {
+					return
 				}
 
 				// 先取得权限
@@ -792,7 +792,7 @@
 									console.log('send message at sockect end')
 									clearInterval(sil)
 									that.sendMessage()
-									
+
 								}
 							}, 100)
 						} else {
@@ -988,9 +988,7 @@
 				// 	}
 				// })
 				utils.request('post', '/api/message', data, (res) => {
-					that.current_content = null
-					that.text = null
-					that.current_audio_file = null
+
 					console.log(res)
 					if (res.error == 0) {
 						let user_message = that.messages[that.messages.length - 1]
@@ -1021,11 +1019,13 @@
 						})
 						that.status = 'none'
 					} else if (res.error == 102) {
-						// that.status = 'halt'
-						uni.showToast({
-							title: '试用结束，请购买会员',
-							icon: 'none',
-						})
+						that.status = 'halt'
+						that.messages.pop()
+						that.show_money = true
+						// uni.showToast({
+						// 	title: '试用结束，请购买会员',
+						// 	icon: 'none',
+						// })
 					} else {
 						uni.showToast({
 							title: '网络错误，请稍后再试',
@@ -1034,7 +1034,9 @@
 					}
 				})
 				// console.log(task)
-
+				that.current_content = null
+				that.text = null
+				that.current_audio_file = null
 
 
 				// task.onChunkReceived((response) => {
@@ -1120,6 +1122,13 @@
 
 				this.generateMessage(this.text)
 			},
+			checkUseful() {
+				if (this.status == 'halt') {
+					this.show_money = true;
+					return false
+				}
+				return true
+			},
 			sendMessage() {
 				var that = this
 
@@ -1141,6 +1150,8 @@
 					}
 					return;
 				}
+
+
 
 
 				// if (this.mode == 'phone') {

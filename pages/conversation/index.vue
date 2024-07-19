@@ -2,7 +2,8 @@
 	<tui-navigation-bar backgroundColor="#fff" :is-opacity="false" title="聊天" color="#000">
 		<view class="tui-header-icon">
 			<navigator v-if="userInfo.avatar" url="/pages/home/price">
-				<img class="nav-avatar rounded-half" :src="userInfo.avatar" />
+				<!-- <img class="nav-avatar rounded-half" :src="userInfo.avatar" /> -->
+				<img class="nav-avatar rounded-half" src="/static/default_avatar.jpg" />
 			</navigator>
 			<navigator v-else url="/pages/auth/login">
 				<img class="nav-avatar rounded-half" src="/static/default_avatar.jpg" />
