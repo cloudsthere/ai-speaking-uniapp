@@ -13,8 +13,10 @@
 		{
 			"path": "pages/home/index",
 			"style": {
-				"navigationBarTitleText": "发现"
+				"navigationBarTitleText": "发现",
+				"enablePullDownRefresh": true
 			}
+			
 		}, 
 		{
 			"path": "pages/home/teacher",

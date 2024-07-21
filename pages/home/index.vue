@@ -128,6 +128,9 @@
 		onLoad() {
 			this.query()
 		},
+		onPullDownRefresh() {
+			this.query()
+		},
 		onShareAppMessage(res) {
 			return utils.share()
 		},
@@ -177,9 +180,10 @@
 					var that = this
 					this.loading = true
 					utils.request('GET', `/api/agent`, {q: this.q}, (res) => {
-						console.log(res)
+						// console.log(res)
 						this.loading = false
 						that.agents = res.agents
+						uni.stopPullDownRefresh()
 					})
 			}
 		}

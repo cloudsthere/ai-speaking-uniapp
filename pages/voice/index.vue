@@ -22,7 +22,7 @@
 						<uni-icons v-if="voice.playing" fontFamily="iconfont" type="">{{'\ue619'}}</uni-icons>
 						<uni-icons v-else fontFamily="iconfont" type="">{{'\ue66e'}}</uni-icons>
 					</view>
-					<view class="flex flex-col">
+					<view class="flex flex-col flex-1">
 						<view class="font-semibold text-sm">{{voice.name}}</view>
 						<view class="text-xs">{{voice.description}}</view>
 						<view class="text-xs" v-if="voice.created_by == 'user'">由 {{voice.user.name}} 创建</view>

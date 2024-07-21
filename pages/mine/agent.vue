@@ -1,10 +1,11 @@
 <template>
 	<view class="px-4 py-4">
-		<navigator url="/pages/agent/create" class="flex gap-1 justify-center items-center fs-30 font-medium  rounded-xl py-2 bg-primary mb-2">
+		<navigator url="/pages/agent/create"
+			class="flex gap-1 justify-center items-center fs-30 font-medium  rounded-xl py-2 bg-primary mb-2">
 			<uni-icons type="plus"></uni-icons>
 			<text>创建角色</text>
 		</navigator>
-		<navigator v-for="agent in agents" :key="agent.id" :url="'/pages/conversation/show?agent_id=' + agent.id" class="bg-primary rounded-xl">
+		<view @click="toConversation(agent)" v-for="agent in agents" :key="agent.id" class="bg-primary rounded-xl">
 			<tui-list-cell unlined :arrow="false" padding="24rpx 32rpx"
 				:backgroundColor="(agent.is_primary || agent.sort > 0) ? '#FAFAFA' : '#fff'">
 				<view class="flex justify-between items-stretch w-full gap-3 py-2 px-2 box-border mb-2">
@@ -27,12 +28,13 @@
 							</view>
 						</view>
 					</view>
-					<navigator :url="`/pages/agent/create?agent_id=${agent.id}`" class="flex justify-center items-center px-2">
+					<view @click.stop.prevent="toEdit(agent)"
+						class="flex justify-center items-center px-2">
 						<uni-icons type="gear" size="30"></uni-icons>
-					</navigator>
+					</view>
 				</view>
 			</tui-list-cell>
-		</navigator>
+		</view>
 	</view>
 </template>
 
@@ -44,6 +46,9 @@
 				agents: [],
 			}
 		},
+		onShow() {
+			utils.authGuard()
+		},
 		onLoad() {
 			var that = this
 			utils.request('GET', '/api/agent/user', {}, (res) => {
@@ -51,7 +56,16 @@
 			})
 		},
 		methods: {
-
+			toConversation(agent) {
+				uni.navigateTo({
+					url: '/pages/conversation/show?agent_id=' + agent.id
+				})
+			},
+			toEdit(agent) {
+				uni.navigateTo({
+					url : `/pages/agent/create?agent_id=${agent.id}`
+				})
+			}
 		}
 	}
 </script>

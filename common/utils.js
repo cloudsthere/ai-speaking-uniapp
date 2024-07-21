@@ -181,7 +181,7 @@ export default {
 	},
 	share() {
 		return {
-			title: '你的专属AI英语外教',
+			title: 'AI英语外教',
 			path: '/pages/home/index',
 			imageUrl: '/static/share.png'
 		}
@@ -267,6 +267,7 @@ export default {
 		return /^[a-zA-Z0-9\_]{4,10}$/.test(code)
 	},
 	authGuard() {
+		console.log('authGuard')
 		if (!this.getUser()) {
 			// 用navigateTo的体验不好
 			uni.reLaunch({

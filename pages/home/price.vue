@@ -6,14 +6,14 @@
 					<view class="c-blue-1 fs-28 mb-18">
 						Anyone who has never made a mistake <br/>
 						has never tried anything new. <br/>
-						–Albert Einstein
+						– Albert Einstein
 					</view>
 					<image class="no-shrink" src="/static/bg-marks-yellow.png" style="width: 96rpx;height: 78rpx;" />
 				</view>
 				
 				<view class="c-gray-1 fs-24">
 					一个从不犯错误的人，从来没有尝试过任何新鲜事物。<br/>
-					— 爱因斯坦
+					— 阿尔伯特·爱因斯坦
 				</view>
 			</view>
 			

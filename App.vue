@@ -1,7 +1,7 @@
 <script>
 	export default {
 		onLaunch: function() {
-			console.log('App Launch')
+			// console.log('App Launch')
 			uni.getSystemInfo({
 				success: (e) => {
 					let custom = uni.getMenuButtonBoundingClientRect();

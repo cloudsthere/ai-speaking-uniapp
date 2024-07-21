@@ -46,6 +46,9 @@
 				that.voices = res.voices
 			})
 		},
+		onShow() {
+			utils.authGuard()
+		},
 		methods: {
 			select(voice) {
 				this.selected_voice = voice

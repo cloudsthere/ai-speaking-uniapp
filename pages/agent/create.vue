@@ -218,7 +218,7 @@
 						title: '保存成功'
 					})
 					setTimeout(() => {
-						uni.navigateTo({
+						uni.redirectTo({
 							url: '/pages/conversation/show?agent_id=' + res.agent_id
 						})
 					}, 1500)

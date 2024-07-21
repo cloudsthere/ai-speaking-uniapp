@@ -24,6 +24,7 @@ export default {
 	props: ['modelValue', 'avatar', 'status'],
 	methods: {
 		getStatusText(status, phoneStaus) {
+			console.log('phone status', phoneStaus)
 			if(status === 'thinking') return '思考中...'
 			const map = {
 				'listening': '正在听...',

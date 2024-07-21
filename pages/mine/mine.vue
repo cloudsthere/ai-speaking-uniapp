@@ -21,7 +21,7 @@
 					<view class="font-semibold c-blue-1 fs-32">请登录/注册</view>
 				</view>
 			</view>
-			<view class="sub-section">
+			<view class="sub-section" v-if="!member.is_member">
 				<view class="flex justify-between items-center" style="margin-bottom: 10rpx;">
 					<text class="fs-24 c-gray-4">剩余课时</text>
 					<text class="font-semibold fs-34 c-blue-1">{{ `${member.available_minutes}/${member.total_minutes} min` }}</text>
@@ -30,7 +30,7 @@
 				<Progress :percent="member.available_minutes/member.total_minutes * 100" />
 			</view>
 			
-			<navigator v-if="member.is_member" url="/pages/home/price" class="member_banner relative">
+			<navigator v-if="member.is_member" url="/pages/home/price" class="member_banner relative mt-2">
 				<image class="member_banner w-full hp100" src="/static/icon-pro-banner.png" />
 				<view class="front w-full hp100 flex items-center" style="padding-left: 36rpx;">
 					<view class="flex flex-col">
@@ -61,7 +61,7 @@
 				</view>
 			</navigator>
 			
-			<navigator url="/pages/agent/index" class="cell flex justify-between">
+			<navigator url="/pages/mine/agent" class="cell flex justify-between">
 				<text class="c-blue-1 fs-28 font-semibold">我的角色</text>
 				<view class="flex gap-16 items-center">
 					<image class="w-32" src="/static/icon-rightarrow.svg" />

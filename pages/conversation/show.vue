@@ -52,16 +52,16 @@
 						</view>
 
 						<view class="message-dashboard justify-between">
-							<template v-if="message.audio || message.audio_file">
+							<template v-if="message.play">
 								<image v-if="message.playing" @tap="switchPlay(message)" class="w-40"
 									src="/static/icon-replay-playing.svg" />
 								<image v-else @tap="switchPlay(message)" class="w-40"
 									src="/static/icon-replay-normal.svg" />
 							</template>
 							<view v-else class="placeholder"></view>
-							<image v-show="message.reading" @tap="switchPlay(message, 'reading')" class="w-40"
+							<image v-show="message.reading" @tap="switchPlay(message, 'read')" class="w-40"
 								src="/static/icon-play.png" />
-							<image v-show="!message.reading" @tap="switchPlay(message, 'reading')" class="w-40"
+							<image v-show="!message.reading" @tap="switchPlay(message, 'read')" class="w-40"
 								src="/static/icon-play.svg" />
 						</view>
 					</view>
@@ -100,7 +100,7 @@
 				<image @tap="call" class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-phone.svg" />
 				<view class="button-wapper flex-auto">
 					<view class="btn-speak border-none c-blue-1 font-semibold fs-32" @touchstart="handleRecordStart"
-						@touchend="handleRecordStop">按住说话</view>
+						@touchend="handleRecordStop" @touchmove="handleTouchMove">按住说话</view>
 				</view>
 				<image @tap="switchMode" class="no-shrink" style="width: 56rpx; height: 56rpx"
 					src="/static/icon-keyboard.svg" />
@@ -167,7 +167,7 @@
 				accent: "mandarin",
 				dwa: "wpgs",
 				// vad_eos: 10000
-				vad_eos: 3000
+				vad_eos: 2000
 			},
 			data: {
 				status: status,
@@ -221,6 +221,9 @@
 				// mode: 'keyboard',
 				// speaking, listening
 				phone_status: 'none',
+				
+				// is_touching: false,
+				// touch_timer: 0,
 				show_money: false,
 				conv: {
 					avatar: ''
@@ -470,14 +473,20 @@
 				this.$refs.dictionary.showSearch()
 			},
 			turnNotice(callback) {
-				console.log(utils.domain + '/static/turn-notice.mp3')
+				// console.log('turnNotice callback', callback)
+				// console.log(utils.domain + '/static/turn-notice.mp3')
 				console.log('turn notice')
 				innerAudioContext.src = utils.domain + '/static/turn-notice.mp3'
+				innerAudioContext.onPlay(() => {
+					// console.log('notice play')
+					innerAudioContext.offPlay()
+				})
 				innerAudioContext.onEnded(() => {
-					console.log('播放完成')
+					// console.log('turn notice end')
+					innerAudioContext.offEnded()
 					if (callback) {
+						// console.log('turn notice callback')
 						callback()
-						innerAudioContext.offEnded()
 					}
 				})
 				innerAudioContext.play()
@@ -485,43 +494,48 @@
 			// switchPlay(message) {
 			// 	player.switchPlay(message)
 			// },
-			switchPlay(message, key = 'playing', callback) {
+			switchPlay(message, key = 'play', callback) {
+				let keying = key + 'ing'
 				console.log('switch play', message, key)
-				if (message[key]) {
+				if (message[keying]) {
 					innerAudioContext.stop()
-					message[key] = false
+					message[keying] = false
 				} else {
 					this.stopPlay()
-					message[key] = true
-					let src;
-					if (key == 'playing') {
-						console.log('audio_file', message.audio_file)
-						console.log('audio_file', message.audio)
-						// 本地文件优先，mp3文件url次之，动态生成再次
-						src = message.audio_file || message.audio || (utils.domain + `/api/message/${message.id}/audio`)
-					} else if (key == 'reading') {
-						src = message.read || (utils.domain + `/api/message/${message.id}/audio?field=read`)
+					message[keying] = true
+					if (message[key]) {
+						this.play(message, key, callback)
+					} else {
+						let url = `/api/message/${message.id}/audio?field=${key}`
+						var that = this
+						utils.request('post', url, {}, (res) => {
+							console.log(res)
+							message[key] = res.url
+							that.play(message, key, callback)
+						})
 					}
-					console.log('src', src)
-					innerAudioContext.src = src
-					innerAudioContext.onPlay(() => {
-						console.log('开始播放');
-					});
-					innerAudioContext.onEnded(() => {
-						console.log('播放完成')
-						message[key] = false
-						if (callback) {
-							callback()
-							innerAudioContext.offEnded()
-						}
-					})
-					innerAudioContext.onError((res) => {
-						console.log(res.errMsg);
-						console.log(res.errCode);
-					});
-					innerAudioContext.play()
-
 				}
+			},
+			play(message, key, callback) {
+				let keying = key + 'ing'
+				innerAudioContext.src = message[key]
+				innerAudioContext.onPlay(() => {
+					console.log('play 开始播放');
+					innerAudioContext.offPlay()
+				});
+				innerAudioContext.onEnded(() => {
+					console.log('play 播放完成')
+					innerAudioContext.offEnded()
+					message[keying] = false
+					if (callback) {
+						callback()
+					}
+				})
+				innerAudioContext.onError((res) => {
+					console.log(res.errMsg);
+					console.log(res.errCode);
+				});
+				innerAudioContext.play()
 			},
 			stopPlay() {
 				for (let m of this.messages) {
@@ -530,100 +544,7 @@
 				}
 				innerAudioContext.stop()
 			},
-			switchPlay1(message) {
-				if (message.playing) {
-					message.playing = false
-					message.filter = false
-				} else {
-					this.play(message)
-				}
-			},
-			aiPlay1(message) {
-				this.stopPlay()
-				if (message.aiPlaying) {
-					message.aiPlaying = false
-					message.filter = false
-					return
-				}
-				if (message.read) {
-					message.aiPlaying = true
-					message.filter = true
-					this.cd = message
-					return player.sound(message.read, () => {
-						message.aiPlaying = false
-						message.filter = false
-					})
-				}
 
-				utils.request('GET', '/api/message/' + message.id + '/read', null, (res) => {
-					message.aiPlaying = true
-					message.filter = true
-					this.cd = message
-					player.sound(res.read, () => {
-						message.aiPlaying = false
-						message.filter = false
-					})
-				})
-			},
-			stopPlay1() {
-				this.cd.playing = false
-				// this.cd.filter = false
-				if (this.cd.aiPlaying) {
-					this.cd.aiPlaying = false
-				}
-				player.stop()
-				this.audioSource.stop()
-			},
-			play1(cd, callback) {
-				// console.log(cd)
-				if (this.cd.playing || this.cd.aiPlaying) {
-					// console.log('stop')
-					this.stopPlay()
-				}
-				let that = this
-				this.cd = cd
-				cd.playing = true
-				cd.filter = true
-				// console.log('cd', cd)
-				if (cd.audio_file) {
-					let context = uni.createInnerAudioContext({
-						obeyMuteSwitch: false,
-					});
-					context.src = cd.audio_file
-					context.onEnded(() => {
-						context.offEnded()
-						cd.playing = false
-						// cd.filter = false
-					})
-					context.play()
-
-				} else {
-					let url = utils.domain + `/api/message/${cd.id}/audio`
-					// console.log('play url', url)
-					this.loadAudio(url).then(buffer => {
-						this.audioSource = this.audioCtx.createBufferSource()
-						that.audioSource.buffer = buffer
-						that.audioSource.connect(that.audioCtx.destination)
-						that.audioSource.start()
-
-						that.audioSource.onended = () => {
-							cd.playing = false
-							// cd.filter = false
-							console.log('play ended', cd)
-							if (callback) {
-								console.log('play callback')
-								callback()
-							}
-							that.audioSource.onended = () => {}
-						}
-
-					}).catch((e) => {
-						console.log('play fail', e)
-						this.stopPlay()
-					})
-
-				}
-			},
 			loadAudio(url) {
 				var that = this
 				return new Promise((resolve, reject) => {
@@ -678,22 +599,29 @@
 					return
 				}
 
-				// console.log('call')
+				console.log('call')
+				this.turnNotice()
 				this.mode = 'phone'
 				this.phone_status = 'listening'
 				this.status = 'recording'
 				this.startRecord()
 			},
-			handleRecordStart() {
+			handleTouchMove(event) {
+				console.log(event)
+			},
+			handleRecordStart(event) {
+				// console.log(event)
 				this.stopPlay()
 
 				if (!this.checkUseful()) {
 					return
 				}
 
+				var that = this
 				// 先取得权限
 				uni.getSetting({
 					success: (res) => {
+						console.log('success', res)
 						if (!res.authSetting['scope.record']) {
 							uni.showModal({
 								title: '请先授权麦克风',
@@ -705,8 +633,6 @@
 							});
 						} else {
 							console.log('record start')
-
-							this.status = 'recording'
 							this.startRecord()
 						}
 					}
@@ -714,6 +640,7 @@
 			},
 			startRecord() {
 				var that = this
+				this.status = 'recording'
 
 				var url = geturl(APPID, API_SECRET, API_KEY)
 				// console.log(url)
@@ -890,7 +817,7 @@
 						// console.log('close recorder')
 						console.log('assign audio file', res.tempFilePath)
 						that.current_audio_file = res.tempFilePath
-						this.status = 'none'
+						// this.status = 'none'
 					})
 
 					this.RecorderManager.onFrameRecorded(function(res) {
@@ -1001,11 +928,11 @@
 							that.phone_status = 'speaking'
 							that.status = 'none'
 							// console.log('status phoning & speaking')
-							that.switchPlay(that.messages[that.messages.length - 1], 'playing', () => {
+							that.switchPlay(that.messages[that.messages.length - 1], 'play', () => {
 								console.log('player ended')
 								// context.offEnded()
-								that.turnNotice(that.call)
-
+								that.call()
+								// that.phone_status = 'listening'
 							})
 						} else {
 							that.status = 'none'
@@ -1135,11 +1062,11 @@
 				// this.current_content = 'Hi, my name is Allen';
 
 				if (!this.current_content) {
-					// console.log('status', this.status)
-					// console.log('status', this.phone_status)
+					console.log('status', this.status)
+					console.log('phone status', this.phone_status)
 					// 用户产生杂音，触发了sendMessage
 					if (this.status == 'recording' && this.phone_status == 'listening') {
-						this.handleRecordStart()
+						this.startRecord()
 					} else {
 						uni.showToast({
 							title: '未识别内容，请重试',
@@ -1151,17 +1078,10 @@
 					return;
 				}
 
-
-
-
-				// if (this.mode == 'phone') {
-				// 	this.turnNotice()
-				// }
-
 				this.messages.push({
 					role: 'user',
 					content: this.current_content,
-					audio_file: this.current_audio_file
+					audio: this.current_audio_file
 				})
 				this.scrollToBottom()
 
