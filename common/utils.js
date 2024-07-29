@@ -3,24 +3,7 @@ export default {
 	// domain: 'https://dev.soda-ai.com',
 	domain: 'https://soda-ai.com',
 	// domain: 'http://ai-speaking.local',
-	// #ifdef MP-WEIXIN
-	version: 'wx-0.0.8',
-	// #endif
-	// #ifdef MP-TOUTIAO
-	version: 'dy-0.0.8',
-	// #endif
-	// #ifdef MP-KUAISHOU
-	version: 'ks-0.0.8',
-	// #endif
-	// #ifdef MP-TOUTIAO
-	platform: 'douyin',
-	// #endif
-	// #ifdef MP-KUAISHOU
-	platform: 'kuaishou',
-	// #endif
-	// #ifdef MP-WEIXIN
-	platform: 'weixin',
-	// #endif
+	version: '1.0.6',
 	is_waiting_login: false,
 	isAuth() {
 		if (!getApp().globalData.user) {
