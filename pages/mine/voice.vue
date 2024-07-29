@@ -1,6 +1,6 @@
 <template>
 	<view class="px-4 py-4">
-		<navigator url="/pages/voice/create"
+		<navigator url="/pages/voice/record"
 			class="flex gap-1 justify-center items-center fs-30 font-medium  rounded-xl py-2 bg-primary mb-2">
 			<uni-icons type="plus"></uni-icons>
 			<text>创建我的声音</text>
@@ -41,13 +41,13 @@
 		},
 		onLoad() {
 			var that = this
+			utils.authGuard()
 			utils.request('get', '/api/voice/user', {}, (res) => {
 				// console.log(res)
 				that.voices = res.voices
 			})
 		},
 		onShow() {
-			utils.authGuard()
 		},
 		methods: {
 			select(voice) {

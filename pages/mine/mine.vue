@@ -68,7 +68,7 @@
 				</view>
 			</navigator>
 			
-			<navigator url="/pages/voice/index" class="cell flex justify-between">
+			<navigator url="/pages/mine/voice" class="cell flex justify-between">
 				<text class="c-blue-1 fs-28 font-semibold">我的声音</text>
 				<view class="flex gap-16 items-center">
 					<image class="w-32" src="/static/icon-rightarrow.svg" />

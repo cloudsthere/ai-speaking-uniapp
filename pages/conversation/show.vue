@@ -287,7 +287,7 @@
 			this.audioSource = this.audioCtx.createBufferSource()
 			this.options = options
 
-
+			this.initRecorderManager()
 		},
 		onShow() {
 			this.init()
@@ -299,13 +299,22 @@
 			this.stopPlay()
 			this.cleanUp()
 		},
+
 		onShareAppMessage(res) {
-			return utils.share()
+			return this.share()
 		},
 		onShareTimeline(res) {
-			return utils.share()
+			return this.share()
 		},
 		methods: {
+			share() {
+				let options = {}
+				options.title = this.agent.name
+				options.path = '/pages/conversation/show?agent_id=' + this.agent.id
+				options.imageUrl = this.agent.avatar
+				// console.log(options)
+				return options
+			},
 			init() {
 				var method = 'POST'
 				var url = '/api/conversation/'
@@ -789,9 +798,11 @@
 			},
 			initRecorderManager() {
 				if (!this.RecorderManager) {
+					console.log('init recorder manager')
 					var that = this;
 					this.RecorderManager = uni.getRecorderManager()
-					console.log('ws链接打开成功，开始录音')
+					
+					// console.log('ws链接打开成功，开始录音')
 
 					this.RecorderManager.onStart((res) => {
 						console.log('recorder onstart')
@@ -821,20 +832,6 @@
 					})
 
 					this.RecorderManager.onFrameRecorded(function(res) {
-						// console.log('frame recorded')
-						// console.log(res.frameBuffer, res.isLastFrame)
-						// console.log(this.data.first_status)
-						// if (that.first_status) {
-						// 	var status = 0
-						// 	that.first_status = false
-						// } else {
-						// 	var status = 1
-						// }
-						// console.log('readyState', that.socket.readyState)
-						// if (that.socket.readyState != WebSocket.OPEN) {
-						// 	console.log('socket not ready, return')
-						// 	return;
-						// }
 
 						if (that.socket_status == 'connected') {
 							let status = res.isLastFrame ? 2 : 1
@@ -1081,7 +1078,7 @@
 				this.messages.push({
 					role: 'user',
 					content: this.current_content,
-					audio: this.current_audio_file
+					play: this.current_audio_file
 				})
 				this.scrollToBottom()
 

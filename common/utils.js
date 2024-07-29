@@ -180,6 +180,8 @@ export default {
 		return parseInt((new Date()).getTime() / 1000)
 	},
 	share() {
+		// 可能未登录
+		// console.log(this.getUser())
 		return {
 			title: 'AI英语外教',
 			path: '/pages/home/index',

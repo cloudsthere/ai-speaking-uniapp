@@ -3,7 +3,7 @@
 		<image src="/static/logo.png" class="rounded-half logo"></image>
 		<image src="/static/slogan.png" class="logo-text"></image>
 		<button plain class="btn btn-primary w-full br-16 c-white fs-32" @click="checkLogin" :open-type="checked ? 'getPhoneNumber' : ''"
-			@getphonenumber="decryptPhoneNumber">微信一键登录</button>
+			@getphonenumber="decryptPhoneNumber">快捷登录</button>
 		<button @click="toMobile" plain class="btn-default btn w-full c-blue-1 br-16 fs-32">手机号登录/注册</button>
 		<view class="flex justify-center items-center" @click="switchChecked">
 			<radio :checked="checked" style="transform:scale(0.7);" color="#38b5b3" />
