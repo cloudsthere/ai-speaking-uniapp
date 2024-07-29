@@ -4,8 +4,16 @@
 			class="flex gap-2 justify-start items-center fs-30 font-medium  rounded-xl  my-2 py-2 px-2 bg-primary ">
 			<uni-icons type="weixin" size="26"></uni-icons>
 			<view class="flex flex-col gap-1">
-				<text class="fs-30">从微信聊天中选择音频文件</text>
-				<text class="fs-24">选择一个清晰的10-15秒音频片段（超过15秒的内容将被截断），避免背景噪音</text>
+				<text class="fs-30">微信消息</text>
+				<text class="fs-24">从您的微信聊天消息中选择</text>
+			</view>
+		</view>
+		<view @click="selectFromLocal"
+			class="flex gap-2 justify-start items-center fs-30 font-medium  rounded-xl  my-2 py-2 px-2 bg-primary ">
+			<uni-icons type="image" size="26"></uni-icons>
+			<view class="flex flex-col gap-1">
+				<text class="fs-30">文件系统</text>
+				<text class="fs-24">从您的本地文件系统中选择</text>
 			</view>
 		</view>
 		<view @click="openRecord"
@@ -16,17 +24,21 @@
 				<text class="fs-24">使用麦克风录制您自己的声音</text>
 			</view>
 		</view>
-		<view class="flex flex-col gap-1 mt-4" v-if="tmp_url">
+		<view class="text-xs flex justify-center gap-1">
+			<uni-icons type="info"></uni-icons>
+			<text>请上传一个清晰的10-15秒音频/视频片段（超过15秒的内容将被截断），避免背景噪音</text>
+		</view>
+		<view class="flex flex-col gap-1 mt-6" v-if="tmp_url">
 			<view class="text-sm">上传音频片段</view>
-			<voice-player  :duration="duration" :url="tmp_url" class=""></voice-player>
+			<voice-player :duration="duration" :url="tmp_url" class=""></voice-player>
 		</view>
 		<view class="flex flex-col gap-1 mt-4" v-if="engine_voice_id">
 			<view class="text-sm">生成音效</view>
 			<view class="p-2 rounded-xl text-lg border-text" style="">{{preview_text}}</view>
-			<voice-player  :duration="duration" :url="preview_audio" class=""></voice-player>
+			<voice-player :duration="duration" :url="preview_audio" class=""></voice-player>
 		</view>
-		<tui-button :disabled="!engine_voice_id" @click="submit" class="flex gap-1 absolute bottom-0 left-0 right-0 px-4 pb-4"
-			size="26" height="70rpx">
+		<tui-button :disabled="!engine_voice_id" @click="submit"
+			class="flex gap-1 absolute bottom-0 left-0 right-0 px-4 pb-4" size="26" height="70rpx">
 			<text>下一步</text>
 		</tui-button>
 	</view>
@@ -72,6 +84,12 @@
 	import utils from '@/common/utils.js';
 
 	var recorderManager;
+	const extension = [
+		// 音频
+		'mp3', 'wav', 'aac', 'flac', 'ogg', 'wma', 'm4a', 'aiff', 'aif', 'mp2', 'caf',
+		// 视频
+		'mp4', 'avi', 'mov', 'mkv', 'flv', 'wmv', 'webm', 'mpeg', 'mpg', '3gp', 'ts'
+	]
 
 	export default {
 		components: {
@@ -124,7 +142,7 @@
 						that.sample = data.sample
 						that.preview_text = data.preview_text
 						that.preview_audio = data.preview_audio
-						
+
 					},
 					fail(res) {
 						console.log('upload fail', res)
@@ -137,20 +155,44 @@
 					url: `/pages/voice/create?engine_voice_id=${this.engine_voice_id}`
 				})
 			},
+			choose(res) {
+				console.log(res)
+				// const tempFilePaths = res.tempFiles
+				// console.log(this.tmp_url.split('.').pop())
+				let path = res.tempFiles[0].tempFilePath || res.tempFiles[0].path
+				if (!extension.includes(path.split('.').pop())) {
+					uni.showModal({
+						title: '请选择视频/音频文件',
+						icon: 'error'
+					})
+					return
+				}
+				this.tmp_url = path
+				// this.duration = Math.ceil(res.tempFiles[0].time / 1000)
+				// this.upload(res.tempFiles[0].path)
+				// console.log(this.tmp_url)
+				this.upload()
+			},
 			selectFromWx() {
 				var that = this
 				wx.chooseMessageFile({
 					count: 1,
-					type: 'file',
-					extension: ['mp3', 'wav', 'aac', 'flac', 'ogg', 'wma', 'm4a', 'aiff', 'aif', 'mp2', 'caf'],
+					type: 'all',
+					extension,
 					success(res) {
-						// console.log(res)
-						// const tempFilePaths = res.tempFiles
-						that.tmp_url = res.tempFiles[0].path
-						// that.duration = Math.ceil(res.tempFiles[0].time / 1000)
-						// that.upload(res.tempFiles[0].path)
-						// console.log(that.tmp_url)
-						that.upload()
+						that.choose(res)
+					}
+				})
+			},
+			selectFromLocal() {
+				var that = this
+				uni.chooseMedia({
+					count: 1,
+					type: 'video',
+					extension,
+					maxDuration: 60,
+					success(res) {
+						that.choose(res)
 					}
 				})
 			},
@@ -197,7 +239,7 @@
 					this.upload()
 				}
 			},
-			
+
 		}
 	}
 </script>
@@ -206,6 +248,7 @@
 	page {
 		height: 100%;
 	}
+
 	.border-text {
 		border: 1px solid #f3f4f6;
 	}
