@@ -15,8 +15,8 @@
 				<uni-easyinput v-model="form.subtitle" placeholder="一句话介绍你的角色" />
 			</uni-forms-item>
 			<uni-forms-item label="描述" name="description">
-				<uni-easyinput type="textarea" v-model="form.description"
-					placeholder="角色的自我描述，支持中英文，例如: I am Elon Reeve Musk, CEO of Tesla. / 我是尼尔·阿姆斯特朗, 第一个登月的人类。" />
+				<uni-easyinput type="textarea" v-model="form.description" maxlength="500"
+					placeholder="角色的自我描述，支持中英文，例如: I am Elon Reeve Musk, CEO of Tesla." />
 			</uni-forms-item>
 			<uni-forms-item label="问候语" name="greeting">
 				<uni-easyinput @iconClick="greeting" suffixIcon="refreshempty" type="textarea" v-model="form.greeting"

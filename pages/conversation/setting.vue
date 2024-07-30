@@ -7,7 +7,7 @@
 		<view class="text-xs text-sky-500">
 			由 {{conv.agent.created_by == 'system' ? 'MateAI' : conv.agent.creator.name}} 创建
 		</view>
-		<view class="fs-24 c-gray-1">{{conv.agent.subtitle}}</view>
+		<view class="fs-24 c-gray-1 px-4 mt-2">{{conv.agent.subtitle}}</view>
 		<view class="mt-64 w-full">
 			<!--
 			<navigator :url="'/pages/conversation/teacher?conv_id=' + conv.id + '&teacherId=' + conv.agent.id" class="cell flex items-center justify-between w-full box-border">
