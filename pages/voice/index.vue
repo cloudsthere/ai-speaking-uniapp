@@ -25,7 +25,7 @@
 					<view class="flex flex-col flex-1">
 						<view class="font-semibold text-sm">{{voice.name}}</view>
 						<view class="text-xs">{{voice.description}}</view>
-						<view class="text-xs" v-if="voice.created_by == 'user'">由 {{voice.user.name}} 创建</view>
+						<view class="text-xs" v-if="voice.created_by == 'user'">由 {{voice.creator.name}} 创建</view>
 						<view class="text-xs" v-else>由 MateAI 创建</view>
 					</view>
 

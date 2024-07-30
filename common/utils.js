@@ -3,7 +3,7 @@ export default {
 	// domain: 'https://dev.soda-ai.com',
 	domain: 'https://soda-ai.com',
 	// domain: 'http://ai-speaking.local',
-	version: '1.0.8',
+	version: '1.0.9',
 	is_waiting_login: false,
 	isAuth() {
 		if (!getApp().globalData.user) {

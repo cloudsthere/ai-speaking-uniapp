@@ -14,11 +14,11 @@
 			<uni-forms-item label="简介" name="subtitle">
 				<uni-easyinput v-model="form.subtitle" placeholder="一句话介绍你的角色" />
 			</uni-forms-item>
-			<uni-forms-item label="描述" name="description">
+			<uni-forms-item label="描述" required name="description">
 				<uni-easyinput type="textarea" v-model="form.description" maxlength="500"
 					placeholder="角色的自我描述，支持中英文，例如: I am Elon Reeve Musk, CEO of Tesla." />
 			</uni-forms-item>
-			<uni-forms-item label="问候语" name="greeting">
+			<uni-forms-item label="问候语" required name="greeting">
 				<uni-easyinput @iconClick="greeting" suffixIcon="refreshempty" type="textarea" v-model="form.greeting"
 					placeholder="例如: Hello, I am Albert Einstein. Ask me anything about my scientific contributions." />
 			</uni-forms-item>
@@ -38,7 +38,7 @@
 	<uni-popup ref="avatar" type="bottom" safeArea backgroundColor="#fff">
 		<tui-list-view title="">
 			<tui-list-cell @click="generateAvatar">
-				<view  class="text-center">AI生成</view>
+				<view class="text-center">AI生成</view>
 			</tui-list-cell>
 			<tui-list-cell @click="selectFromLocal">
 				<view class="text-center">相册上传</view>
@@ -66,7 +66,7 @@
 		voice_id: 1,
 		voice_tab: 'all',
 	}
-	
+
 	export default {
 		components: {
 			tuiListView,
@@ -76,7 +76,38 @@
 		data() {
 			return {
 				is_submitting: false,
-				rules: [],
+				rules: {
+					name: {
+						rules: [{
+							required: true,
+							errorMessage: '请输入名称'
+						}]
+					},
+					voice_id: {
+						rules: [{
+							required: true,
+							errorMessage: '请输入名称'
+						}]
+					},
+					description: {
+						rules: [{
+							required: true,
+							errorMessage: '请输入描述'
+						}]
+					},
+					greeting: {
+						rules: [{
+							required: true,
+							errorMessage: '请输入问候语'
+						}]
+					},
+					access: {
+						rules: [{
+							required: true,
+							errorMessage: '请选择使用权限'
+						}]
+					},
+				},
 				form: default_form,
 				accesses: [{
 						value: 'public',
@@ -119,7 +150,7 @@
 				// console.log((new Date).getTime() - create_form_time.getTime())
 				if (create_form_time instanceof Date && (new Date).getTime() - create_form_time.getTime() < 600 * 1000) {
 					this.form = uni.getStorageSync('create_form') || default_form
-					
+
 				} else {
 					this.form = default_form
 					uni.removeStorageSync('create_form')
@@ -199,30 +230,43 @@
 			},
 			submit() {
 				var that = this
-				this.is_submitting = true;
-				utils.request('post', '/api/agent', {
-					access: this.form.access,
-					name: this.form.name,
-					subtitle: this.form.subtitle,
-					description: this.form.description,
-					greeting: this.form.greeting,
-					avatar_path: this.form.avatar_path,
-					voice_id: this.form.voice_id,
-					agent_id: this.form.agent_id,
-				}, (res) => {
-					// console.log(res)
-					that.is_submitting = false
-					uni.removeStorageSync('create_form')
-					uni.removeStorageSync('create_form_time')
+				if (!this.form.avatar_path) {
 					uni.showToast({
-						title: '保存成功'
+						title: '请先制作头像',
+						icon: "error"
 					})
-					setTimeout(() => {
-						uni.redirectTo({
-							url: '/pages/conversation/show?agent_id=' + res.agent_id
+					return
+				}
+				this.$refs.form.validate().then(res => {
+					// console.log('表单数据信息：', res);
+					that.is_submitting = true;
+					utils.request('post', '/api/agent', {
+						access: this.form.access,
+						name: this.form.name,
+						subtitle: this.form.subtitle,
+						description: this.form.description,
+						greeting: this.form.greeting,
+						avatar_path: this.form.avatar_path,
+						voice_id: this.form.voice_id,
+						agent_id: this.form.agent_id,
+					}, (res) => {
+						// console.log(res)
+						that.is_submitting = false
+						uni.removeStorageSync('create_form')
+						uni.removeStorageSync('create_form_time')
+						uni.showToast({
+							title: '保存成功'
 						})
-					}, 1500)
+						setTimeout(() => {
+							uni.redirectTo({
+								url: '/pages/conversation/show?agent_id=' + res.agent_id
+							})
+						}, 1500)
+					})
+				}).catch(err => {
+					console.log('表单错误信息：', err);
 				})
+				
 			}
 		}
 	}

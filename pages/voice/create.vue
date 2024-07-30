@@ -25,7 +25,20 @@
 		data() {
 
 			return {
-				rules: [],
+				rules: {
+					name: {
+						rules: [{
+							required: true,
+							errorMessage: '请输入名称'
+						}]
+					},
+					access: {
+						rules: [{
+							required: true,
+							errorMessage: '请选择使用权限'
+						}]
+					},
+				},
 				is_submitting: false,
 				voice_id: '',
 				path: '',
@@ -63,35 +76,41 @@
 					that.form.access = res.voice.access
 					that.form.name = res.voice.name
 					that.form.description = res.voice.description
-					that.form.description = res.voice.description
 				})
 			}
 		},
 		methods: {
 			submit() {
 				var that = this
-				this.is_submitting = true
-				var url = this.voice_id ? '/api/voice/' + this.voice_id : '/api/voice'
-				utils.request('post', url, {
-					engine_voice_id: this.engine_voice_id,
-					name: this.form.name,
-					access: this.form.access,
-					description: this.form.description,
-					voice_id: this.voice_id
-				}, (res) => {
-					// console.log(res)
-					that.is_submitting = false
-					if (that.voice_id) {
-						uni.navigateTo({
-							url: '/pages/mine/voice'
-						})
-					} else {
-						uni.navigateTo({
-							url: '/pages/voice/index?tab=my&voice_id=' + res.voice_id
-						})
+				this.$refs.form.validate().then(res => {
+					console.log('表单数据信息：', res);
+					this.is_submitting = true
+					var url = this.voice_id ? '/api/voice/' + this.voice_id : '/api/voice'
+					utils.request('post', url, {
+						engine_voice_id: this.engine_voice_id,
+						name: this.form.name,
+						access: this.form.access,
+						description: this.form.description,
+						voice_id: this.voice_id
+					}, (res) => {
+						// console.log(res)
+						that.is_submitting = false
+						if (that.voice_id) {
+							uni.navigateTo({
+								url: '/pages/mine/voice'
+							})
+						} else {
+							uni.navigateTo({
+								url: '/pages/voice/index?tab=my&voice_id=' + res.voice_id
+							})
 
-					}
+						}
+					})
+				}).catch(err => {
+					console.log('表单错误信息：', err);
 				})
+
+
 			}
 		}
 	}
