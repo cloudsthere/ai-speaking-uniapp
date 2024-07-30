@@ -221,7 +221,7 @@
 				// mode: 'keyboard',
 				// speaking, listening
 				phone_status: 'none',
-				
+
 				// is_touching: false,
 				// touch_timer: 0,
 				show_money: false,
@@ -240,7 +240,8 @@
 				// current_content: 'Hi, annie. Long time no see, I miss you so much. Do you miss me?',
 				current_content: '',
 				current_audio_file: null,
-				socket_status: 'none',
+				socket_status: 'close',
+				socket: null,
 				hangingUp: false,
 				text: '',
 				audioCtx: null,
@@ -309,7 +310,7 @@
 		methods: {
 			share() {
 				let options = {}
-				options.title = this.agent.name
+				options.title = this.agent.name + (this.agent.creator ? '  @' + this.agent.creator.name : '')
 				options.path = '/pages/conversation/show?agent_id=' + this.agent.id
 				options.imageUrl = this.agent.avatar
 				// console.log(options)
@@ -511,22 +512,26 @@
 					message[keying] = false
 				} else {
 					this.stopPlay()
-					message[keying] = true
 					if (message[key]) {
 						this.play(message, key, callback)
 					} else {
 						let url = `/api/message/${message.id}/audio?field=${key}`
 						var that = this
 						utils.request('post', url, {}, (res) => {
-							console.log(res)
-							message[key] = res.url
-							that.play(message, key, callback)
+							// console.log(res)
+							if (res.error == 0) {
+								message[key] = res.url
+								that.play(message, key, callback)
+							} else if (res.error == 123) {
+								// 合成失败,不操作
+							}
 						})
 					}
 				}
 			},
 			play(message, key, callback) {
 				let keying = key + 'ing'
+				message[keying] = true
 				innerAudioContext.src = message[key]
 				innerAudioContext.onPlay(() => {
 					console.log('play 开始播放');
@@ -627,25 +632,9 @@
 				}
 
 				var that = this
+				this.startRecord()
 				// 先取得权限
-				uni.getSetting({
-					success: (res) => {
-						console.log('success', res)
-						if (!res.authSetting['scope.record']) {
-							uni.showModal({
-								title: '请先授权麦克风',
-								success: function(res) {
-									if (res.confirm) {
-										uni.openSetting()
-									} else if (res.cancel) {}
-								}
-							});
-						} else {
-							console.log('record start')
-							this.startRecord()
-						}
-					}
-				})
+
 			},
 			startRecord() {
 				var that = this
@@ -657,6 +646,7 @@
 				this.socket = uni.connectSocket({
 					url: url,
 					method: "GET",
+					complete: () => {}
 				})
 
 
@@ -801,7 +791,7 @@
 					console.log('init recorder manager')
 					var that = this;
 					this.RecorderManager = uni.getRecorderManager()
-					
+
 					// console.log('ws链接打开成功，开始录音')
 
 					this.RecorderManager.onStart((res) => {
@@ -859,6 +849,11 @@
 			},
 			handleRecordStop() {
 				console.log('handle record stop')
+				console.log(this.status, this.socket_status);
+				// 未建立链接就放手
+				// if (this.status == 'none' || this.socket_status == 'close') {
+				// 	this.socket.close()
+				// }
 				this.status = 'none'
 				// this.recording = false
 				// for (let i in this.recoManager) {
@@ -866,7 +861,13 @@
 				// }
 				// 有可能未初始化
 				if (this.RecorderManager) {
+					console.log('手动关闭RecorderManager')
 					this.RecorderManager.stop()
+				}
+				console.log('this.socket', this.socket)
+				if (this.socket && this.socket_status == 'close') {
+					console.log('手动关闭socket')
+					this.socket.close()
 				}
 			},
 			scrollToBottom: function() {
