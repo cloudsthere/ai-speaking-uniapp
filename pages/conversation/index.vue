@@ -44,7 +44,7 @@
 									<view class="cell-title overflow-hidden">
 										<view class="font-semibold fs-32">{{conv.agent.name}}</view>
 										<view class="cell-brief mt-8 c-gray-1 text-ellipsis  overflow-hidden">
-											{{conv.agent.subtitle}}
+											{{conv.last_message ?? conv.agent.subtitle}}
 										</view>
 									</view>
 								</view>
