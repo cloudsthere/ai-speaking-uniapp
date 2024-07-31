@@ -138,10 +138,18 @@
 						uni.hideLoading()
 						// console.log(res.data);
 						let data = JSON.parse(res.data)
-						that.engine_voice_id = data.engine_voice_id
-						that.sample = data.sample
-						that.preview_text = data.preview_text
-						that.preview_audio = data.preview_audio
+						// console.log(data)
+						if (data.error == 0) {
+							that.engine_voice_id = data.engine_voice_id
+							that.sample = data.sample
+							that.preview_text = data.preview_text
+							that.preview_audio = data.preview_audio
+						} else {
+							uni.showModal({
+								title: data.msg,
+								icon: 'none'
+							})
+						}
 
 					},
 					fail(res) {
@@ -156,7 +164,7 @@
 				})
 			},
 			choose(res) {
-				console.log(res)
+				// console.log(res)
 				// const tempFilePaths = res.tempFiles
 				// console.log(this.tmp_url.split('.').pop())
 				let path = res.tempFiles[0].tempFilePath || res.tempFiles[0].path
