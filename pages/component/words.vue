@@ -21,8 +21,9 @@
 		watch: {
 			text: {
 				handler(newValue, oldValue) {
+					// console.log(newValue)
 					let parts = newValue.split(/([\.!\?, ])/);
-
+					// console.log(parts)
 					// 过滤掉空字符串
 					this.words = parts.filter(part => part !== '');
 				},

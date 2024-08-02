@@ -131,6 +131,14 @@
 				"enablePullDownRefresh": false
 			}
 
+		}, 
+		{
+			"path": "pages/test/test",
+			"style": {
+				"navigationBarTitleText": "测试",
+				"enablePullDownRefresh": false
+			}
+		
 		},
 		{
 			"path" : "pages/mine/profile",

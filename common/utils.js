@@ -3,7 +3,7 @@ export default {
 	// domain: 'https://dev.soda-ai.com',
 	domain: 'https://soda-ai.com',
 	// domain: 'http://ai-speaking.local',
-	version: '1.0.9',
+	version: '1.1.0',
 	is_waiting_login: false,
 	isAuth() {
 		if (!getApp().globalData.user) {
@@ -170,6 +170,14 @@ export default {
 			path: '/pages/home/index',
 			imageUrl: '/static/share.png'
 		}
+	},
+	shareAgent(agent) {
+		let options = {}
+		options.title = agent.name + (agent.creator ? '  @' + agent.creator.name : '')
+		options.path = '/pages/conversation/show?agent_id=' + agent.id
+		options.imageUrl = agent.avatar
+		// console.log(options)
+		return options
 	},
 	request(method, uri, data, success) {
 		this.runAfterLogin((token) => {

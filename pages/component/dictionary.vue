@@ -78,16 +78,15 @@
 							<view class="flex flex-col absolute choice-box" v-if="dict.choices && dict.choices.length > 0">
 								<view class="flex" v-for="(choice, choice_index) in dict.choices"
 									:key="choice_index">
-									<view class="w-full choice-item">
-										<view class="flex gap-24 items-center">
-											<text class="c-blue-1 fs-32 font-semibold"
-												@click="search(choice.point)">{{choice.point}}</text>
+									<view class="w-full choice-item" @click="search(choice.point)">
+										<view class="flex gap-24 items-center" >
+											<text class="c-blue-1 fs-32 font-semibold">{{choice.point}}</text>
 											<image v-if="choice.playing" @click="play(choice)" class="w-32" src="/static/icon-voice-selected.svg" />
 											<image v-else @click="play(choice)" class="w-32" src="/static/icon-voice-grey.svg" />
 											<!-- <uni-icons @click="play(choice)" :class="{playing: choice.playing}"
 												custom-prefix="iconfont" type="icon-laba" size="20"></uni-icons> -->
 										</view>
-										<view class="mt-12 fs-26 c-gray-1">
+										<view class="mt-2 fs-26 c-gray-1">
 											{{choice.trans}}
 										</view>
 									</view>

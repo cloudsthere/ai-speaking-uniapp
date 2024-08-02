@@ -46,6 +46,8 @@
 		</tui-list-view>
 	</uni-popup>
 
+	<ksp-cropper mode="radio" :width="200" :height="200" :maxWidth="1024" :maxHeight="1024" :url="selected_image"
+		@ok="uploadAvatar" @cancel="cancelSelectImage"></ksp-cropper>
 </template>
 
 <script>
@@ -75,6 +77,7 @@
 		},
 		data() {
 			return {
+				selected_image: '',
 				is_submitting: false,
 				rules: {
 					name: {
@@ -125,8 +128,8 @@
 			}
 		},
 		onLoad(options) {
-			console.log(options)
-			console.log(uni.getStorageSync('create_form'))
+			// console.log(options)
+			// console.log(uni.getStorageSync('create_form'))
 			var that = this
 			// 有agent_id，一定是从列表页进入
 			if (options.agent_id) {
@@ -203,30 +206,51 @@
 					url: `/pages/voice/index?voice_id=${this.form.voice_id}&voice_tab=${this.form.voice_tab}`
 				})
 			},
+			uploadAvatar(options) {
+				// console.log('upload avatar', options)
+				var that = this
+				that.selected_image = ''
+				uni.showLoading({
+					title: '上传中'
+				})
+				uni.uploadFile({
+					header: {
+						Authorization: 'Bearer ' + utils.getToken(),
+
+					},
+					url: utils.domain + '/api/avatar/upload', //仅为示例，非真实的接口地址
+					filePath: options.path,
+					name: 'avatar',
+					success: (uploadFileRes) => {
+						let avatar = JSON.parse(uploadFileRes.data);
+						// console.log(avatar)
+						that.form.avatar_url = avatar.url
+						that.form.avatar_path = avatar.path
+						that.$refs.avatar.close()
+						uni.hideLoading()
+					}
+				});
+			},
+			cancelSelectImage() {
+				this.selected_image = ''
+			},
 			selectFromLocal() {
 				var that = this
 				uni.chooseImage({
 					count: 1,
 					success: (chooseImageRes) => {
-						const tempFilePaths = chooseImageRes.tempFilePaths;
-						uni.uploadFile({
-							header: {
-								Authorization: 'Bearer ' + utils.getToken(),
+						that.selected_image = chooseImageRes.tempFilePaths[0];
+						console.log('selected image', that.selected_image)
+						// this.$refs.cropper.open()
+						// that.showCropper = true
 
-							},
-							url: utils.domain + '/api/avatar/upload', //仅为示例，非真实的接口地址
-							filePath: tempFilePaths[0],
-							name: 'avatar',
-							success: (uploadFileRes) => {
-								let avatar = JSON.parse(uploadFileRes.data);
-								// console.log(avatar)
-								that.form.avatar_url = avatar.url
-								that.form.avatar_path = avatar.path
-								that.$refs.avatar.close()
-							}
-						});
+						return
+
 					}
 				})
+			},
+			cropperChange(res) {
+				console.log('cropper change ', res)
 			},
 			submit() {
 				var that = this
@@ -266,7 +290,7 @@
 				}).catch(err => {
 					console.log('表单错误信息：', err);
 				})
-				
+
 			}
 		}
 	}

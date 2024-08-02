@@ -1,7 +1,7 @@
 <template>
 	<view class="w-full hp100" :style="{paddingBottom: bottom + 'rpx'}">
 		<view class="content" :style="{paddingBottom: (bottom + 224) + 'rpx'}">
-			<template v-for="message in messages" :key="message.id">
+			<template v-for="message, index in messages" :key="message.id">
 				<view class="c-gray-1 text-center fs-22">{{message.date}}</view>
 				<view class="session ai-session" v-if="message.role == 'assistant'">
 					<image @click="toSetting" class="avatar rounded-lg" :src="agent.avatar" />
@@ -18,10 +18,12 @@
 									class="w-40 mr-32" src="/static/icon-translate-selected.svg" />
 								<image v-else @tap="translate(message)" class="w-40 mr-32"
 									src="/static/icon-translate-normal.svg" />
+									<!--
 								<image v-if="message.addition === 'recommend'" @tap="recommend(message)" class="w-40"
 									src="/static/icon-aireply-selected.svg" />
 								<image v-else class="w-40" @tap="recommend(message)"
 									src="/static/icon-aireply-normal.svg" />
+									-->
 							</view>
 							<image v-if="message.playing" @tap="switchPlay(message)" class="w-40"
 								src="/static/icon-play.png" />
@@ -30,15 +32,27 @@
 						<view class="addition" v-show="message.addition == 'translate'">
 							{{message.translate}}
 						</view>
+						<!--
 						<view class="addition" v-show="message.addition == 'recommend'">
 							<view v-if="message.recommend">
 								<words :text="message.recommend.content" @lookup="lookup"></words>
 							</view>
 							<view class="text-center" v-show="!message.recommends">
 								<view class="animate-spin">
-									<!-- <image src="@/static/icon-loading.png" mode="" class="w-5 h-5"></image> -->
+									<image src="@/static/icon-loading.png" mode="" class="w-5 h-5"></image>
 								</view>
 							</view>
+						</view>
+						-->
+					</view>
+					<view class="placeholder"></view>
+				</view>
+				<view class="session" v-if="index == messages.length - 1 && message.role == 'assistant'">
+					<view class="placeholder"></view>
+					<view class="flex gap-2 flex-col">
+						<view v-for="recommend, reco_index in recommends" :key="reco_index" class="border py-1 px-2 border-gray-300 rounded-lg flex gap-1 items-center ">
+							<radio @click="useRecommend(recommend)" value="r1" checked="" style="transform:scale(0.7)" />
+							<words :text="recommend" @lookup="lookup"></words>
 						</view>
 					</view>
 					<view class="placeholder"></view>
@@ -118,7 +132,7 @@
 					<image class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-phone.svg" />
 				</view>
 				<view class="button-wapper flex-auto  flex items-center justify-center" @touchstart="handleRecordStart"
-					@touchend="handleRecordStop" >
+					@touchend="handleRecordStop">
 
 					<view
 						class="btn-speak border-none c-blue-1 font-semibold fs-32 w-full h-full flex justify-center items-center">
@@ -260,6 +274,7 @@
 				// is_touching: false,
 				// touch_timer: 0,
 				show_money: false,
+				recommends: [],
 				conv: {
 					avatar: ''
 				},
@@ -333,7 +348,7 @@
 			this.audioSource = this.audioCtx.createBufferSource()
 			this.options = options
 
-			// this.initRecorderManager()
+			this.initRecorderManager()
 			this.initRecoManager()
 		},
 		onShow() {
@@ -348,20 +363,12 @@
 		},
 
 		onShareAppMessage(res) {
-			return this.share()
+			return utils.shareAgent(this.agent)
 		},
 		onShareTimeline(res) {
-			return this.share()
+			return utils.shareAgent(this.agent)
 		},
 		methods: {
-			share() {
-				let options = {}
-				options.title = this.agent.name + (this.agent.creator ? '  @' + this.agent.creator.name : '')
-				options.path = '/pages/conversation/show?agent_id=' + this.agent.id
-				options.imageUrl = this.agent.avatar
-				// console.log(options)
-				return options
-			},
 			init() {
 				var method = 'POST'
 				var url = '/api/conversation/'
@@ -439,7 +446,26 @@
 					url: '/pages/conversation/setting?conv_id=' + this.conv.id
 				})
 			},
+			useRecommend(text) {
+				this.text = text
+				this.sendText()
+			},
 			recommend(message) {
+				let user = utils.getUser()
+				if (user && !user.auto_recommend) {
+					return
+				}
+				var that = this
+				utils.request('POST', '/api/recommend', {
+					// source: message.content
+					conv_id: this.conv.id,
+					message_id: message.id
+				}, (res) => {
+					that.recommends = res.recommends
+					that.scrollToBottom()
+				})
+				return
+				
 				if (message.addition === 'recommend') {
 					return message.addition = null
 				}
@@ -547,12 +573,31 @@
 				})
 				innerAudioContext.play()
 			},
+			sendNotice(callback) {
+				// console.log('turnNotice callback', callback)
+				// console.log(utils.domain + '/static/turn-notice.mp3')
+				console.log('send notice')
+				innerAudioContext.src = utils.domain + '/static/send-notice.mp3'
+				// innerAudioContext.onPlay(() => {
+				// 	// console.log('notice play')
+				// 	innerAudioContext.offPlay()
+				// })
+				// innerAudioContext.onEnded(() => {
+				// 	// console.log('turn notice end')
+				// 	innerAudioContext.offEnded()
+				// 	if (callback) {
+				// 		// console.log('turn notice callback')
+				// 		callback()
+				// 	}
+				// })
+				innerAudioContext.play()
+			},
 			// switchPlay(message) {
 			// 	player.switchPlay(message)
 			// },
 			switchPlay(message, key = 'play', callback) {
 				let keying = key + 'ing'
-				console.log('switch play', message, key)
+				// console.log('switch play', message, key)
 				if (message[keying]) {
 					innerAudioContext.stop()
 					message[keying] = false
@@ -580,11 +625,11 @@
 				message[keying] = true
 				innerAudioContext.src = message[key]
 				innerAudioContext.onPlay(() => {
-					console.log('play 开始播放');
+					// console.log('play 开始播放');
 					innerAudioContext.offPlay()
 				});
 				innerAudioContext.onEnded(() => {
-					console.log('play 播放完成')
+					// console.log('play 播放完成')
 					innerAudioContext.offEnded()
 					message[keying] = false
 					if (callback) {
@@ -664,12 +709,12 @@
 				this.mode = 'phone'
 				this.phone_status = 'listening'
 				this.status = 'recording'
-				this.startRecord()
+				this.startRecordSocket()
 			},
 			handleTouchMove(event) {
 				// console.log('move', event)
 				// console.log("Touch move event triggered");
-				
+
 			},
 			handleRecordStart(event) {
 				// console.log(event)
@@ -685,14 +730,14 @@
 
 			},
 			startRecord() {
-				console.log('start record')
+				// console.log('start record')
 				var that = this
 				this.status = 'recording'
 				this.recoManager.start({
 					lang: 'en_US',
 				})
 			},
-			startRecord1() {
+			startRecordSocket() {
 				var that = this
 				this.status = 'recording'
 
@@ -792,6 +837,10 @@
 				uni.onSocketClose((res) => {
 					that.socket_status = 'close'
 					console.log('socket close')
+					console.log(that.mode, that.phone_status)
+					// if (that.mode == 'phone' && that.phone_status == 'listening') {
+					// 	that.hangUp()
+					// }
 				})
 
 
@@ -931,9 +980,9 @@
 				// console.log("Touch position:", touch.clientX, touch.clientY);
 				const cancelArea = this.cancelArea;
 				// console.log('cancelArea', cancelArea)
-				
+
 				if (!cancelArea) return; // 如果 cancelArea 未定义，则返回
-				
+
 				if (
 					touch.clientX >= cancelArea.left &&
 					touch.clientX <= cancelArea.right &&
@@ -944,14 +993,14 @@
 					this.user_cancel = true
 					// console.log('用户取消发送')
 				}
-				
+
 				this.recoManager.stop()
 				this.status = 'none'
 				// 未建立链接就放手
 				// if (this.status == 'none' || this.socket_status == 'close') {
 				// 	this.socket.close()
 				// }
-				
+
 				// this.recording = false
 				// for (let i in this.recoManager) {
 				// 	console.log(i)
@@ -994,6 +1043,7 @@
 				if (audio_str) {
 					data.audio = audio_str
 				}
+				this.recommends = []
 				// let task = uni.request({
 				// 	url: utils.domain + '/api/message',
 				// 	method: 'POST',
@@ -1032,7 +1082,7 @@
 						} else {
 							that.status = 'none'
 							that.switchPlay(that.messages[that.messages.length - 1])
-
+							that.recommend(that.messages[that.messages.length - 1])
 						}
 					} else if (res.error == 116) {
 						uni.showToast({
@@ -1172,6 +1222,8 @@
 					}
 					return;
 				}
+
+				this.sendNotice()
 
 				this.messages.push({
 					role: 'user',
