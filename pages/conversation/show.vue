@@ -91,30 +91,62 @@
 					<image src="/static/emoji-search.png" style="width: 26rpx; height: 26rpx" /> 查词
 				</view>
 			</view>
+			<!--
 			<view v-if="status === 'recording'"
-				class="event-auto flex items-center input-bottom bg-white recording justify-center gap-24">
+				class="event-auto flex items-center input-bottom bg-white recording justify-center gap-24 relative">
+				<view
+					class="absolute right-0 left-0 bg-gray-100 flex items-center justify-center cancel-area"
+					style="top: -120rpx; height: 120rpx;border-top-left-radius: 50% 30px; border-top-right-radius: 50% 30px;">
+					<uni-icons type="close" size="40"></uni-icons>
+				</view>
 				<image src="/static/voice-effect.png" style="width: 80rpx; height: 80rpx" /> 松手发送
 			</view>
+			-->
 
-			<view v-else-if="mode === 'chat'" class="event-auto flex items-center input-bottom bg-white">
-				<image @tap="call" class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-phone.svg" />
-				<view class="button-wapper flex-auto">
-					<view class="btn-speak border-none c-blue-1 font-semibold fs-32" @touchstart="handleRecordStart"
-						@touchend="handleRecordStop" @touchmove="handleTouchMove">按住说话</view>
+			<view v-if="mode === 'chat'" class="event-auto flex items-stretch input-bottom bg-white relative"
+				style="height: 120rpx;">
+				<view
+					class="fixed right-0 left-0 bg-gray-100 flex flex-col items-center justify-center font-normal fs-30"
+					style="border-top-left-radius: 50% 120rpx; border-top-right-radius: 50% 120rpx;"
+					:style="{bottom: (bottom + 120) + 'rpx', opacity: (status == 'recording' ? 1 : 0), 'z-index': (status == 'recording' ? 50 : -1)}">
+					<view class="px-2 pt-3 pb-1 cancel-area">
+						<uni-icons type="close" size="40" class=""></uni-icons>
+					</view>
+					<text class="text-gray-600 px-4 pb-2 pt-0">{{current_content}}</text>
 				</view>
-				<image @tap="switchMode" class="no-shrink" style="width: 56rpx; height: 56rpx"
-					src="/static/icon-keyboard.svg" />
+				<view v-if="status != 'recording'" class="p-2 flex items-center justify-center" @tap="call">
+					<image class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-phone.svg" />
+				</view>
+				<view class="button-wapper flex-auto  flex items-center justify-center" @touchstart="handleRecordStart"
+					@touchend="handleRecordStop" >
+
+					<view
+						class="btn-speak border-none c-blue-1 font-semibold fs-32 w-full h-full flex justify-center items-center">
+						<template v-if="status == 'recording'">
+							<view class="flex recording justify-center items-center gap-24 h-full w-full">
+
+								<image src="/static/voice-effect.png" style="width: 80rpx; height: 80rpx" /> 松手发送
+							</view>
+						</template>
+						<template v-else>按住说话</template>
+					</view>
+				</view>
+				<view v-if="status != 'recording'" class="p-2 flex items-center justify-center" @tap="switchMode">
+					<image class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-keyboard.svg" />
+				</view>
 			</view>
 
-			<view v-else class="event-auto flex items-center input-bottom bg-white">
-				<view class="button-wapper flex-auto">
+			<view v-else class="event-auto flex items-stretch input-bottom bg-white" style="height: 120rpx;">
+				<view class="button-wapper flex-auto flex items-center justify-center pl-4">
 					<textarea auto-height @keyup.enter="sendText" type="text" :value="text" @input="handleInput"
 						placeholder="发消息..." class="fs-28 keyboard-text" />
 				</view>
-				<image v-if="!!text" @tap="sendText" class="no-shrink" style="width: 56rpx; height: 56rpx"
-					src="/static/icon-send.svg" />
-				<image v-else @tap="switchMode" class="no-shrink" style="width: 56rpx; height: 56rpx"
-					src="/static/icon-voice.svg" />
+				<view class="p-2 flex items-center justify-center" v-if="!!text" @tap="sendText">
+					<image class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-send.svg" />
+				</view>
+				<view class="p-2 flex items-center justify-center" v-else @tap="switchMode">
+					<image class="no-shrink" style="width: 56rpx; height: 56rpx" src="/static/icon-voice.svg" />
+				</view>
 			</view>
 
 			<view class="bg-white" :style="{paddingBottom: bottom + 'rpx'}"></view>
@@ -216,12 +248,15 @@
 			return {
 				// none: 没有情况，recording: 用户录音，thinking: AI思考中，思考完后又回到none， halt:没钱停机，end: 已结束
 				status: 'none',
+				// status: 'recording',
 				// chat: 对话，phone: 电话, keyboard: 键盘
 				mode: 'chat',
 				// mode: 'keyboard',
 				// speaking, listening
 				phone_status: 'none',
-
+				cancelArea: null,
+				// 用户主动取消发送
+				user_cancel: false,
 				// is_touching: false,
 				// touch_timer: 0,
 				show_money: false,
@@ -252,6 +287,16 @@
 				cd: {},
 				conv_id: "",
 			}
+		},
+		mounted() {
+			// 获取 cancel-area 元素的位置和大小
+			this.$nextTick(() => {
+				const query = uni.createSelectorQuery().in(this);
+				query.select('.cancel-area').boundingClientRect(data => {
+					// console.log('cancel-area data', data)
+					this.cancelArea = data;
+				}).exec();
+			});
 		},
 		onLoad(options) {
 			// console.log(options)
@@ -288,7 +333,8 @@
 			this.audioSource = this.audioCtx.createBufferSource()
 			this.options = options
 
-			this.initRecorderManager()
+			// this.initRecorderManager()
+			this.initRecoManager()
 		},
 		onShow() {
 			this.init()
@@ -621,7 +667,9 @@
 				this.startRecord()
 			},
 			handleTouchMove(event) {
-				console.log(event)
+				// console.log('move', event)
+				// console.log("Touch move event triggered");
+				
 			},
 			handleRecordStart(event) {
 				// console.log(event)
@@ -637,6 +685,14 @@
 
 			},
 			startRecord() {
+				console.log('start record')
+				var that = this
+				this.status = 'recording'
+				this.recoManager.start({
+					lang: 'en_US',
+				})
+			},
+			startRecord1() {
 				var that = this
 				this.status = 'recording'
 
@@ -736,66 +792,86 @@
 				uni.onSocketClose((res) => {
 					that.socket_status = 'close'
 					console.log('socket close')
-					// that.status = 'none'
 				})
 
 
 
 
 
-				// if (!this.recoManager) {
-				// console.log('创建recoManager')
-				// var plugin = requirePlugin("WechatSI")
-				// 	this.recoManager = plugin.getRecordRecognitionManager()
-				// 	this.recoManager.onRecognize = function(res) {
-				// 		console.log("current result", res.result)
-				// 		that.current_content = res.result
-				// 	}
-				// 	this.recoManager.onStop = function(res) {
-				// 		console.log('record stop')
-				// 		console.log("record file path", res.tempFilePath)
-				// 		console.log("content", res.result)
-				// 		// that.scrollToBottom()
-
-				// 		// TODO
-				// 		res.result = 'hi, I am Allen. Nice to meet you';
-
-				// 		if (!res.result) {
-				// 			uni.showToast({
-				// 				title: '未能识别，请再试',
-				// 				icon: 'none'
-				// 			})
-				// 			that.status = 'none'
-				// 			return
-				// 		}
-				// 		that.sendMessage(res.result, res.tempFilePath)
-				// 	}
-				// 	this.recoManager.onStart = function(res) {
-				// 		console.log("成功开始录音识别", res)
-				// 	}
-				// 	this.recoManager.onError = function(res) {
-				// 		console.error("error msg", res)
-				// 		uni.showToast({
-				// 			title: '语音识别出错，请再试',
-				// 			icon: 'none'
-				// 		})
-				// 		that.status = 'none'
-				// 	}
-				// }
 				// that.recoManager.start({
 				// 	lang: "en_US"
 				// })
 			},
+			initRecoManager() {
+				var that = this
+				if (!this.recoManager) {
+					// console.log('创建recoManager')
+					var plugin = requirePlugin("WechatSI")
+					this.recoManager = plugin.getRecordRecognitionManager()
+					this.recoManager.onRecognize = function(res) {
+						console.log("current result", res.result)
+						that.current_content = res.result
+					}
+					this.recoManager.onStop = function(res) {
+						// console.log('record stop')
+						// console.log("record file path", res.tempFilePath)
+						// console.log("content", res.result)
+						// that.scrollToBottom()
+						if (that.user_cancel) {
+							that.current_audio_file = null
+							that.current_content = ''
+							that.user_cancel = false
+							return;
+						}
+						// TODO
+						// res.result = 'hi, I am Allen. Nice to meet you';
+
+						if (!res.result) {
+							uni.showToast({
+								title: '未能识别，请再试',
+								icon: 'none'
+							})
+							that.status = 'none'
+							return
+						}
+						that.current_content = res.result
+						that.current_audio_file = res.tempFilePath
+						that.sendMessage()
+					}
+					this.recoManager.onStart = function(res) {
+						// console.log("成功开始录音识别", res)
+						// #ifdef MP-WEIXIN
+						wx.vibrateShort({
+							type: 'light',
+							fail(res) {
+								// console.log('震动失败', res)
+							},
+							complete(res) {
+								// console.log('震动完成')
+							}
+						})
+						// #endif
+					}
+					this.recoManager.onError = function(res) {
+						// console.error("error msg", res)
+						uni.showToast({
+							title: '语音识别出错，请再试',
+							icon: 'none'
+						})
+						that.status = 'none'
+					}
+				}
+			},
 			initRecorderManager() {
 				if (!this.RecorderManager) {
-					console.log('init recorder manager')
+					// console.log('init recorder manager')
 					var that = this;
 					this.RecorderManager = uni.getRecorderManager()
 
 					// console.log('ws链接打开成功，开始录音')
 
 					this.RecorderManager.onStart((res) => {
-						console.log('recorder onstart')
+						// console.log('recorder onstart')
 						// that.recorder_status = 'recording'
 
 						// #ifdef MP-WEIXIN
@@ -847,28 +923,49 @@
 					})
 				}
 			},
-			handleRecordStop() {
-				console.log('handle record stop')
-				console.log(this.status, this.socket_status);
+			handleRecordStop(event) {
+				// console.log('handle record stop')
+				// console.log(this.status, this.socket_status);
+				// console.log('event', event)
+				const touch = event.changedTouches[0];
+				// console.log("Touch position:", touch.clientX, touch.clientY);
+				const cancelArea = this.cancelArea;
+				// console.log('cancelArea', cancelArea)
+				
+				if (!cancelArea) return; // 如果 cancelArea 未定义，则返回
+				
+				if (
+					touch.clientX >= cancelArea.left &&
+					touch.clientX <= cancelArea.right &&
+					touch.clientY >= cancelArea.top &&
+					touch.clientY <= cancelArea.bottom
+				) {
+					// this.stopSpeaking();
+					this.user_cancel = true
+					// console.log('用户取消发送')
+				}
+				
+				this.recoManager.stop()
+				this.status = 'none'
 				// 未建立链接就放手
 				// if (this.status == 'none' || this.socket_status == 'close') {
 				// 	this.socket.close()
 				// }
-				this.status = 'none'
+				
 				// this.recording = false
 				// for (let i in this.recoManager) {
 				// 	console.log(i)
 				// }
 				// 有可能未初始化
-				if (this.RecorderManager) {
-					console.log('手动关闭RecorderManager')
-					this.RecorderManager.stop()
-				}
-				console.log('this.socket', this.socket)
-				if (this.socket && this.socket_status == 'close') {
-					console.log('手动关闭socket')
-					this.socket.close()
-				}
+				// if (this.RecorderManager) {
+				// 	console.log('手动关闭RecorderManager')
+				// 	this.RecorderManager.stop()
+				// }
+				// console.log('this.socket', this.socket)
+				// if (this.socket && this.socket_status == 'close') {
+				// 	console.log('手动关闭socket')
+				// 	this.socket.close()
+				// }
 			},
 			scrollToBottom: function() {
 				setTimeout(() => {
@@ -1060,8 +1157,8 @@
 				// this.current_content = 'Hi, my name is Allen';
 
 				if (!this.current_content) {
-					console.log('status', this.status)
-					console.log('phone status', this.phone_status)
+					// console.log('status', this.status)
+					// console.log('phone status', this.phone_status)
 					// 用户产生杂音，触发了sendMessage
 					if (this.status == 'recording' && this.phone_status == 'listening') {
 						this.startRecord()
@@ -1223,7 +1320,7 @@
 
 	.input-bottom {
 		// height: 112rpx;
-		padding: 28rpx 32rpx;
+		// padding: 28rpx 32rpx;
 		box-sizing: border-box;
 		box-shadow: 0rpx -2rpx 0rpx 0rpx #F1F3F5;
 	}
@@ -1257,7 +1354,7 @@
 		background-color: #1CD1AD;
 		font-size: 32rpx;
 		color: #FFFFFF;
-		height: 112rpx;
+		// height: 112rpx;
 	}
 
 	.filter {
